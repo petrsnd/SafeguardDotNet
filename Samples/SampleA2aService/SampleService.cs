@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using OneIdentity.SafeguardDotNet;
 using OneIdentity.SafeguardDotNet.Event;
@@ -38,9 +39,9 @@ namespace SampleA2aService
                 ConfigUtils.ReadRequiredSettingFromAppConfig("SafeguardAddress", "Safeguard appliance network address");
             _safeguardClientCertificateThumbprint =
                 ConfigUtils.ReadRequiredSettingFromAppConfig("SafeguardClientCertificateThumbprint",
-                    "Safeguard client certificate thumbprint").ToUpper();
+                    "Safeguard client certificate thumbprint").ToUpper(CultureInfo.InvariantCulture);
             _safeguardApiVersion =
-                int.Parse(ConfigUtils.ReadRequiredSettingFromAppConfig("SafeguardApiVersion", "Safeguard API version"));
+                int.Parse(ConfigUtils.ReadRequiredSettingFromAppConfig("SafeguardApiVersion", "Safeguard API version"), CultureInfo.InvariantCulture);
             _safeguardIgnoreSsl = bool.Parse(ConfigurationManager.AppSettings["SafeguardIgnoreSsl"]);
         }
 
