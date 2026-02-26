@@ -54,9 +54,9 @@ namespace SafeguardDotNetExceptionTest
             {
                 // RestSharp will now return two different error messages on Windows for an invalid host.
                 if (!string.Equals(ex.Message,
-                    "Unable to anonymously connect to bad.dns.name, Error: The requested name is valid, but no data of the requested type was found. The requested name is valid, but no data of the requested type was found.")
+                    "Unable to anonymously connect to bad.dns.name, Error: The requested name is valid, but no data of the requested type was found. The requested name is valid, but no data of the requested type was found.", StringComparison.Ordinal)
                     && !string.Equals(ex.Message,
-                    "Unable to anonymously connect to bad.dns.name, Error: No such host is known. (bad.dns.name:443)")
+                    "Unable to anonymously connect to bad.dns.name, Error: No such host is known. (bad.dns.name:443)", StringComparison.Ordinal)
                 )
                     throw;
                 if (ex.HttpStatusCode != null)
@@ -79,9 +79,9 @@ namespace SafeguardDotNetExceptionTest
             {
                 // RestSharp will now return two different error messages on Windows for an invalid host.
                 if (!string.Equals(ex.Message,
-                    "Unable to connect to RSTS to find identity provider scopes, Error: The requested name is valid, but no data of the requested type was found. The requested name is valid, but no data of the requested type was found.")
+                    "Unable to connect to RSTS to find identity provider scopes, Error: The requested name is valid, but no data of the requested type was found. The requested name is valid, but no data of the requested type was found.", StringComparison.Ordinal)
                     && !string.Equals(ex.Message,
-                    "Unable to connect to RSTS to find identity provider scopes, Error: No such host is known. (bad.dns.name:443)")
+                    "Unable to connect to RSTS to find identity provider scopes, Error: No such host is known. (bad.dns.name:443)", StringComparison.Ordinal)
                 )
                     throw;
                 if (ex.HttpStatusCode != null)
@@ -167,7 +167,7 @@ namespace SafeguardDotNetExceptionTest
                 if (ex.ErrorCode != 70009)
                     throw;
                 if (!string.Equals(ex.ErrorMessage,
-                    "Invalid filter property - 'This' is not a valid filter property name."))
+                    "Invalid filter property - 'This' is not a valid filter property name.", StringComparison.Ordinal))
                     throw;
             }
 
@@ -186,7 +186,7 @@ namespace SafeguardDotNetExceptionTest
                     throw;
                 if (ex.ErrorCode != 70000)
                     throw;
-                if (!string.Equals(ex.ErrorMessage, "The request is invalid."))
+                if (!string.Equals(ex.ErrorMessage, "The request is invalid.", StringComparison.Ordinal))
                     throw;
             }
         }

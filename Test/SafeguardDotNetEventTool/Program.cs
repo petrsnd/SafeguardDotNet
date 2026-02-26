@@ -94,7 +94,7 @@ namespace SafeguardDotNetEventTool
                     {
                         var bytes = File.ReadAllBytes(opts.CertificateFile);
 
-                        if (opts.ApiKey.Equals("?"))
+                        if (opts.ApiKey.Equals("?", StringComparison.Ordinal))
                         {
                             var apiKeys = ReadAllApiKeys(opts, password);
                             if (opts.UseCertValidation)
@@ -204,7 +204,7 @@ namespace SafeguardDotNetEventTool
                 {
                     Log.Information("Received A2AHandler Event: {EventBody}", body);
                 }
-                if (opts.ApiKey.Equals("?"))
+                if (opts.ApiKey.Equals("?", StringComparison.Ordinal))
                 {
                     var apiKeys = ReadAllApiKeys(context);
                     return context.GetA2AEventListener(apiKeys, A2AHandler);

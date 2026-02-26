@@ -87,7 +87,7 @@ namespace SafeguardDotNetA2aTool
 
                 using (var context = CreateA2AContext(opts))
                 {
-                    if (opts.ApiKey.Equals("?"))
+                    if (opts.ApiKey.Equals("?", StringComparison.Ordinal))
                     {
                         var responseBody = context.GetRetrievableAccounts();
                         foreach (var obj in responseBody)
