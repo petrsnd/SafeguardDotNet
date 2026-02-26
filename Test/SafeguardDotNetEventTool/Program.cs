@@ -133,11 +133,11 @@ namespace SafeguardDotNetEventTool
                         opts.ApiKey.Split(',').Select(k => k.ToSecureString()), A2AHandler, opts.Appliance,
                         opts.Thumbprint, opts.ApiVersion, opts.Insecure);
                 }
-                throw new Exception("Must specify CertificateFile or Thumbprint");
+                throw new InvalidOperationException("Must specify CertificateFile or Thumbprint");
             }
 
             if (string.IsNullOrEmpty(opts.Event))
-                throw new Exception("You must specify the event name when not using A2A.");
+                throw new InvalidOperationException("You must specify the event name when not using A2A.");
 
             void Handler(string name, string body)
             {
@@ -163,7 +163,7 @@ namespace SafeguardDotNetEventTool
             }
             else
             {
-                throw new Exception("Must specify Username, CertificateFile, or Thumbprint");
+                throw new InvalidOperationException("Must specify Username, CertificateFile, or Thumbprint");
             }
             listener.RegisterEventHandler(opts.Event, Handler);
             return listener;
@@ -191,7 +191,7 @@ namespace SafeguardDotNetEventTool
             }
             else
             {
-                throw new Exception("Must specify CertificateFile or Thumbprint");
+                throw new InvalidOperationException("Must specify CertificateFile or Thumbprint");
             }
             return context;
         }
@@ -238,7 +238,7 @@ namespace SafeguardDotNetEventTool
             }
             else
             {
-                throw new Exception("Must specify Username, CertificateFile, or Thumbprint");
+                throw new InvalidOperationException("Must specify Username, CertificateFile, or Thumbprint");
             }
             return connection;
         }
@@ -246,7 +246,7 @@ namespace SafeguardDotNetEventTool
         private static ISafeguardEventListener CreateEventListener(ToolOptions opts)
         {
             if (string.IsNullOrEmpty(opts.Event))
-                throw new Exception("You must specify the event name when not using A2A.");
+                throw new InvalidOperationException("You must specify the event name when not using A2A.");
             using (var connection = CreateConnection(opts))
             {
                 Log.Information(

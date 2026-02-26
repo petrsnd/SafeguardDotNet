@@ -74,7 +74,7 @@ namespace SafeguardDotNetAccessRequestBrokerTool
             }
             else
             {
-                throw new Exception("Must specify CertificateFile or Thumbprint");
+                throw new InvalidOperationException("Must specify CertificateFile or Thumbprint");
             }
             return context;
         }

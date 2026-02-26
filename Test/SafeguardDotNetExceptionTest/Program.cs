@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Security;
@@ -48,7 +48,7 @@ namespace SafeguardDotNetExceptionTest
             try
             {
                 using var connection = Safeguard.Connect("bad.dns.name", ignoreSsl: true);
-                throw new Exception("Bad host anonymous did not throw an exception");
+                throw new InvalidOperationException("Bad host anonymous did not throw an exception");
             }
             catch (SafeguardDotNetException ex)
             {
@@ -73,7 +73,7 @@ namespace SafeguardDotNetExceptionTest
             try
             {
                 using var connection = Safeguard.Connect("bad.dns.name", "local", "admin", "a".ToSecureString(), ignoreSsl: true);
-                throw new Exception("Bad host did not throw an exception");
+                throw new InvalidOperationException("Bad host did not throw an exception");
             }
             catch (SafeguardDotNetException ex)
             {
@@ -98,7 +98,7 @@ namespace SafeguardDotNetExceptionTest
             try
             {
                 using var connection = Safeguard.Connect(appliance, "local", "thisisnevergonnabethere", "a".ToSecureString(), ignoreSsl: true);
-                throw new Exception("Unknown user did not throw an exception");
+                throw new InvalidOperationException("Unknown user did not throw an exception");
             }
             catch (SafeguardDotNetException ex)
             {
@@ -116,7 +116,7 @@ namespace SafeguardDotNetExceptionTest
             try
             {
                 using var connection = Safeguard.Connect(appliance, "local", "admin", "a".ToSecureString(), ignoreSsl: true);
-                throw new Exception("Bad password did not throw an exception");
+                throw new InvalidOperationException("Bad password did not throw an exception");
             }
             catch (SafeguardDotNetException ex)
             {
@@ -137,7 +137,7 @@ namespace SafeguardDotNetExceptionTest
             try
             {
                 connection.InvokeMethod(Service.Core, Method.Get, "This/Does/nt/Exist");
-                throw new Exception("Nonexistent URL did not throw an exception");
+                throw new InvalidOperationException("Nonexistent URL did not throw an exception");
             }
             catch (SafeguardDotNetException ex)
             {
@@ -156,7 +156,7 @@ namespace SafeguardDotNetExceptionTest
             {
                 connection.InvokeMethod(Service.Core, Method.Get, "Me/AccessRequestAssets",
                     parameters: new Dictionary<string, string>(){["filter"] = "This eq 'broken'"});
-                throw new Exception("Bad filter did not throw an exception");
+                throw new InvalidOperationException("Bad filter did not throw an exception");
             }
             catch (SafeguardDotNetException ex)
             {
@@ -176,7 +176,7 @@ namespace SafeguardDotNetExceptionTest
             {
                 connection.InvokeMethod(Service.Appliance, Method.Put, "NetworkInterfaces/X1",
                     "{\"Name\":\"X1\",\"LinkDuplex\":\"FakeValue\"}");
-                throw new Exception("Bad model state did not throw an exception");
+                throw new InvalidOperationException("Bad model state did not throw an exception");
             }
             catch (SafeguardDotNetException ex)
             {
@@ -220,7 +220,7 @@ namespace SafeguardDotNetExceptionTest
                 }
                 else
                 {
-                    throw new Exception("Must specify Anonymous or Username");
+                    throw new InvalidOperationException("Must specify Anonymous or Username");
                 }
 
                 Log.Debug($"Access Token Lifetime Remaining: {connection.GetAccessTokenLifetimeRemaining()}");

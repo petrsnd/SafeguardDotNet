@@ -69,7 +69,7 @@ namespace SampleA2aService
             }
             catch (Exception ex)
             {
-                throw new Exception("Unable to get API keys using certificate user, did you grant auditor permissions?", ex);
+                throw new InvalidOperationException("Unable to get API keys using certificate user, did you grant auditor permissions?", ex);
             }
         }
 
@@ -121,7 +121,7 @@ namespace SampleA2aService
             // figure out what API keys to monitor
             GetApiKeysFromA2ARegistrations();
             if (_monitoredPasswords.Count == 0)
-                throw new Exception("No API keys found in A2A registrations.  Nothing to do.");
+                throw new InvalidOperationException("No API keys found in A2A registrations.  Nothing to do.");
             Log.Information("Found {MonitoredPasswordCount} API keys to monitor for password changes", _monitoredPasswords.Count);
 
             // start the listeners

@@ -19,12 +19,12 @@ namespace SampleA2aService
                 if (!string.IsNullOrEmpty(value))
                     return value;
                 Log.Error($"{key} is required in App.Config");
-                throw new Exception($"Unable to start SampleA2aService with empty {description}.");
+                throw new InvalidOperationException($"Unable to start SampleA2aService with empty {description}.");
             }
             catch (ConfigurationErrorsException ex)
             {
                 Log.Error(ex, $"{key} is required in App.Config");
-                throw new Exception($"Unable to start SampleA2aService without {description}.", ex);
+                throw new InvalidOperationException($"Unable to start SampleA2aService without {description}.", ex);
             }
         }
 

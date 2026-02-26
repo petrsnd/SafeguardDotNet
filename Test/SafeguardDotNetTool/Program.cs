@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security;
@@ -90,7 +90,7 @@ namespace SafeguardDotNetTool
                 }
                 else
                 {
-                    throw new Exception("Must specify Anonymous, Username, CertificateFile, or Thumbprint");
+                    throw new InvalidOperationException("Must specify Anonymous, Username, CertificateFile, or Thumbprint");
                 }
 
                 Log.Debug($"Access Token Lifetime Remaining: {connection.GetAccessTokenLifetimeRemaining()}");
@@ -132,7 +132,7 @@ namespace SafeguardDotNetTool
             else if (opts.Method == Method.Get)
             {
                 if (File.Exists(opts.File))
-                    throw new Exception($"File exists, remove it first: {opts.File}");
+                    throw new InvalidOperationException($"File exists, remove it first: {opts.File}");
                 var progress = opts.Verbose ? new Progress<TransferProgress>(p =>
                 {
                     if (p.BytesTotal == 0)
@@ -160,7 +160,7 @@ namespace SafeguardDotNetTool
             }
             else
             {
-                throw new Exception($"Streaming is not supported for HTTP method: {opts.Method}");
+                throw new InvalidOperationException($"Streaming is not supported for HTTP method: {opts.Method}");
             }
         }
 
