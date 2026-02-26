@@ -87,7 +87,7 @@ namespace SafeguardDotNetPkceNoninteractiveLoginTester
                 Log.Information("Connecting to Safeguard...");
                 Log.Information("Identity Provider: {IdentityProvider}", opts.IdentityProvider);
                 Log.Information("Username: {Username}", opts.Username);
-                var password = HandlePassword(opts.ReadPassword);
+                using var password = HandlePassword(opts.ReadPassword);
                 connection = PkceNoninteractiveLogin.Connect(opts.Appliance, opts.IdentityProvider, opts.Username, password);
 
                 if (connection != null)

@@ -62,13 +62,13 @@ namespace SafeguardDotNetTool
                 ISafeguardConnection connection;
                 if (!string.IsNullOrEmpty(opts.Username))
                 {
-                    var password = HandlePassword(opts.ReadPassword);
+                    using var password = HandlePassword(opts.ReadPassword);
                     connection = Safeguard.Connect(opts.Appliance, opts.IdentityProvider, opts.Username, password,
                         opts.ApiVersion, opts.Insecure);
                 }
                 else if (!string.IsNullOrEmpty(opts.CertificateFile))
                 {
-                    var password = HandlePassword(opts.ReadPassword);
+                    using var password = HandlePassword(opts.ReadPassword);
                     if (opts.CertificateAsData)
                     {
                         var bytes = File.ReadAllBytes(opts.CertificateFile);

@@ -89,7 +89,7 @@ namespace SafeguardDotNetEventTool
                 }
                 if (!string.IsNullOrEmpty(opts.CertificateFile))
                 {
-                    var password = HandlePassword(opts.ReadPassword);
+                    using var password = HandlePassword(opts.ReadPassword);
                     if (opts.CertificateAsData)
                     {
                         var bytes = File.ReadAllBytes(opts.CertificateFile);
@@ -146,13 +146,13 @@ namespace SafeguardDotNetEventTool
             ISafeguardEventListener listener;
             if (!string.IsNullOrEmpty(opts.Username))
             {
-                var password = HandlePassword(opts.ReadPassword);
+                using var password = HandlePassword(opts.ReadPassword);
                 listener = Safeguard.Event.GetPersistentEventListener(opts.Appliance, opts.IdentityProvider, opts.Username,
                     password, opts.ApiVersion, opts.Insecure);
             }
             else if (!string.IsNullOrEmpty(opts.CertificateFile))
             {
-                var password = HandlePassword(opts.ReadPassword);
+                using var password = HandlePassword(opts.ReadPassword);
                 listener = Safeguard.Event.GetPersistentEventListener(opts.Appliance, opts.CertificateFile, password,
                     opts.ApiVersion, opts.Insecure);
             }
@@ -174,7 +174,7 @@ namespace SafeguardDotNetEventTool
             ISafeguardA2AContext context;
             if (!string.IsNullOrEmpty(opts.CertificateFile))
             {
-                var password = HandlePassword(opts.ReadPassword);
+                using var password = HandlePassword(opts.ReadPassword);
                 if (opts.UseCertValidation)
                 {
                     var bytes = File.ReadAllBytes(opts.CertificateFile);
@@ -222,13 +222,13 @@ namespace SafeguardDotNetEventTool
             ISafeguardConnection connection;
             if (!string.IsNullOrEmpty(opts.Username))
             {
-                var password = HandlePassword(opts.ReadPassword);
+                using var password = HandlePassword(opts.ReadPassword);
                 connection = Safeguard.Connect(opts.Appliance, opts.IdentityProvider, opts.Username, password,
                     opts.ApiVersion, opts.Insecure);
             }
             else if (!string.IsNullOrEmpty(opts.CertificateFile))
             {
-                var password = HandlePassword(opts.ReadPassword);
+                using var password = HandlePassword(opts.ReadPassword);
                 connection = Safeguard.Connect(opts.Appliance, opts.CertificateFile, password, opts.ApiVersion,
                     opts.Insecure);
             }

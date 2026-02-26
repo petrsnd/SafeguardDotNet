@@ -210,7 +210,7 @@ namespace SafeguardDotNetExceptionTest
                 ISafeguardConnection connection;
                 if (!string.IsNullOrEmpty(opts.Username))
                 {
-                    var password = HandlePassword(opts.ReadPassword);
+                    using var password = HandlePassword(opts.ReadPassword);
                     connection = Safeguard.Connect(opts.Appliance, opts.IdentityProvider, opts.Username, password,
                         opts.ApiVersion, opts.Insecure);
                 }

@@ -48,7 +48,7 @@ namespace SafeguardDotNetA2aTool
             ISafeguardA2AContext context;
             if (!string.IsNullOrEmpty(opts.CertificateFile))
             {
-                var password = HandlePassword(opts.ReadPassword);
+                using var password = HandlePassword(opts.ReadPassword);
                 if (opts.CertificateAsData)
                 {
                     var bytes = File.ReadAllBytes(opts.CertificateFile);
@@ -107,7 +107,7 @@ namespace SafeguardDotNetA2aTool
                             if (opts.PrivateKeyFile != null)
                             {
                                 var privateKey = File.ReadAllText(opts.PrivateKeyFile);
-                                var password = HandlePassword(opts.ReadPassword);
+                                using var password = HandlePassword(opts.ReadPassword);
                                 context.SetPrivateKey(opts.ApiKey.ToSecureString(), privateKey.ToSecureString(), password, opts.KeyFormat);
                             }
                             else
@@ -126,7 +126,7 @@ namespace SafeguardDotNetA2aTool
                         {
                             if (opts.NewPassword)
                             {
-                                var password = HandlePassword(opts.ReadPassword);
+                                using var password = HandlePassword(opts.ReadPassword);
                                 context.SetPassword(opts.ApiKey.ToSecureString(), password);
                             }
                             else

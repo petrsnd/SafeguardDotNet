@@ -56,7 +56,7 @@ namespace SafeguardDotNetAccessRequestBrokerTool
             ISafeguardA2AContext context;
             if (!string.IsNullOrEmpty(opts.CertificateFile))
             {
-                var password = HandlePassword(opts.ReadPassword);
+                using var password = HandlePassword(opts.ReadPassword);
                 if (opts.CertificateAsData)
                 {
                     var bytes = File.ReadAllBytes(opts.CertificateFile);
