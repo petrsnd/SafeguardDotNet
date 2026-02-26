@@ -95,7 +95,9 @@ namespace SampleA2aService
                     // password.ToInsecureString()
                 }
             }
+#pragma warning disable CA1031 // Intentional top-level catch-all for error logging
             catch (Exception)
+#pragma warning restore CA1031
             {
                 Log.Information("Password not in monitored list for handled event {MonitoredPassword}", eventInfo);
             }

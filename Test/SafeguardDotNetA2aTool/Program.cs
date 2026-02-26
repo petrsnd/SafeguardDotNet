@@ -138,7 +138,9 @@ namespace SafeguardDotNetA2aTool
                     }
                 }
             }
+#pragma warning disable CA1031 // Intentional top-level catch-all for error logging
             catch (Exception ex)
+#pragma warning restore CA1031
             {
                 Log.Error(ex, "Fatal exception occurred");
                 Environment.Exit(1);
