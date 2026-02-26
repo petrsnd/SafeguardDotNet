@@ -1,4 +1,7 @@
-﻿using System;
+﻿// CA5359: This test tool intentionally bypasses SSL validation for testing against dev appliances
+#pragma warning disable CA5359
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
