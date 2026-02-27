@@ -27,7 +27,7 @@ namespace OneIdentity.SafeguardDotNet.BrowserLogin
             Log.Debug("Calling RSTS for primary authentication");
 
             var oauthCodeVerifier = Safeguard.AgentBasedLoginUtils.OAuthCodeVerifier();
-            var tokenExtractor = new AuthorizationCodeExtractor(appliance);
+            var tokenExtractor = new AuthorizationCodeExtractor();
             var browserLauncher = new BrowserLauncher(appliance, oauthCodeVerifier);
 
             var source = new CancellationTokenSource();

@@ -63,7 +63,7 @@ namespace OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin
             Log.Debug("Calling RSTS for generate claims");
             var response = ApiRequest(http, HttpMethod.Post, pkceUrl + "6", data, "application/x-www-form-urlencoded");
 
-            string authorizationCode = null;
+            string authorizationCode;
             try
             {
                 var jsonObject = JObject.Parse(response);

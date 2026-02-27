@@ -10,11 +10,8 @@ namespace OneIdentity.SafeguardDotNet.BrowserLogin
 {
     public class AuthorizationCodeExtractor
     {
-        private readonly string _appliance;
-
-        public AuthorizationCodeExtractor(string appliance)
+        public AuthorizationCodeExtractor()
         {
-            _appliance = appliance;
         }
 
         public string AuthorizationCode { get; set; }
