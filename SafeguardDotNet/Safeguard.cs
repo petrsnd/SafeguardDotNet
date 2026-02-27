@@ -952,7 +952,7 @@ namespace OneIdentity.SafeguardDotNet
             /// </summary>
             public const string RedirectUriTcpListener = "urn:InstalledApplicationTcpListener";
 
-            private static readonly HttpClient _http = CreateHttpClient();
+            private static readonly HttpClient Http = CreateHttpClient();
 
             /// <summary>
             /// Posts the OAuth2 authorization code to complete the PKCE authentication flow and obtain an RSTS access token.
@@ -1061,7 +1061,7 @@ namespace OneIdentity.SafeguardDotNet
 
                 try
                 {
-                    var res = _http.SendAsync(req).GetAwaiter().GetResult();
+                    var res = Http.SendAsync(req).GetAwaiter().GetResult();
                     var msg = res.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
 
                     if (!res.IsSuccessStatusCode)

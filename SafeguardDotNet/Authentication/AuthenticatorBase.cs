@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -15,13 +15,13 @@ namespace OneIdentity.SafeguardDotNet.Authentication
     {
         private bool _disposed;
 
-        protected SecureString AccessToken;
+        protected SecureString accessToken;
 
-        protected readonly string SafeguardCoreUrl;
+        protected readonly string safeguardCoreUrl;
 
         private readonly HttpClient _http;
 
-        protected readonly CertificateContext ClientCertificate;
+        protected readonly CertificateContext clientCertificate;
 
         protected AuthenticatorBase(string networkAddress, int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback, CertificateContext clientCertificate = null)
         {
@@ -29,9 +29,9 @@ namespace OneIdentity.SafeguardDotNet.Authentication
             ApiVersion = apiVersion;
             IgnoreSsl = ignoreSsl;
             ValidationCallback = validationCallback;
-            ClientCertificate = clientCertificate;
+            this.clientCertificate = clientCertificate;
 
-            SafeguardCoreUrl = $"https://{NetworkAddress}/service/core/v{ApiVersion}";
+            safeguardCoreUrl = $"https://{NetworkAddress}/service/core/v{ApiVersion}";
 
             _http = CreateHttpClient();
         }
@@ -52,20 +52,20 @@ namespace OneIdentity.SafeguardDotNet.Authentication
 
         public bool HasAccessToken()
         {
-            return AccessToken != null;
+            return accessToken != null;
         }
 
         public void ClearAccessToken()
         {
-            AccessToken?.Dispose();
-            AccessToken = null;
+            accessToken?.Dispose();
+            accessToken = null;
         }
 
         public SecureString GetAccessToken()
         {
             if (_disposed)
                 throw new ObjectDisposedException("AuthenticatorBase");
-            return AccessToken;
+            return accessToken;
         }
 
         public int GetAccessTokenLifetimeRemaining()
@@ -75,7 +75,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
             if (!HasAccessToken())
                 return 0;
 
-            var ttl = ApiRequest(HttpMethod.Get, $"{SafeguardCoreUrl}/LoginMessage", null, AccessToken.ToInsecureString(), true);
+            var ttl = ApiRequest(HttpMethod.Get, $"{safeguardCoreUrl}/LoginMessage", null, accessToken.ToInsecureString(), true);
 
             if (ttl == null || !int.TryParse(ttl, out var remaining))
                 return 10; // Random magic value... the access token was good, but for some reason it didn't return the remaining lifetime
@@ -93,10 +93,10 @@ namespace OneIdentity.SafeguardDotNet.Authentication
                     StsAccessToken = rStsToken.ToInsecureString()
                 });
 
-                var json = ApiRequest(HttpMethod.Post, $"{SafeguardCoreUrl}/Token/LoginResponse", data);
+                var json = ApiRequest(HttpMethod.Post, $"{safeguardCoreUrl}/Token/LoginResponse", data);
 
                 var jObject = JObject.Parse(json);
-                AccessToken = jObject.GetValue("UserToken")?.ToString().ToSecureString();
+                accessToken = jObject.GetValue("UserToken")?.ToString().ToSecureString();
             }
         }
 
@@ -104,7 +104,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
         {
             try
             {
-                var json = ApiRequest(HttpMethod.Get, $"{SafeguardCoreUrl}/AuthenticationProviders");
+                var json = ApiRequest(HttpMethod.Get, $"{safeguardCoreUrl}/AuthenticationProviders");
 
                 var jProviders = JArray.Parse(json);
                 var knownScopes = new List<(string RstsProviderId, string Name, string RstsProviderScope)>();
@@ -158,10 +158,10 @@ namespace OneIdentity.SafeguardDotNet.Authentication
 
             handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
 
-            if (ClientCertificate?.Certificate != null)
+            if (clientCertificate?.Certificate != null)
             {
                 handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-                handler.ClientCertificates.Add(ClientCertificate.Certificate);
+                handler.ClientCertificates.Add(clientCertificate.Certificate);
             }
 
             if (IgnoreSsl)

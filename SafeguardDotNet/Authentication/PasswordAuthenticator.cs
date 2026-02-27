@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Net.Security;
 using System.Security;
@@ -56,7 +56,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
             var auth =
                 new PasswordAuthenticator(NetworkAddress, _provider, _username, _password, ApiVersion, IgnoreSsl, ValidationCallback)
                 {
-                    AccessToken = AccessToken?.Copy()
+                    accessToken = accessToken?.Copy()
                 };
             return auth;
         }

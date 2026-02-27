@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Security;
@@ -84,9 +84,9 @@ namespace OneIdentity.SafeguardDotNet.Authentication
 
         public override object Clone()
         {
-            var auth = new CertificateAuthenticator(NetworkAddress, ClientCertificate, ApiVersion, IgnoreSsl, ValidationCallback)
+            var auth = new CertificateAuthenticator(NetworkAddress, clientCertificate, ApiVersion, IgnoreSsl, ValidationCallback)
             {
-                AccessToken = AccessToken?.Copy()
+                accessToken = accessToken?.Copy()
             };
             return auth;
         }
@@ -94,7 +94,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
         protected override void Dispose(bool disposing)
         {
             base.Dispose(true);
-            ClientCertificate?.Dispose();
+            clientCertificate?.Dispose();
         }
     }
 }

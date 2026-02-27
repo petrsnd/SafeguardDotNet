@@ -11,7 +11,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
         {
             if (accessToken == null)
                 throw new ArgumentException("Parameter may not be null", nameof(accessToken));
-            AccessToken = accessToken.Copy();
+            this.accessToken = accessToken.Copy();
         }
 
         public override string Id => "AccessToken";

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using OneIdentity.SafeguardDotNet.Authentication;
 using OneIdentity.SafeguardDotNet.Event;
 using OneIdentity.SafeguardDotNet.Sps;
@@ -12,7 +12,7 @@ namespace OneIdentity.SafeguardDotNet
         internal SafeguardManagementServiceConnection(IAuthenticationMechanism parentAuthenticationMechanism, string networkAddress)
             : base(new ManagementServiceAuthenticator(parentAuthenticationMechanism, networkAddress))
         {
-            _managementUrl = new Uri($"https://{_authenticationMechanism.NetworkAddress}/service/management/v{_authenticationMechanism.ApiVersion}/", UriKind.Absolute);
+            _managementUrl = new Uri($"https://{authenticationMechanism.NetworkAddress}/service/management/v{authenticationMechanism.ApiVersion}/", UriKind.Absolute);
         }
 
         public override FullResponse JoinSps(ISafeguardSessionsConnection spsConnection, string certificateChain, string sppAddress)

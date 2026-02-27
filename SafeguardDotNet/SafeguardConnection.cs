@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Security;
 using OneIdentity.SafeguardDotNet.Authentication;
@@ -17,7 +17,7 @@ namespace OneIdentity.SafeguardDotNet
     {
         private bool _disposed;
 
-        protected readonly IAuthenticationMechanism _authenticationMechanism;
+        protected readonly IAuthenticationMechanism authenticationMechanism;
 
         private readonly Uri _coreUrl;
         private readonly Uri _applianceUrl;
@@ -30,33 +30,33 @@ namespace OneIdentity.SafeguardDotNet
 
             handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
 
-            if (_authenticationMechanism.IgnoreSsl)
+            if (authenticationMechanism.IgnoreSsl)
             {
                 handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
             }
-            else if (_authenticationMechanism.ValidationCallback != null)
+            else if (authenticationMechanism.ValidationCallback != null)
             {
-                handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => _authenticationMechanism.ValidationCallback(message, cert, chain, errors);
+                handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => authenticationMechanism.ValidationCallback(message, cert, chain, errors);
             }
 
             return new HttpClient(handler);
         }
 
-        public SecureString GetAccessToken() => _authenticationMechanism.GetAccessToken();
+        public SecureString GetAccessToken() => authenticationMechanism.GetAccessToken();
 
         public SafeguardConnection(IAuthenticationMechanism authenticationMechanism)
         {
-            _authenticationMechanism = authenticationMechanism;
+            this.authenticationMechanism = authenticationMechanism;
 
-            _coreUrl = new Uri($"https://{_authenticationMechanism.NetworkAddress}/service/core/v{_authenticationMechanism.ApiVersion}/", UriKind.Absolute);
-            _applianceUrl = new Uri($"https://{_authenticationMechanism.NetworkAddress}/service/appliance/v{_authenticationMechanism.ApiVersion}/", UriKind.Absolute);
-            _notificationUrl = new Uri($"https://{_authenticationMechanism.NetworkAddress}/service/notification/v{_authenticationMechanism.ApiVersion}/", UriKind.Absolute);
+            _coreUrl = new Uri($"https://{authenticationMechanism.NetworkAddress}/service/core/v{authenticationMechanism.ApiVersion}/", UriKind.Absolute);
+            _applianceUrl = new Uri($"https://{authenticationMechanism.NetworkAddress}/service/appliance/v{authenticationMechanism.ApiVersion}/", UriKind.Absolute);
+            _notificationUrl = new Uri($"https://{authenticationMechanism.NetworkAddress}/service/notification/v{authenticationMechanism.ApiVersion}/", UriKind.Absolute);
 
             _http = CreateHttpClient();
 
             _lazyStreamingRequest = new Lazy<IStreamingRequest>(() =>
             {
-                return new StreamingRequest(_authenticationMechanism, () => _disposed);
+                return new StreamingRequest(authenticationMechanism, () => _disposed);
             });
         }
 
@@ -68,7 +68,7 @@ namespace OneIdentity.SafeguardDotNet
         {
             if (_disposed)
                 throw new ObjectDisposedException("SafeguardConnection");
-            var lifetime = _authenticationMechanism.GetAccessTokenLifetimeRemaining();
+            var lifetime = authenticationMechanism.GetAccessTokenLifetimeRemaining();
             if (lifetime > 0)
                 Log.Debug("Access token lifetime remaining (in minutes): {AccessTokenLifetime}", lifetime);
             else
@@ -80,7 +80,7 @@ namespace OneIdentity.SafeguardDotNet
         {
             if (_disposed)
                 throw new ObjectDisposedException("SafeguardConnection");
-            _authenticationMechanism.RefreshAccessToken();
+            authenticationMechanism.RefreshAccessToken();
             Log.Debug("Successfully obtained a new access token");
         }
 
@@ -127,14 +127,14 @@ namespace OneIdentity.SafeguardDotNet
                 RequestUri = new Uri(GetClientForService(service), relativeUrl),
             };
 
-            if (!_authenticationMechanism.IsAnonymous)
+            if (!authenticationMechanism.IsAnonymous)
             {
-                if (!_authenticationMechanism.HasAccessToken())
+                if (!authenticationMechanism.HasAccessToken())
                     throw new SafeguardDotNetException("Access token is missing due to log out, you must refresh the access token to invoke a method");
                 // SecureString handling here basically negates the use of a secure string anyway, but when calling a Web API
                 // I'm not sure there is anything you can do about it.
                 req.Headers.Add("Authorization",
-                    $"Bearer {_authenticationMechanism.GetAccessToken().ToInsecureString()}");
+                    $"Bearer {authenticationMechanism.GetAccessToken().ToInsecureString()}");
             }
 
             if (additionalHeaders != null && !additionalHeaders.ContainsKey("Accept"))
@@ -225,7 +225,7 @@ namespace OneIdentity.SafeguardDotNet
             var request = new JoinRequest
             {
                 spp = sppAddress,
-                spp_api_token = _authenticationMechanism.GetAccessToken().ToInsecureString(),
+                spp_api_token = authenticationMechanism.GetAccessToken().ToInsecureString(),
                 spp_cert_chain = certificateChain
             };
             var joinBody = JsonConvert.SerializeObject(request);
@@ -243,8 +243,8 @@ namespace OneIdentity.SafeguardDotNet
             if (_disposed)
                 throw new ObjectDisposedException("SafeguardConnection");
             var eventListener = new SafeguardEventListener(
-                $"https://{_authenticationMechanism.NetworkAddress}/service/event/signalr",
-                _authenticationMechanism.GetAccessToken(), _authenticationMechanism.IgnoreSsl, _authenticationMechanism.ValidationCallback);
+                $"https://{authenticationMechanism.NetworkAddress}/service/event/signalr",
+                authenticationMechanism.GetAccessToken(), authenticationMechanism.IgnoreSsl, authenticationMechanism.ValidationCallback);
             Log.Debug("Event listener successfully created for Safeguard connection.");
             return eventListener;
         }
@@ -254,25 +254,25 @@ namespace OneIdentity.SafeguardDotNet
             if (_disposed)
                 throw new ObjectDisposedException("SafeguardConnection");
 
-            if (_authenticationMechanism.GetType() == typeof(PasswordAuthenticator) ||
-                _authenticationMechanism.GetType() == typeof(CertificateAuthenticator))
+            if (authenticationMechanism.GetType() == typeof(PasswordAuthenticator) ||
+                authenticationMechanism.GetType() == typeof(CertificateAuthenticator))
             {
                 return new PersistentSafeguardEventListener(Clone() as ISafeguardConnection);
             }
             throw new SafeguardDotNetException(
-                $"Unable to create persistent event listener from {_authenticationMechanism.GetType()}");
+                $"Unable to create persistent event listener from {authenticationMechanism.GetType()}");
         }
 
         public ISafeguardConnection GetManagementServiceConnection(string networkAddress)
         {
-            return new SafeguardManagementServiceConnection(_authenticationMechanism, networkAddress);
+            return new SafeguardManagementServiceConnection(authenticationMechanism, networkAddress);
         }
 
         public void LogOut()
         {
             if (_disposed)
                 throw new ObjectDisposedException("SafeguardConnection");
-            if (!_authenticationMechanism.HasAccessToken())
+            if (!authenticationMechanism.HasAccessToken())
                 return;
             try
             {
@@ -283,7 +283,7 @@ namespace OneIdentity.SafeguardDotNet
             {
                 Log.Debug(ex, "Exception occurred during logout");
             }
-            _authenticationMechanism.ClearAccessToken();
+            authenticationMechanism.ClearAccessToken();
             Log.Debug("Cleared access token");
         }
 
@@ -317,7 +317,7 @@ namespace OneIdentity.SafeguardDotNet
                 return;
             try
             {
-                _authenticationMechanism?.Dispose();
+                authenticationMechanism?.Dispose();
                 _http?.Dispose();
                 if (_lazyStreamingRequest.IsValueCreated)
                     Streaming.Dispose();
@@ -330,7 +330,7 @@ namespace OneIdentity.SafeguardDotNet
 
         public object Clone()
         {
-            return new SafeguardConnection(_authenticationMechanism.Clone() as IAuthenticationMechanism);
+            return new SafeguardConnection(authenticationMechanism.Clone() as IAuthenticationMechanism);
         }
 
         public static string AddQueryParameters(string url, IDictionary<string, string> parameters)
