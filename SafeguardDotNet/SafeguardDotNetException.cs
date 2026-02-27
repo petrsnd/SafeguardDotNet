@@ -1,3 +1,5 @@
+// Copyright (c) One Identity LLC. All rights reserved.
+
 using System;
 using System.Net;
 using System.Runtime.Serialization;

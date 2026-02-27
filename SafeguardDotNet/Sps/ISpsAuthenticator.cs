@@ -1,3 +1,5 @@
+// Copyright (c) One Identity LLC. All rights reserved.
+
 using System.Net.Http.Headers;
 using System.Security;
 
