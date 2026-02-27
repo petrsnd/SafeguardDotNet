@@ -1,12 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Security;
 using System.Security;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.SignalR.Client;
+
 using OneIdentity.SafeguardDotNet.A2A;
+
 using Serilog;
 
 namespace OneIdentity.SafeguardDotNet.Event
@@ -16,7 +19,7 @@ namespace OneIdentity.SafeguardDotNet.Event
     internal class SafeguardEventListener : ISafeguardEventListener
     {
         private bool _disposed;
-        
+
         private readonly string _eventUrl;
         private readonly bool _ignoreSsl;
         private readonly RemoteCertificateValidationCallback _validationCallback;
@@ -40,11 +43,14 @@ namespace OneIdentity.SafeguardDotNet.Event
             _eventHandlerRegistry = new EventHandlerRegistry();
         }
 
-        public SafeguardEventListener(string eventUrl, SecureString accessToken, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : 
+        public SafeguardEventListener(string eventUrl, SecureString accessToken, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) :
             this(eventUrl, ignoreSsl, validationCallback)
         {
             if (accessToken == null)
+            {
                 throw new ArgumentException("Parameter may not be null", nameof(accessToken));
+            }
+
             _accessToken = accessToken.Copy();
         }
 
@@ -53,7 +59,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         {
             _clientCertificate = clientCertificate.Clone();
             if (apiKey == null)
+            {
                 throw new ArgumentException("Parameter may not be null", nameof(apiKey));
+            }
+
             _apiKey = apiKey.Copy();
         }
 
@@ -62,12 +71,20 @@ namespace OneIdentity.SafeguardDotNet.Event
         {
             _clientCertificate = clientCertificate.Clone();
             if (apiKeys == null)
+            {
                 throw new ArgumentException("Parameter may not be null", nameof(apiKeys));
+            }
+
             _apiKeys = new List<SecureString>();
             foreach (var apiKey in apiKeys)
+            {
                 _apiKeys.Add(apiKey.Copy());
+            }
+
             if (!_apiKeys.Any())
+            {
                 throw new ArgumentException("Parameter must include at least one item", nameof(apiKeys));
+            }
         }
 
         public void SetDisconnectHandler(DisconnectHandler handler)
@@ -88,7 +105,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         private void HandleDisconnect()
         {
             if (!_isStarted)
+            {
                 return;
+            }
+
             Log.Warning("SignalR disconnect detected, calling handler...");
             CallEventListenerStateCallback(SafeguardEventListenerState.Disconnected);
             _disconnectHandler();
@@ -132,7 +152,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         public void RegisterEventHandler(string eventName, SafeguardEventHandler handler)
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException("SafeguardEventListener");
+            }
+
             _eventHandlerRegistry.RegisterEventHandler(eventName, handler);
         }
 
@@ -144,7 +167,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         public void Start()
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException("SafeguardEventListener");
+            }
+
             CleanupConnection();
             _signalrConnection = new HubConnectionBuilder()
                 .WithUrl(_eventUrl, options =>
@@ -227,7 +253,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         public void Stop()
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException("SafeguardEventListener");
+            }
+
             try
             {
                 _isStarted = false;
@@ -249,7 +278,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed || !disposing)
+            {
                 return;
+            }
+
             try
             {
                 CleanupConnection();
@@ -257,8 +289,12 @@ namespace OneIdentity.SafeguardDotNet.Event
                 _clientCertificate?.Dispose();
                 _apiKey?.Dispose();
                 if (_apiKeys != null)
+                {
                     foreach (var apiKey in _apiKeys)
+                    {
                         apiKey?.Dispose();
+                    }
+                }
             }
             finally
             {

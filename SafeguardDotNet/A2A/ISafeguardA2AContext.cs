@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Security;
+
 using OneIdentity.SafeguardDotNet.Event;
 
 namespace OneIdentity.SafeguardDotNet.A2A

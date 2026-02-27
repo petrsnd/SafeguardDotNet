@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+
 using OneIdentity.SafeguardDotNet.A2A;
 
 namespace OneIdentity.SafeguardDotNet.Event

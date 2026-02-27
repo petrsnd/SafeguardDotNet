@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 
 namespace OneIdentity.SafeguardDotNet.Event
 {
@@ -17,14 +17,20 @@ namespace OneIdentity.SafeguardDotNet.Event
         protected override SafeguardEventListener ReconnectEventListener()
         {
             if (_connection.GetAccessTokenLifetimeRemaining() == 0)
+            {
                 _connection.RefreshAccessToken();
+            }
+
             return (SafeguardEventListener)_connection.GetEventListener();
         }
 
         protected override void Dispose(bool disposing)
         {
             if (_disposed || !disposing)
+            {
                 return;
+            }
+
             try
             {
                 base.Dispose(true);

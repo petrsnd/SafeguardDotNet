@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
 using System.Net.Security;
 using System.Security;
-using System.Text;
 
 namespace OneIdentity.SafeguardDotNet.Authentication
 {

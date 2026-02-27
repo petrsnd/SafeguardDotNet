@@ -1,5 +1,3 @@
-using Newtonsoft.Json.Linq;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,6 +7,10 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+
+using Newtonsoft.Json.Linq;
+
+using Serilog;
 
 namespace OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin
 {
@@ -55,11 +57,11 @@ namespace OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin
                 $"code_challenge={oauthCodeChallenge}&redirect_uri={redirectUri}&loginRequestStep=";
 
             Log.Debug("Calling RSTS for primary authentication");
-            var response = ApiRequest(http, HttpMethod.Post, pkceUrl + "1", data, "application/x-www-form-urlencoded");
+            _ = ApiRequest(http, HttpMethod.Post, pkceUrl + "1", data, "application/x-www-form-urlencoded");
             Log.Debug("Calling RSTS for primary login post");
-            response = ApiRequest(http, HttpMethod.Post, pkceUrl + "3", data, "application/x-www-form-urlencoded");
+            _ = ApiRequest(http, HttpMethod.Post, pkceUrl + "3", data, "application/x-www-form-urlencoded");
             Log.Debug("Calling RSTS for generate claims");
-            response = ApiRequest(http, HttpMethod.Post, pkceUrl + "6", data, "application/x-www-form-urlencoded");
+            var response = ApiRequest(http, HttpMethod.Post, pkceUrl + "6", data, "application/x-www-form-urlencoded");
 
             string authorizationCode = null;
             try
@@ -114,7 +116,9 @@ namespace OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin
             var jProviders = JArray.Parse(response);
             var knownScopes = new List<(string RstsProviderId, string Name, string RstsProviderScope)>();
             if (jProviders != null)
+            {
                 knownScopes = jProviders.Select(s => (Id: s["RstsProviderId"].ToString(), Name: s["Name"].ToString(), Scope: s["RstsProviderScope"].ToString())).ToList();
+            }
 
             // try to match what the user typed for provider to an rSTS ID
             var scope = knownScopes.FirstOrDefault(s => string.Equals(s.RstsProviderId, provider, StringComparison.OrdinalIgnoreCase));

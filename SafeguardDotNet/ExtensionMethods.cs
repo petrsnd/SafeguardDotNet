@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security;
+
 using Serilog;
 
 namespace OneIdentity.SafeguardDotNet
@@ -29,10 +30,16 @@ namespace OneIdentity.SafeguardDotNet
             // I realize this may defeat the purpose of using SecureStrings in the first place,
             // because the string was already in memory, but at least I tried.
             if (string.IsNullOrWhiteSpace(thisString))
+            {
                 return null;
+            }
+
             var result = new SecureString();
             foreach (var c in thisString)
+            {
                 result.AppendChar(c);
+            }
+
             return result;
         }
 

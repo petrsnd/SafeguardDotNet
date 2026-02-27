@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Security;
 using System.Security;
 
@@ -10,7 +10,10 @@ namespace OneIdentity.SafeguardDotNet.Authentication
             int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : base(networkAddress, apiVersion, ignoreSsl, validationCallback)
         {
             if (accessToken == null)
+            {
                 throw new ArgumentException("Parameter may not be null", nameof(accessToken));
+            }
+
             this.accessToken = accessToken.Copy();
         }
 

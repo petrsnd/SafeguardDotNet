@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Net.Http.Headers;
 using System.Security;
 using System.Text;
 
 namespace OneIdentity.SafeguardDotNet.Sps
 {
-    internal class SpsAuthenticator: ISpsAuthenticator
+    internal class SpsAuthenticator : ISpsAuthenticator
     {
         internal SpsAuthenticator(string networkAddress, string userName, SecureString password, bool ignoreSsl = false)
         {

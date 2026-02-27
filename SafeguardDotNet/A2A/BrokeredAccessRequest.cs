@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+
 using Newtonsoft.Json;
 
 namespace OneIdentity.SafeguardDotNet.A2A
@@ -48,13 +49,22 @@ namespace OneIdentity.SafeguardDotNet.A2A
         public override BrokeredAccessRequestType ReadJson(JsonReader reader, Type objectType, BrokeredAccessRequestType existingValue, bool hasExistingValue,
             JsonSerializer serializer)
         {
-            var value = (string) reader.Value;
+            var value = (string)reader.Value;
             if (value.EqualsNoCase("Password"))
+            {
                 return BrokeredAccessRequestType.Password;
+            }
+
             if (value.EqualsNoCase("SSH"))
+            {
                 return BrokeredAccessRequestType.Ssh;
+            }
+
             if (value.EqualsNoCase("RemoteDesktop"))
+            {
                 return BrokeredAccessRequestType.Rdp;
+            }
+
             throw new SafeguardDotNetException($"Unknown access request type \"{value}\"");
         }
     }
@@ -73,7 +83,7 @@ namespace OneIdentity.SafeguardDotNet.A2A
         public override DateTime ReadJson(JsonReader reader, Type objectType, DateTime existingValue, bool hasExistingValue,
             JsonSerializer serializer)
         {
-            return DateTime.Parse((string) reader.Value);
+            return DateTime.Parse((string)reader.Value);
         }
     }
 
@@ -87,12 +97,15 @@ namespace OneIdentity.SafeguardDotNet.A2A
         public override TimeSpan ReadJson(JsonReader reader, Type objectType, TimeSpan existingValue, bool hasExistingValue,
             JsonSerializer serializer)
         {
-            var spanstr = (string) reader.Value;
+            var spanstr = (string)reader.Value;
             if (spanstr != null)
             {
                 var fields = spanstr.Split(':');
                 if (fields.Length < 3)
+                {
                     throw new SafeguardDotNetException($"Unexpected timespan value \"{spanstr}\"");
+                }
+
                 return new TimeSpan(int.Parse(fields[0]), int.Parse(fields[1]), int.Parse(fields[2]));
             }
             return TimeSpan.Zero;

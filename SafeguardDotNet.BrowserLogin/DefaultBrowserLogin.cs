@@ -1,6 +1,7 @@
-﻿using Serilog;
 using System;
 using System.Threading;
+
+using Serilog;
 
 namespace OneIdentity.SafeguardDotNet.BrowserLogin
 {

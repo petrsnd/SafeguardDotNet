@@ -1,8 +1,9 @@
-﻿using OneIdentity.SafeguardDotNet.Event;
-using OneIdentity.SafeguardDotNet.Sps;
 using System;
 using System.Collections.Generic;
 using System.Security;
+
+using OneIdentity.SafeguardDotNet.Event;
+using OneIdentity.SafeguardDotNet.Sps;
 
 namespace OneIdentity.SafeguardDotNet
 {
@@ -31,8 +32,11 @@ namespace OneIdentity.SafeguardDotNet
 
         public string InvokeMethod(Service service, Method method, string relativeUrl, string body = null, IDictionary<string, string> parameters = null, IDictionary<string, string> additionalHeaders = null, TimeSpan? timeout = null)
         {
-            if(_connection.GetAccessTokenLifetimeRemaining() <= 0)
+            if (_connection.GetAccessTokenLifetimeRemaining() <= 0)
+            {
                 _connection.RefreshAccessToken();
+            }
+
             return _connection.InvokeMethod(service, method, relativeUrl, body, parameters, additionalHeaders, timeout);
 
         }
@@ -40,21 +44,30 @@ namespace OneIdentity.SafeguardDotNet
         public string InvokeMethodCsv(Service service, Method method, string relativeUrl, string body = null, IDictionary<string, string> parameters = null, IDictionary<string, string> additionalHeaders = null, TimeSpan? timeout = null)
         {
             if (_connection.GetAccessTokenLifetimeRemaining() <= 0)
+            {
                 _connection.RefreshAccessToken();
+            }
+
             return _connection.InvokeMethodCsv(service, method, relativeUrl, body, parameters, additionalHeaders, timeout);
         }
 
         public FullResponse InvokeMethodFull(Service service, Method method, string relativeUrl, string body = null, IDictionary<string, string> parameters = null, IDictionary<string, string> additionalHeaders = null, TimeSpan? timeout = null)
         {
             if (_connection.GetAccessTokenLifetimeRemaining() <= 0)
+            {
                 _connection.RefreshAccessToken();
+            }
+
             return _connection.InvokeMethodFull(service, method, relativeUrl, body, parameters, additionalHeaders, timeout);
         }
 
         public FullResponse JoinSps(ISafeguardSessionsConnection spsConnection, string certificateChain, string sppAddress)
         {
             if (_connection.GetAccessTokenLifetimeRemaining() <= 0)
+            {
                 _connection.RefreshAccessToken();
+            }
+
             return _connection.JoinSps(spsConnection, certificateChain, sppAddress);
         }
 

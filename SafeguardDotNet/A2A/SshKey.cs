@@ -1,4 +1,4 @@
-﻿namespace OneIdentity.SafeguardDotNet.A2A
+namespace OneIdentity.SafeguardDotNet.A2A
 {
     internal class SshKey
     {

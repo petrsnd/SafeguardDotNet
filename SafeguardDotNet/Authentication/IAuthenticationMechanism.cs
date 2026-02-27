@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Security;
 using System.Security;
 
@@ -6,7 +6,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
 {
     internal interface IAuthenticationMechanism : IDisposable, ICloneable
     {
-        string Id { get;  }
+        string Id { get; }
 
         string NetworkAddress { get; }
 

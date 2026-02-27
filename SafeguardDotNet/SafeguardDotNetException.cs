@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Runtime.Serialization;
+
 using Newtonsoft.Json.Linq;
 
 namespace OneIdentity.SafeguardDotNet
@@ -44,7 +45,9 @@ namespace OneIdentity.SafeguardDotNet
                         if (responseObj.TryGetValue("Code", StringComparison.OrdinalIgnoreCase, out var codeVal))
                         {
                             if (int.TryParse(codeVal.ToString(), out var code))
+                            {
                                 ErrorCode = code;
+                            }
                         }
                         if (responseObj.TryGetValue("Message", StringComparison.OrdinalIgnoreCase, out var messageVal))
                         {

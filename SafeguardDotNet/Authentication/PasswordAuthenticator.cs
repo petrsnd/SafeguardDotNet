@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Security;
 using System.Security;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -16,15 +17,21 @@ namespace OneIdentity.SafeguardDotNet.Authentication
         private readonly string _username;
         private readonly SecureString _password;
 
-        public PasswordAuthenticator(string networkAddress, string provider, string username, SecureString password, int apiVersion, 
+        public PasswordAuthenticator(string networkAddress, string provider, string username, SecureString password, int apiVersion,
             bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : base(networkAddress, apiVersion, ignoreSsl, validationCallback)
         {
             _provider = provider;
             if (string.IsNullOrEmpty(_provider))
+            {
                 _providerScope = "rsts:sts:primaryproviderid:local";
+            }
+
             _username = username;
             if (password == null)
+            {
                 throw new ArgumentException("Parameter may not be null", nameof(password));
+            }
+
             _password = password.Copy();
         }
 
@@ -33,9 +40,14 @@ namespace OneIdentity.SafeguardDotNet.Authentication
         protected override SecureString GetRstsTokenInternal()
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException("PasswordAuthenticator");
+            }
+
             if (_providerScope == null)
+            {
                 _providerScope = ResolveProviderToScope(_provider);
+            }
 
             var data = JsonConvert.SerializeObject(new
             {
@@ -64,7 +76,10 @@ namespace OneIdentity.SafeguardDotNet.Authentication
         protected override void Dispose(bool disposing)
         {
             if (_disposed || !disposing)
+            {
                 return;
+            }
+
             base.Dispose(true);
             try
             {

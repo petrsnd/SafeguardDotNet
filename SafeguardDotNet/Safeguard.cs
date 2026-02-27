@@ -1,8 +1,3 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using OneIdentity.SafeguardDotNet.A2A;
-using OneIdentity.SafeguardDotNet.Authentication;
-using OneIdentity.SafeguardDotNet.Event;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -11,6 +6,13 @@ using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using OneIdentity.SafeguardDotNet.A2A;
+using OneIdentity.SafeguardDotNet.Authentication;
+using OneIdentity.SafeguardDotNet.Event;
 
 namespace OneIdentity.SafeguardDotNet
 {
@@ -988,7 +990,7 @@ namespace OneIdentity.SafeguardDotNet
             /// <param name="apiVersion">Target API version to use.</param>
             /// <param name="httpClient">Optional HttpClient instance to use for the request. If null, a default client will be used.</param>
             /// <returns>A JObject containing the login response with the Safeguard user token.</returns>
-            public static JObject PostLoginResponse(string appliance, SecureString rstsAccessToken, int apiVersion = Safeguard.DefaultApiVersion)
+            public static JObject PostLoginResponse(string appliance, SecureString rstsAccessToken, int apiVersion = DefaultApiVersion)
             {
                 var safeguardCoreUrl = $"https://{appliance}/service/core/v{apiVersion}";
                 var data = JsonConvert.SerializeObject(new

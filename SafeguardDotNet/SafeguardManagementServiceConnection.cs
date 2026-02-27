@@ -1,4 +1,5 @@
 using System;
+
 using OneIdentity.SafeguardDotNet.Authentication;
 using OneIdentity.SafeguardDotNet.Event;
 using OneIdentity.SafeguardDotNet.Sps;
@@ -33,7 +34,10 @@ namespace OneIdentity.SafeguardDotNet
         protected override Uri GetClientForService(Service service)
         {
             if (service == Service.Management)
+            {
                 return _managementUrl;
+            }
+
             throw new SafeguardDotNetException($"{service} service cannot be invoked with a management connection.");
         }
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -28,7 +28,11 @@ namespace OneIdentity.SafeguardDotNet.BrowserLogin
             {
                 var listenTask = tcpListener.AcceptTcpClientAsync().ContinueWith(async t =>
                 {
-                    if (t.IsFaulted || t.IsCanceled) return null;
+                    if (t.IsFaulted || t.IsCanceled)
+                    {
+                        return null;
+                    }
+
                     var tcpClient = t.Result;
                     using (var networkStream = tcpClient.GetStream())
                     {

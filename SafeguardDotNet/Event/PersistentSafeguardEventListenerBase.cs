@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Serilog;
 
 namespace OneIdentity.SafeguardDotNet.Event
@@ -24,7 +25,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         public void RegisterEventHandler(string eventName, SafeguardEventHandler handler)
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException("PersistentSafeguardEventListener");
+            }
+
             _eventHandlerRegistry.RegisterEventHandler(eventName, handler);
         }
 
@@ -38,7 +42,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         private void PersistentReconnectAndStart()
         {
             if (_reconnectTask != null)
+            {
                 return;
+            }
+
             _reconnectCancel = new CancellationTokenSource();
             _reconnectTask = Task.Run(() =>
             {
@@ -69,14 +76,19 @@ namespace OneIdentity.SafeguardDotNet.Event
                 _reconnectCancel = null;
                 _reconnectTask = null;
                 if (!task.IsFaulted)
+                {
                     Log.Debug("Internal event listener successfully connected and started.");
+                }
             });
         }
 
         public void Start()
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException("PersistentSafeguardEventListener");
+            }
+
             Log.Information("Internal event listener requested to start.");
             PersistentReconnectAndStart();
         }
@@ -84,7 +96,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         public void Stop()
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException("PersistentSafeguardEventListener");
+            }
+
             Log.Information("Internal event listener requested to stop.");
             _reconnectCancel?.Cancel();
             _eventListener?.Stop();
@@ -99,7 +114,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed || !disposing)
+            {
                 return;
+            }
+
             try
             {
                 _eventListener?.Dispose();

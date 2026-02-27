@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Security;
 using System.Security;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -22,7 +23,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
         {
         }
 
-        public CertificateAuthenticator(string networkAddress, IEnumerable<byte> certificateData, SecureString certificatePassword, 
+        public CertificateAuthenticator(string networkAddress, IEnumerable<byte> certificateData, SecureString certificatePassword,
             int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificateData, certificatePassword))
         {
         }
@@ -50,25 +51,21 @@ namespace OneIdentity.SafeguardDotNet.Authentication
             _provider = provider;
         }
 
-        // Retaining this constructor in case we need to create from CertificateContext again in the future
-        // ReSharper disable once UnusedMember.Local
-        private CertificateAuthenticator(string networkAddress, CertificateContext clientCertificate, int apiVersion,
-            bool ignoreSsl, RemoteCertificateValidationCallback validationCallback, string provider) : base(networkAddress, apiVersion, ignoreSsl, validationCallback, clientCertificate.Clone())
-        {
-            _provider = provider;
-        }
-
         public override string Id => "Certificate";
 
         protected override SecureString GetRstsTokenInternal()
         {
             if (IsDisposed)
+            {
                 throw new ObjectDisposedException("CertificateAuthenticator");
+            }
 
             var providerScope = "rsts:sts:primaryproviderid:certificate";
 
             if (!string.IsNullOrEmpty(_provider))
+            {
                 providerScope = ResolveProviderToScope(_provider);
+            }
 
             var data = JsonConvert.SerializeObject(new
             {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
 {
     internal class SpsStreamingRequest : ISpsStreamingRequest
     {
-        const int DefaultBufferSize = 81920;
+        private const int DefaultBufferSize = 81920;
         private readonly ProgressMessageHandler _progressMessageHandler = new ProgressMessageHandler();
 
         private readonly Func<bool> _isDisposed;
@@ -104,16 +104,21 @@ namespace OneIdentity.SafeguardDotNet.Sps
         private void PreconditionCheck(string relativeUrl)
         {
             if (_isDisposed())
+            {
                 throw new ObjectDisposedException("SpsConnection");
+            }
+
             if (string.IsNullOrEmpty(relativeUrl))
+            {
                 throw new ArgumentException("Parameter may not be null or empty", nameof(relativeUrl));
+            }
         }
 
         private EventHandler<HttpProgressEventArgs> ConfigureProgressHandler(IProgress<TransferProgress> progress)
         {
             if (progress != null)
             {
-                EventHandler<HttpProgressEventArgs> progressHandlerFunc = (sender, args) =>
+                void progressHandlerFunc(object sender, HttpProgressEventArgs args)
                 {
                     var downloadProgress = new TransferProgress
                     {
@@ -121,7 +126,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
                         BytesTransferred = args.BytesTransferred
                     };
                     progress.Report(downloadProgress);
-                };
+                }
                 _progressMessageHandler.HttpReceiveProgress += progressHandlerFunc;
                 return progressHandlerFunc;
             }
@@ -153,7 +158,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
         private async Task Authenticate(CancellationToken token)
         {
             var responseMessage = await Client.SendAsync(PrepareGenericRequest(HttpMethod.Get, "authentication"), token);
-            
+
             if (!responseMessage.IsSuccessStatusCode)
             {
                 var responseContent = await responseMessage.Content.ReadAsStringAsync();
@@ -171,7 +176,9 @@ namespace OneIdentity.SafeguardDotNet.Sps
             if (additionalHeaders != null)
             {
                 foreach (var header in additionalHeaders)
+                {
                     request.Headers.Add(header.Key, header.Value);
+                }
             }
 
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
@@ -244,7 +251,9 @@ namespace OneIdentity.SafeguardDotNet.Sps
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed() || !disposing)
+            {
                 return;
+            }
 
             Client.Dispose();
         }

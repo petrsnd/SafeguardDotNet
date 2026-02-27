@@ -1,4 +1,3 @@
-﻿using OneIdentity.SafeguardDotNet.Authentication;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,11 +8,13 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
+using OneIdentity.SafeguardDotNet.Authentication;
+
 namespace OneIdentity.SafeguardDotNet
 {
     internal class StreamingRequest : IStreamingRequest
     {
-        const int DefaultBufferSize = 81920;
+        private const int DefaultBufferSize = 81920;
         private readonly ProgressMessageHandler _progressMessageHandler = new ProgressMessageHandler();
         private readonly IAuthenticationMechanism _authenticationMechanism;
         private readonly Func<bool> _isDisposed;
@@ -24,7 +25,7 @@ namespace OneIdentity.SafeguardDotNet
         {
             _authenticationMechanism = authenticationMechanism;
             _isDisposed = isDisposed;
-            _lazyHttpClient = new Lazy<HttpClient>(()=> CreateHttpClient(_progressMessageHandler));
+            _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(_progressMessageHandler));
         }
 
         public async Task<string> UploadAsync(Service service, string relativeUrl, Stream stream, IProgress<TransferProgress> progress = null, IDictionary<string, string> parameters = null, IDictionary<string, string> additionalHeaders = null, CancellationToken? cancellationToken = null)
@@ -42,7 +43,7 @@ namespace OneIdentity.SafeguardDotNet
                     request.Content = content;
                     request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
-                    if(progress != null)
+                    if (progress != null)
                     {
                         progressHandlerFunc = (sender, args) =>
                         {
@@ -62,7 +63,7 @@ namespace OneIdentity.SafeguardDotNet
                     }
                     finally
                     {
-                        if(progressHandlerFunc != null)
+                        if (progressHandlerFunc != null)
                         {
                             _progressMessageHandler.HttpSendProgress -= progressHandlerFunc;
                         }
@@ -132,7 +133,7 @@ namespace OneIdentity.SafeguardDotNet
                     ValidateGetResponse(response);
                     return new StreamResponse(response, () => CleanupProgress(progressHandlerFunc));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     CleanupProgress(progressHandlerFunc);
                     throw;
@@ -140,7 +141,7 @@ namespace OneIdentity.SafeguardDotNet
             }
         }
 
-        private string ConfigureUri(Service service, string relativeUrl, IDictionary<string,string> parameters)
+        private string ConfigureUri(Service service, string relativeUrl, IDictionary<string, string> parameters)
         {
             var uri = $"https://{_authenticationMechanism.NetworkAddress}/service/{service}/v{_authenticationMechanism.ApiVersion}/{relativeUrl}";
 
@@ -151,9 +152,14 @@ namespace OneIdentity.SafeguardDotNet
         private void PreconditionCheck(string relativeUrl)
         {
             if (_isDisposed())
+            {
                 throw new ObjectDisposedException("SafeguardConnection");
+            }
+
             if (string.IsNullOrEmpty(relativeUrl))
+            {
                 throw new ArgumentException("Parameter may not be null or empty", nameof(relativeUrl));
+            }
         }
 
         private void ValidateGetResponse(HttpResponseMessage response)
@@ -187,9 +193,11 @@ namespace OneIdentity.SafeguardDotNet
             };
 
             if (!response.IsSuccessStatusCode)
+            {
                 throw new SafeguardDotNetException(
                     $"Error returned from Safeguard API, Error: {fullResponse.StatusCode} {fullResponse.Body}",
                     fullResponse.StatusCode, fullResponse.Body);
+            }
 
             fullResponse.LogResponseDetails();
 
@@ -210,7 +218,9 @@ namespace OneIdentity.SafeguardDotNet
             if (!_authenticationMechanism.IsAnonymous)
             {
                 if (!_authenticationMechanism.HasAccessToken())
+                {
                     throw new SafeguardDotNetException("Access token is missing due to log out, you must refresh the access token to invoke a method");
+                }
                 // SecureString handling here basically negates the use of a secure string anyway, but when calling a Web API
                 // I'm not sure there is anything you can do about it.
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationMechanism.GetAccessToken().ToInsecureString());
@@ -219,7 +229,9 @@ namespace OneIdentity.SafeguardDotNet
             if (additionalHeaders != null)
             {
                 foreach (var header in additionalHeaders)
+                {
                     request.Headers.Add(header.Key, header.Value);
+                }
             }
 
             var acceptHeaderValue = GetMediaTypeForMethod(method);
@@ -262,7 +274,7 @@ namespace OneIdentity.SafeguardDotNet
         {
             if (progress != null)
             {
-                EventHandler<HttpProgressEventArgs> progressHandlerFunc = (sender, args) =>
+                void progressHandlerFunc(object sender, HttpProgressEventArgs args)
                 {
                     var downloadProgress = new TransferProgress
                     {
@@ -270,7 +282,7 @@ namespace OneIdentity.SafeguardDotNet
                         BytesTransferred = args.BytesTransferred
                     };
                     progress.Report(downloadProgress);
-                };
+                }
                 _progressMessageHandler.HttpReceiveProgress += progressHandlerFunc;
                 return progressHandlerFunc;
             }
@@ -290,9 +302,11 @@ namespace OneIdentity.SafeguardDotNet
                 httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => _authenticationMechanism.ValidationCallback(message, cert, chain, errors);
             }
 
-            var client = new HttpClient(progressHandler); 
-            // do not time out on streaming requests, let the cancellation token handle timeouts
-            client.Timeout = Timeout.InfiniteTimeSpan;
+            var client = new HttpClient(progressHandler)
+            {
+                // do not time out on streaming requests, let the cancellation token handle timeouts
+                Timeout = Timeout.InfiniteTimeSpan
+            };
             return client;
         }
 
@@ -305,8 +319,10 @@ namespace OneIdentity.SafeguardDotNet
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed() || !disposing)
+            {
                 return;
-            
+            }
+
             Client.Dispose();
         }
     }

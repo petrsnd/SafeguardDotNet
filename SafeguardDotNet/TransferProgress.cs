@@ -1,4 +1,4 @@
-﻿namespace OneIdentity.SafeguardDotNet
+namespace OneIdentity.SafeguardDotNet
 {
     /// <summary>
     /// Represents progress information for streaming upload and download operations.
@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets or sets the number of bytes transferred so far.
         /// </summary>
-        public long BytesTransferred { get; set;  }
+        public long BytesTransferred { get; set; }
 
         /// <summary>
         /// Gets or sets the total number of bytes to be transferred.

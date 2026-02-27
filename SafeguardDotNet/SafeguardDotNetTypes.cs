@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Security;
+
 using Newtonsoft.Json;
 
 namespace OneIdentity.SafeguardDotNet

@@ -6,6 +6,7 @@ using System.Net.Security;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -64,28 +65,42 @@ namespace OneIdentity.SafeguardDotNet.Authentication
         public SecureString GetAccessToken()
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException("AuthenticatorBase");
+            }
+
             return accessToken;
         }
 
         public int GetAccessTokenLifetimeRemaining()
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException("AuthenticatorBase");
+            }
+
             if (!HasAccessToken())
+            {
                 return 0;
+            }
 
             var ttl = ApiRequest(HttpMethod.Get, $"{safeguardCoreUrl}/LoginMessage", null, accessToken.ToInsecureString(), true);
 
             if (ttl == null || !int.TryParse(ttl, out var remaining))
+            {
                 return 10; // Random magic value... the access token was good, but for some reason it didn't return the remaining lifetime
+            }
+
             return remaining;
         }
 
         public void RefreshAccessToken()
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException("AuthenticatorBase");
+            }
+
             using (var rStsToken = GetRstsTokenInternal())
             {
                 var data = JsonConvert.SerializeObject(new
@@ -109,7 +124,9 @@ namespace OneIdentity.SafeguardDotNet.Authentication
                 var jProviders = JArray.Parse(json);
                 var knownScopes = new List<(string RstsProviderId, string Name, string RstsProviderScope)>();
                 if (jProviders != null)
+                {
                     knownScopes = jProviders.Select(s => (Id: s["RstsProviderId"].ToString(), Name: s["Name"].ToString(), Scope: s["RstsProviderScope"].ToString())).ToList();
+                }
 
                 // 3 step check for determining if the user provided scope is valid:
                 //
@@ -154,9 +171,10 @@ namespace OneIdentity.SafeguardDotNet.Authentication
 
         protected HttpClient CreateHttpClient()
         {
-            var handler = new HttpClientHandler();
-
-            handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+            var handler = new HttpClientHandler
+            {
+                SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+            };
 
             if (clientCertificate?.Certificate != null)
             {

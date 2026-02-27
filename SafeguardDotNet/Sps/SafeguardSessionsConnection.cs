@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Net;
 using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +21,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
         private readonly ISpsAuthenticator _authenticator;
 
         private readonly Lazy<ISpsStreamingRequest> _lazyStreamingRequest;
-        
+
         public ISpsStreamingRequest Streaming => _lazyStreamingRequest.Value;
 
         public SafeguardSessionsConnection(ISpsAuthenticator authenticator)
@@ -41,9 +41,10 @@ namespace OneIdentity.SafeguardDotNet.Sps
 
         private HttpClient CreateHttpClient()
         {
-            var handler = new HttpClientHandler();
-
-            handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+            var handler = new HttpClientHandler
+            {
+                SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+            };
 
             if (_authenticator.IgnoreSsl)
             {
@@ -134,7 +135,9 @@ namespace OneIdentity.SafeguardDotNet.Sps
             try
             {
                 if (_lazyStreamingRequest.IsValueCreated)
+                {
                     Streaming.Dispose();
+                }
             }
             finally
             {

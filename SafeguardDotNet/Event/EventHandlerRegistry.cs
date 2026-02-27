@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using Newtonsoft.Json.Linq;
+
 using Serilog;
 
 namespace OneIdentity.SafeguardDotNet.Event
@@ -53,9 +55,12 @@ namespace OneIdentity.SafeguardDotNet.Event
                 var body = jObject["Data"];
                 // Work around for bug in A2A events in Safeguard 2.2 and 2.3
                 if (name != null && int.TryParse(name.ToString(), out _) && body != null)
+                {
                     name = body["EventName"];
+                }
+
                 events.Add((name?.ToString(), body));
-                
+
                 return events.ToArray();
             }
             catch (Exception)
@@ -69,7 +74,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         {
             var events = ParseEvents(eventObject);
             if (events == null)
+            {
                 return;
+            }
+
             foreach (var eventInfo in events)
             {
                 if (eventInfo.Item1 == null)
@@ -84,7 +92,10 @@ namespace OneIdentity.SafeguardDotNet.Event
         public void RegisterEventHandler(string eventName, SafeguardEventHandler handler)
         {
             if (!_delegateRegistry.ContainsKey(eventName))
+            {
                 _delegateRegistry[eventName] = new List<SafeguardEventHandler>();
+            }
+
             _delegateRegistry[eventName].Add(handler);
             Log.Debug("Registered event {Event} with delegate {Delegate}", eventName, handler.Method.Name);
         }

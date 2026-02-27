@@ -1,10 +1,10 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 
 namespace OneIdentity.SafeguardDotNet.Event
 {
     public class SafeguardEventListenerDisconnectedException : SafeguardDotNetException
     {
-        public SafeguardEventListenerDisconnectedException() 
+        public SafeguardEventListenerDisconnectedException()
             : base("SafeguardEventListener has permanently disconnected SignalR connection")
         {
         }

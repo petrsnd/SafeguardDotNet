@@ -1,4 +1,4 @@
-﻿namespace OneIdentity.SafeguardDotNet.A2A
+namespace OneIdentity.SafeguardDotNet.A2A
 {
     /// <summary>
     /// Connection state of the Safeguard event listener.

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
@@ -39,7 +39,7 @@ namespace OneIdentity.SafeguardDotNet
         }
 
         private CertificateContext()
-        {}
+        { }
         private ContextType Type { get; set; }
         private string Thumbprint { get; set; }
         private string FilePath { get; set; }
