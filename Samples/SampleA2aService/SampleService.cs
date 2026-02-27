@@ -59,7 +59,7 @@ internal class SampleService
         try
         {
             var a2AJson = _connection.InvokeMethod(Service.Core, Method.Get, "A2ARegistrations", parameters: new Dictionary<string, string> {
-                {"filter", $"CertificateUserThumbprint ieq '{_safeguardClientCertificateThumbprint}'"}
+                {"filter", $"CertificateUserThumbprint ieq '{_safeguardClientCertificateThumbprint}'"},
             });
             var a2AArray = JArray.Parse(a2AJson);
             foreach (dynamic a2A in a2AArray)
@@ -72,7 +72,7 @@ internal class SampleService
                     {
                         ApiKey = ExtensionMethods.ToSecureString(cred.ApiKey.ToString()),
                         AssetName = cred.SystemName,
-                        AccountName = cred.AccountName
+                        AccountName = cred.AccountName,
                     });
                 }
             }

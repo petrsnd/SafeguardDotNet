@@ -975,7 +975,7 @@ namespace OneIdentity.SafeguardDotNet
                     grant_type = "authorization_code",
                     redirect_uri = RedirectUri,
                     code = authorizationCode,
-                    code_verifier = codeVerifier
+                    code_verifier = codeVerifier,
                 });
 
                 var json = ApiRequest(HttpMethod.Post, $"{safeguardRstsUrl}/oauth2/token", data);
@@ -997,7 +997,7 @@ namespace OneIdentity.SafeguardDotNet
                 var safeguardCoreUrl = $"https://{appliance}/service/core/v{apiVersion}";
                 var data = JsonConvert.SerializeObject(new
                 {
-                    StsAccessToken = rstsAccessToken.ToInsecureString()
+                    StsAccessToken = rstsAccessToken.ToInsecureString(),
                 });
 
                 var json = ApiRequest(HttpMethod.Post, $"{safeguardCoreUrl}/Token/LoginResponse", data);

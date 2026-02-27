@@ -87,7 +87,7 @@ BrokeredAccessRequest GetBrokeredAccessRequestObject(ToolOptions opts)
         AccessType = opts.AccessType,
         TicketNumber = opts.TicketNumber,
         ReasonComment = opts.ReasonComment,
-        RequestedFor = opts.RequestedFor?.ToUniversalTime()
+        RequestedFor = opts.RequestedFor?.ToUniversalTime(),
     };
     if (opts.ForUser.IsNumeric())
     {

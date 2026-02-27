@@ -36,7 +36,7 @@ namespace OneIdentity.SafeguardDotNet
         /// it is bound to the MGMT network interface. For on-prem VM it is unavailable except through the Kiosk app. On cloud
         /// VM it is listening on port 9337 and should be firewalled appropriately to restrict access.
         /// </summary>
-        Management
+        Management,
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ namespace OneIdentity.SafeguardDotNet
         Post,
         Get,
         Put,
-        Delete
+        Delete,
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ namespace OneIdentity.SafeguardDotNet
         /// <summary>
         /// Putty format for use with PuTTY tools
         /// </summary>
-        Putty
+        Putty,
     }
 
     /// <summary>

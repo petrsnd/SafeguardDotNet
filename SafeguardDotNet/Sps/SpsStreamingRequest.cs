@@ -53,7 +53,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
                             var uploadProgress = new TransferProgress
                             {
                                 BytesTotal = args.TotalBytes.GetValueOrDefault(0),
-                                BytesTransferred = args.BytesTransferred
+                                BytesTransferred = args.BytesTransferred,
                             };
                             progress.Report(uploadProgress);
                         };
@@ -125,7 +125,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
                     var downloadProgress = new TransferProgress
                     {
                         BytesTotal = args.TotalBytes.GetValueOrDefault(0),
-                        BytesTransferred = args.BytesTransferred
+                        BytesTransferred = args.BytesTransferred,
                     };
                     progress.Report(downloadProgress);
                 }
@@ -211,7 +211,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
             var fullResponse = new FullResponse
             {
                 Headers = response.Headers.ToDictionary(key => key.Key, value => value.Value.FirstOrDefault()),
-                StatusCode = response.StatusCode
+                StatusCode = response.StatusCode,
             };
 
             // Check for 200 OK here because 204 Accepted doesn't return a stream,
@@ -233,7 +233,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
             {
                 Body = await response.Content.ReadAsStringAsync(),
                 Headers = response.Headers.ToDictionary(key => key.Key, value => value.Value.FirstOrDefault()),
-                StatusCode = response.StatusCode
+                StatusCode = response.StatusCode,
             };
 
             fullResponse.LogResponseDetails();

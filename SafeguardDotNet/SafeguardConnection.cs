@@ -33,7 +33,7 @@ namespace OneIdentity.SafeguardDotNet
         {
             var handler = new HttpClientHandler
             {
-                SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
             };
 
             if (authenticationMechanism.IgnoreSsl)
@@ -202,7 +202,7 @@ namespace OneIdentity.SafeguardDotNet
                 {
                     StatusCode = res.StatusCode,
                     Headers = new Dictionary<string, string>(),
-                    Body = msg
+                    Body = msg,
                 };
 
                 foreach (var header in res.Headers)
@@ -268,7 +268,7 @@ namespace OneIdentity.SafeguardDotNet
             {
                 spp = sppAddress,
                 spp_api_token = authenticationMechanism.GetAccessToken().ToInsecureString(),
-                spp_cert_chain = certificateChain
+                spp_cert_chain = certificateChain,
             };
             var joinBody = JsonConvert.SerializeObject(request);
 

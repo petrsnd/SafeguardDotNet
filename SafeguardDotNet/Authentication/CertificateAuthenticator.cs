@@ -85,7 +85,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
         {
             var auth = new CertificateAuthenticator(NetworkAddress, clientCertificate, ApiVersion, IgnoreSsl, ValidationCallback)
             {
-                accessToken = accessToken?.Copy()
+                accessToken = accessToken?.Copy(),
             };
             return auth;
         }

@@ -22,7 +22,7 @@ namespace OneIdentity.SafeguardDotNet.A2A
         /// <summary>
         /// Access request is for a remote desktop session.
         /// </summary>
-        Rdp
+        Rdp,
     }
 
     /// <summary>

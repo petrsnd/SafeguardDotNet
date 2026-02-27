@@ -14,7 +14,7 @@ namespace OneIdentity.SafeguardDotNet
         {
             Thumbprint,
             File,
-            Data
+            Data,
         }
 
         public CertificateContext(string thumbprint)
@@ -63,7 +63,7 @@ namespace OneIdentity.SafeguardDotNet
                 Thumbprint = Thumbprint,
                 FilePath = FilePath,
                 DataBuffer = DataBuffer?.ToArray(),
-                Password = Password?.Copy()
+                Password = Password?.Copy(),
             };
 
             switch (Type)

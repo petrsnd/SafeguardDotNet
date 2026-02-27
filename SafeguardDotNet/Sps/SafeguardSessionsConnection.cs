@@ -45,7 +45,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
         {
             var handler = new HttpClientHandler
             {
-                SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
             };
 
             if (_authenticator.IgnoreSsl)
@@ -108,7 +108,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
                 {
                     StatusCode = res.StatusCode,
                     Headers = new Dictionary<string, string>(),
-                    Body = msg
+                    Body = msg,
                 };
 
                 fr.LogResponseDetails();

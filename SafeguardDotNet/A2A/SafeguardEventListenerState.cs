@@ -14,6 +14,6 @@ namespace OneIdentity.SafeguardDotNet.A2A
         /// <summary>
         /// Event listener disconnected.
         /// </summary>
-        Disconnected
+        Disconnected,
     }
 }

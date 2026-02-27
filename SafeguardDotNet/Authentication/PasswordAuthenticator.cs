@@ -56,7 +56,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
                 grant_type = "password",
                 username = _username,
                 password = _password.ToInsecureString(),
-                scope = _providerScope
+                scope = _providerScope,
             });
 
             var json = ApiRequest(HttpMethod.Post, $"https://{NetworkAddress}/RSTS/oauth2/token", data);
@@ -70,7 +70,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
             var auth =
                 new PasswordAuthenticator(NetworkAddress, _provider, _username, _password, ApiVersion, IgnoreSsl, ValidationCallback)
                 {
-                    accessToken = accessToken?.Copy()
+                    accessToken = accessToken?.Copy(),
                 };
             return auth;
         }

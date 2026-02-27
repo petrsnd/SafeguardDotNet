@@ -48,7 +48,7 @@ namespace OneIdentity.SafeguardDotNet.A2A
         {
             var handler = new HttpClientHandler
             {
-                SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
             };
 
             if (_clientCertificate?.Certificate != null)
@@ -206,7 +206,7 @@ namespace OneIdentity.SafeguardDotNet.A2A
             var data = JsonConvert.SerializeObject(new SshKey
             {
                 Passphrase = password.ToInsecureString(),
-                PrivateKey = privateKey.ToInsecureString()
+                PrivateKey = privateKey.ToInsecureString(),
             });
 
             _ = ApiRequest(HttpMethod.Put, GetUrl(A2A, $"Credentials/SshKey?keyFormat={keyFormat}"), data, apiKey);

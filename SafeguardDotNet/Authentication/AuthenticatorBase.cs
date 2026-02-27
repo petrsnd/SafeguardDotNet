@@ -107,7 +107,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
             {
                 var data = JsonConvert.SerializeObject(new
                 {
-                    StsAccessToken = rStsToken.ToInsecureString()
+                    StsAccessToken = rStsToken.ToInsecureString(),
                 });
 
                 var json = ApiRequest(HttpMethod.Post, $"{safeguardCoreUrl}/Token/LoginResponse", data);
@@ -174,7 +174,7 @@ namespace OneIdentity.SafeguardDotNet.Authentication
         {
             var handler = new HttpClientHandler
             {
-                SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
             };
 
             if (clientCertificate?.Certificate != null)
