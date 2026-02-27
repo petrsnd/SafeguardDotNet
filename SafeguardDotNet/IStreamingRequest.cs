@@ -14,7 +14,7 @@ namespace OneIdentity.SafeguardDotNet
     public interface IStreamingRequest : IDisposable
     {
         /// <summary>
-        /// Call a Safeguard POST API providing a stream as request content. If there is a 
+        /// Call a Safeguard POST API providing a stream as request content. If there is a
         /// failure a SafeguardDotNetException will be thrown.
         /// </summary>
         /// <param name="service">Safeguard service to call.</param>
@@ -41,7 +41,6 @@ namespace OneIdentity.SafeguardDotNet
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns>A task representing the async operation</returns>
         Task DownloadAsync(Service service, string relativeUrl, string outputFilePath, string body = null, IProgress<TransferProgress> progress = null, IDictionary<string, string> parameters = null, IDictionary<string, string> additionalHeaders = null, CancellationToken? cancellationToken = null);
-
 
         /// <summary>
         /// Call a Safeguard GET API returning output as a stream. The caller takes ownership of the

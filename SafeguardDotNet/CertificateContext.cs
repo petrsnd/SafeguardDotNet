@@ -42,10 +42,15 @@ namespace OneIdentity.SafeguardDotNet
 
         private CertificateContext()
         { }
+
         private ContextType Type { get; set; }
+
         private string Thumbprint { get; set; }
+
         private string FilePath { get; set; }
+
         private byte[] DataBuffer { get; set; }
+
         private SecureString Password { get; set; }
 
         public X509Certificate2 Certificate { get; private set; }

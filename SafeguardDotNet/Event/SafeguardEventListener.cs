@@ -11,7 +11,9 @@ namespace OneIdentity.SafeguardDotNet.Event
     using System.Threading.Tasks;
 
     using Microsoft.AspNetCore.SignalR.Client;
+
     using OneIdentity.SafeguardDotNet.A2A;
+
     using Serilog;
 
     internal delegate void DisconnectHandler();
@@ -137,6 +139,7 @@ namespace OneIdentity.SafeguardDotNet.Event
                 {
                     _signalrConnection.Closed -= _signalrConnection_Closed;
                 }
+
                 _signalrConnection?.DisposeAsync();
             }
             catch (Exception ex)
@@ -188,7 +191,7 @@ namespace OneIdentity.SafeguardDotNet.Event
                         options.ClientCertificates.Add(_clientCertificate.Certificate);
 
                         // Moving to SignalR 7.0.x and above, caused the connection to move to HTTP/2 rather than 1.1.  HTTP/2 does
-                        //  not support SSL renegotiation which is required by the HttpSys web host being using in SPP. Setting 
+                        //  not support SSL renegotiation which is required by the HttpSys web host being using in SPP. Setting
                         //  UseDefaultCredentials = true, forces the connection back to HTTP/1.1 which allows SSL renegotiation.
                         //
                         // Addition Information:
@@ -225,6 +228,7 @@ namespace OneIdentity.SafeguardDotNet.Event
                                 }
                             }
                         }
+
                         return message;
                     };
                 })

@@ -21,6 +21,7 @@ namespace OneIdentity.SafeguardDotNet
         private readonly IAuthenticationMechanism _authenticationMechanism;
         private readonly Func<bool> _isDisposed;
         private readonly Lazy<HttpClient> _lazyHttpClient;
+
         private HttpClient Client => _lazyHttpClient.Value;
 
         internal StreamingRequest(IAuthenticationMechanism authenticationMechanism, Func<bool> isDisposed)
@@ -58,6 +59,7 @@ namespace OneIdentity.SafeguardDotNet
                         };
                         _progressMessageHandler.HttpSendProgress += progressHandlerFunc;
                     }
+
                     try
                     {
                         var response = await Client.SendAsync(request, completionOption: HttpCompletionOption.ResponseHeadersRead, token);
@@ -223,6 +225,7 @@ namespace OneIdentity.SafeguardDotNet
                 {
                     throw new SafeguardDotNetException("Access token is missing due to log out, you must refresh the access token to invoke a method");
                 }
+
                 // SecureString handling here basically negates the use of a secure string anyway, but when calling a Web API
                 // I'm not sure there is anything you can do about it.
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationMechanism.GetAccessToken().ToInsecureString());
@@ -285,9 +288,11 @@ namespace OneIdentity.SafeguardDotNet
                     };
                     progress.Report(downloadProgress);
                 }
+
                 _progressMessageHandler.HttpReceiveProgress += progressHandlerFunc;
                 return progressHandlerFunc;
             }
+
             return null;
         }
 

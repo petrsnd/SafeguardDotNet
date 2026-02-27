@@ -40,6 +40,7 @@ SecureString PromptForSecret(string name)
             Console.Write("*");
         }
     }
+
     Console.Write(Environment.NewLine);
     return password;
 }

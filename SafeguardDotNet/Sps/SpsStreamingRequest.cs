@@ -129,9 +129,11 @@ namespace OneIdentity.SafeguardDotNet.Sps
                     };
                     progress.Report(downloadProgress);
                 }
+
                 _progressMessageHandler.HttpReceiveProgress += progressHandlerFunc;
                 return progressHandlerFunc;
             }
+
             return null;
         }
 
@@ -259,6 +261,5 @@ namespace OneIdentity.SafeguardDotNet.Sps
 
             Client.Dispose();
         }
-
     }
 }

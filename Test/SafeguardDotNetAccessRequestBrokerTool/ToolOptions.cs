@@ -3,6 +3,7 @@ namespace SafeguardDotNetAccessRequestBrokerTool;
 using System;
 
 using CommandLine;
+
 using OneIdentity.SafeguardDotNet.A2A;
 
 internal class ToolOptions

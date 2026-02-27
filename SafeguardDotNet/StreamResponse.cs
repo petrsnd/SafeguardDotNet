@@ -37,6 +37,7 @@ namespace OneIdentity.SafeguardDotNet
             {
                 Stream = await Response.Content.ReadAsStreamAsync();
             }
+
             return Stream;
         }
 

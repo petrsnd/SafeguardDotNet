@@ -7,6 +7,7 @@ namespace OneIdentity.SafeguardDotNet.Event
     using System.Threading.Tasks;
 
     using Newtonsoft.Json.Linq;
+
     using Serilog;
 
     using DelegateRegistry = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<SafeguardEventHandler>>;
@@ -86,6 +87,7 @@ namespace OneIdentity.SafeguardDotNet.Event
                     Log.Warning("Found null event with body {EventBody}", eventInfo.Item2);
                     continue;
                 }
+
                 HandleEvent(eventInfo.Item1, eventInfo.Item2.ToString());
             }
         }

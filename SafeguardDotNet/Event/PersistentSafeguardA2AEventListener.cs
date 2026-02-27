@@ -8,6 +8,7 @@ namespace OneIdentity.SafeguardDotNet.Event
     using System.Security;
 
     using OneIdentity.SafeguardDotNet.A2A;
+
     using Serilog;
 
     internal class PersistentSafeguardA2AEventListener : PersistentSafeguardEventListenerBase

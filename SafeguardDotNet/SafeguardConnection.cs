@@ -11,9 +11,11 @@ namespace OneIdentity.SafeguardDotNet
     using System.Threading.Tasks;
 
     using Newtonsoft.Json;
+
     using OneIdentity.SafeguardDotNet.Authentication;
     using OneIdentity.SafeguardDotNet.Event;
     using OneIdentity.SafeguardDotNet.Sps;
+
     using Serilog;
 
     internal class SafeguardConnection : ISafeguardConnection, ICloneable
@@ -64,8 +66,8 @@ namespace OneIdentity.SafeguardDotNet
             });
         }
 
-
         private readonly Lazy<IStreamingRequest> _lazyStreamingRequest;
+
         public IStreamingRequest Streaming => _lazyStreamingRequest.Value;
 
         public int GetAccessTokenLifetimeRemaining()
@@ -156,6 +158,7 @@ namespace OneIdentity.SafeguardDotNet
                 {
                     throw new SafeguardDotNetException("Access token is missing due to log out, you must refresh the access token to invoke a method");
                 }
+
                 // SecureString handling here basically negates the use of a secure string anyway, but when calling a Web API
                 // I'm not sure there is anything you can do about it.
                 req.Headers.Add("Authorization",
@@ -303,6 +306,7 @@ namespace OneIdentity.SafeguardDotNet
             {
                 return new PersistentSafeguardEventListener(Clone() as ISafeguardConnection);
             }
+
             throw new SafeguardDotNetException(
                 $"Unable to create persistent event listener from {authenticationMechanism.GetType()}");
         }
@@ -333,6 +337,7 @@ namespace OneIdentity.SafeguardDotNet
             {
                 Log.Debug(ex, "Exception occurred during logout");
             }
+
             authenticationMechanism.ClearAccessToken();
             Log.Debug("Cleared access token");
         }

@@ -17,7 +17,6 @@ namespace OneIdentity.SafeguardDotNet
     /// </summary>
     public class SafeguardDotNetException : Exception
     {
-
         public SafeguardDotNetException()
             : base("Unknown SafeguardDotNetException")
         {
@@ -51,6 +50,7 @@ namespace OneIdentity.SafeguardDotNet
                                 ErrorCode = code;
                             }
                         }
+
                         if (responseObj.TryGetValue("Message", StringComparison.OrdinalIgnoreCase, out var messageVal))
                         {
                             ErrorMessage = messageVal.ToString();

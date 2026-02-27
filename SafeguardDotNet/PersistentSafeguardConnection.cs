@@ -40,7 +40,6 @@ namespace OneIdentity.SafeguardDotNet
             }
 
             return _connection.InvokeMethod(service, method, relativeUrl, body, parameters, additionalHeaders, timeout);
-
         }
 
         public string InvokeMethodCsv(Service service, Method method, string relativeUrl, string body = null, IDictionary<string, string> parameters = null, IDictionary<string, string> additionalHeaders = null, TimeSpan? timeout = null)

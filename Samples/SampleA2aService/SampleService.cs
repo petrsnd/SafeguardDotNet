@@ -9,9 +9,11 @@ using System.Security;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
 using OneIdentity.SafeguardDotNet;
 using OneIdentity.SafeguardDotNet.A2A;
 using OneIdentity.SafeguardDotNet.Event;
+
 using Serilog;
 
 internal class SampleService
@@ -28,10 +30,14 @@ internal class SampleService
     private class MonitoredPassword
     {
         public SecureString ApiKey { get; set; }
+
         public string AssetName { get; set; }
+
         public string AccountName { get; set; }
+
         public override string ToString() => $"{AssetName}/{AccountName}";
     }
+
     private readonly List<MonitoredPassword> _monitoredPasswords = new List<MonitoredPassword>();
 
     public SampleService()
@@ -146,6 +152,7 @@ internal class SampleService
             listener?.Stop();
             listener?.Dispose();
         }
+
         _connection?.Dispose();
         _a2AContext?.Dispose();
     }

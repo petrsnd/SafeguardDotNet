@@ -11,6 +11,7 @@ namespace OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin
     using System.Web;
 
     using Newtonsoft.Json.Linq;
+
     using Serilog;
 
     /// <summary>
@@ -136,7 +137,6 @@ namespace OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin
                         $"Unable to find scope matching '{provider}' in [{string.Join(",", knownScopes)}]");
                     }
                 }
-
             }
 
             return scope.RstsProviderId;

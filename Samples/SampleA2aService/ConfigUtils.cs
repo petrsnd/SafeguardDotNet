@@ -59,6 +59,7 @@ internal static class ConfigUtils
             logConfig.WriteTo.File(Path.Combine(loggingDirectory, "SampleA2aService-{Date}.log"),
                 LogEventLevel.Debug);
         }
+
         Log.Logger = logConfig.CreateLogger();
     }
 
@@ -73,6 +74,7 @@ internal static class ConfigUtils
                 Task.Delay(TimeSpan.FromSeconds(2)).Wait();
                 Log.Debug("Waiting for debugger to attach");
             }
+
             Debugger.Break();
             Log.Debug("Debugger attached");
         }

@@ -37,7 +37,7 @@ namespace OneIdentity.SafeguardDotNet
         /// VM it is listening on port 9337 and should be firewalled appropriately to restrict access.
         /// </summary>
         Management
-    };
+    }
 
     /// <summary>
     /// A limited list of methods supported by the Safeguard API. Not all HTTP methods are supported.
@@ -56,7 +56,9 @@ namespace OneIdentity.SafeguardDotNet
     public class FullResponse
     {
         public HttpStatusCode StatusCode { get; set; }
+
         public IDictionary<string, string> Headers { get; set; }
+
         public string Body { get; set; }
     }
 
@@ -85,13 +87,18 @@ namespace OneIdentity.SafeguardDotNet
     public class ApiKeySecret : IDisposable
     {
         public int Id { get; set; }
+
         public string Name { get; set; }
+
         public string Description { get; set; }
+
         public string ClientId { get; set; }
 
         [JsonConverter(typeof(SecureStringConverter))]
         public SecureString ClientSecret { get; set; }
+
         public string ClientSecretId { get; set; }
+
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
@@ -126,6 +133,7 @@ namespace OneIdentity.SafeguardDotNet
                     s.AppendChar(c);
                 }
             }
+
             s.MakeReadOnly();
             return s;
         }
@@ -156,6 +164,7 @@ namespace OneIdentity.SafeguardDotNet
     public class A2ARetrievableAccount : IDisposable
     {
         public string ApplicationName { get; set; }
+
         public string Description { get; set; }
 
         [JsonProperty("AccountDisabled")]
@@ -164,16 +173,24 @@ namespace OneIdentity.SafeguardDotNet
 
         [JsonConverter(typeof(SecureStringConverter))]
         public SecureString ApiKey { get; set; }
+
         public int AssetId { get; set; }
+
         public string AssetName { get; set; }
 
         [JsonProperty("NetworkAddress")]
         public string AssetNetworkAddress { get; set; }
+
         public string AssetDescription { get; set; }
+
         public int AccountId { get; set; }
+
         public string AccountName { get; set; }
+
         public string DomainName { get; set; }
+
         public string AccountType { get; set; }
+
         public string AccountDescription { get; set; }
 
         public override string ToString()

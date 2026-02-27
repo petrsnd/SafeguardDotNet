@@ -4,8 +4,10 @@ using System;
 using System.Security;
 
 using CommandLine;
+
 using OneIdentity.SafeguardDotNet;
 using OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin;
+
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -66,6 +68,7 @@ internal class Program
                 Console.Write("*");
             }
         }
+
         Console.Write(Environment.NewLine);
         return password;
     }

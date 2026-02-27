@@ -154,7 +154,6 @@ namespace OneIdentity.SafeguardDotNet.Authentication
                             $"Unable to find scope matching '{provider}' in [{string.Join(",", knownScopes)}]");
                         }
                     }
-
                 }
 
                 return scope.RstsProviderScope;

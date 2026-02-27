@@ -1,6 +1,7 @@
 namespace SafeguardSessionsDotNetTool;
 
 using CommandLine;
+
 using OneIdentity.SafeguardDotNet;
 
 internal class ToolOptions

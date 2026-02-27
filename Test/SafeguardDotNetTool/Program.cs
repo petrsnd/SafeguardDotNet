@@ -7,7 +7,9 @@ using System.Security;
 using System.Threading;
 
 using CommandLine;
+
 using OneIdentity.SafeguardDotNet;
+
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -43,6 +45,7 @@ internal class Program
                 Console.Write("*");
             }
         }
+
         Console.Write(Environment.NewLine);
         return password;
     }
@@ -117,6 +120,7 @@ internal class Program
                 ? connection.InvokeMethodCsv(opts.Service, opts.Method, opts.RelativeUrl, opts.Body)
                 : connection.InvokeMethod(opts.Service, opts.Method, opts.RelativeUrl, opts.Body);
             }
+
             //Log.Information(responseBody); // if JSON is nested too deep Serilog swallows a '}' -- need to file issue with them
             Console.WriteLine(responseBody);
 
@@ -170,6 +174,7 @@ internal class Program
                 var downloadStream = streamResult.GetStream().Result;
                 downloadStream.CopyToAsync(fs, 81920).Wait();
             }
+
             return $"Download written to {opts.File}";
         }
         else

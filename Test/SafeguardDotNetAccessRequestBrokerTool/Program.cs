@@ -41,6 +41,7 @@ SecureString PromptForSecret(string name)
             Console.Write("*");
         }
     }
+
     Console.Write(Environment.NewLine);
     return password;
 }
@@ -75,6 +76,7 @@ ISafeguardA2AContext CreateA2AContext(ToolOptions opts)
     {
         throw new InvalidOperationException("Must specify CertificateFile or Thumbprint");
     }
+
     return context;
 }
 
@@ -116,6 +118,7 @@ BrokeredAccessRequest GetBrokeredAccessRequestObject(ToolOptions opts)
             accessRequest.AccountName = opts.Account;
         }
     }
+
     if (!string.IsNullOrEmpty(opts.AccountAsset))
     {
         if (opts.AccountAsset.IsNumeric())
@@ -127,6 +130,7 @@ BrokeredAccessRequest GetBrokeredAccessRequestObject(ToolOptions opts)
             accessRequest.AccountAssetName = opts.AccountAsset;
         }
     }
+
     if (!string.IsNullOrEmpty(opts.ReasonCode))
     {
         if (opts.ReasonCode.IsNumeric())
@@ -138,6 +142,7 @@ BrokeredAccessRequest GetBrokeredAccessRequestObject(ToolOptions opts)
             accessRequest.ReasonCode = opts.ReasonCode;
         }
     }
+
     if (!string.IsNullOrEmpty(opts.RequestedDuration))
     {
         accessRequest.RequestedDuration = TimeSpan.Parse(opts.RequestedDuration);
@@ -178,14 +183,12 @@ void Execute(ToolOptions opts)
     }
 }
 
-
 void HandleParseError(IEnumerable<Error> errors)
 {
     Log.Logger = new LoggerConfiguration().WriteTo.Console(theme: AnsiConsoleTheme.Code).CreateLogger();
     Log.Error("Invalid command line options");
     Environment.Exit(1);
 }
-
 
 Parser.Default.ParseArguments<ToolOptions>(args)
 .WithParsed(Execute)

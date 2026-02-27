@@ -50,6 +50,7 @@ internal class Program
                 Console.Write("*");
             }
         }
+
         Console.Write(Environment.NewLine);
         return password;
     }
@@ -97,6 +98,7 @@ internal class Program
             {
                 Log.Information("Received A2AHandler Event: {EventBody}", body);
             }
+
             if (!string.IsNullOrEmpty(opts.CertificateFile))
             {
                 using var password = HandlePassword(opts.ReadPassword);
@@ -127,6 +129,7 @@ internal class Program
                         opts.ApiKey.Split(',').Select(k => k.ToSecureString()), A2AHandler, opts.Appliance,
                         bytes, password, opts.ApiVersion, opts.Insecure);
                 }
+
                 if (!opts.ApiKey.Contains(','))
                 {
                     return Safeguard.A2A.Event.GetPersistentA2AEventListener(opts.ApiKey.ToSecureString(),
@@ -137,6 +140,7 @@ internal class Program
                     opts.ApiKey.Split(',').Select(k => k.ToSecureString()), A2AHandler, opts.Appliance,
                     opts.CertificateFile, password, opts.ApiVersion, opts.Insecure);
             }
+
             if (!string.IsNullOrEmpty(opts.Thumbprint))
             {
                 if (!opts.ApiKey.Contains(','))
@@ -149,6 +153,7 @@ internal class Program
                     opts.ApiKey.Split(',').Select(k => k.ToSecureString()), A2AHandler, opts.Appliance,
                     opts.Thumbprint, opts.ApiVersion, opts.Insecure);
             }
+
             throw new InvalidOperationException("Must specify CertificateFile or Thumbprint");
         }
 
@@ -161,6 +166,7 @@ internal class Program
         {
             Log.Information("Received Safeguard Event: {EventBody}", body);
         }
+
         ISafeguardEventListener listener;
         if (!string.IsNullOrEmpty(opts.Username))
         {
@@ -183,6 +189,7 @@ internal class Program
         {
             throw new InvalidOperationException("Must specify Username, CertificateFile, or Thumbprint");
         }
+
         listener.RegisterEventHandler(opts.Event, Handler);
         return listener;
     }
@@ -211,6 +218,7 @@ internal class Program
         {
             throw new InvalidOperationException("Must specify CertificateFile or Thumbprint");
         }
+
         return context;
     }
 
@@ -221,6 +229,7 @@ internal class Program
         {
             Log.Information("Received A2AHandler Event: {EventBody}", body);
         }
+
         if (opts.ApiKey.Equals("?", StringComparison.Ordinal))
         {
             var apiKeys = ReadAllApiKeys(context);
@@ -258,6 +267,7 @@ internal class Program
         {
             throw new InvalidOperationException("Must specify Username, CertificateFile, or Thumbprint");
         }
+
         return connection;
     }
 
@@ -305,6 +315,7 @@ internal class Program
                 Console.ReadKey();
                 listener.Stop();
             }
+
             if (opts.Persistent)
             {
                 using var listener = CreatePersistentListener(opts);
@@ -345,14 +356,12 @@ internal class Program
         }
     }
 
-
     private static void HandleParseError(IEnumerable<Error> errors)
     {
         Log.Logger = new LoggerConfiguration().WriteTo.Console(theme: AnsiConsoleTheme.Code).CreateLogger();
         Log.Error("Invalid command line options");
         Environment.Exit(1);
     }
-
 
     private static void Main(string[] args)
     {

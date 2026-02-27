@@ -110,6 +110,7 @@ namespace OneIdentity.SafeguardDotNet.A2A
 
                 return new TimeSpan(int.Parse(fields[0]), int.Parse(fields[1]), int.Parse(fields[2]));
             }
+
             return TimeSpan.Zero;
         }
     }
@@ -130,12 +131,14 @@ namespace OneIdentity.SafeguardDotNet.A2A
         /// set, then this property will be ignored.
         /// </summary>
         public string ForUserName { get; set; }
+
         /// <summary>
         /// The name of the identity provider to create the access request for. If the <see cref="ForUserId"/>
         /// property is set, then this property will be ignored.
         /// </summary>
         [JsonProperty(PropertyName = "ForProvider")]
         public string ForUserIdentityProvider { get; set; }
+
         /// <summary>
         /// The ID of the user to create the access request for.
         /// </summary>
@@ -147,6 +150,7 @@ namespace OneIdentity.SafeguardDotNet.A2A
         /// </summary>
         [JsonProperty(PropertyName = "SystemName")]
         public string AssetName { get; set; }
+
         /// <summary>
         /// The ID of the asset to create the access request for.
         /// </summary>
@@ -158,16 +162,19 @@ namespace OneIdentity.SafeguardDotNet.A2A
         /// set, then this property will be ignored.
         /// </summary>
         public string AccountName { get; set; }
+
         /// <summary>
         /// The ID of the account to create the access request for.
         /// </summary>
         public int? AccountId { get; set; }
+
         /// <summary>
         /// The name of the asset the account is from to create the access request for. If the
         /// <see cref="AccountAssetId"/> property is set, then this property will be ignored.
         /// </summary>
         [JsonProperty(PropertyName = "AccountSystemName")]
         public string AccountAssetName { get; set; }
+
         /// <summary>
         /// The ID of the asset the account is from to create the access request for.
         /// </summary>
@@ -184,10 +191,12 @@ namespace OneIdentity.SafeguardDotNet.A2A
         /// property is set, then this property will be ignored.
         /// </summary>
         public string ReasonCode { get; set; }
+
         /// <summary>
         /// The ID of the pre-defined reason code to include in the access request.
         /// </summary>
         public int? ReasonCodeId { get; set; }
+
         /// <summary>
         /// A reason comment to include in the access request.
         /// </summary>
@@ -204,6 +213,7 @@ namespace OneIdentity.SafeguardDotNet.A2A
         /// </summary>
         [JsonConverter(typeof(UtcDateTimeConverter))]
         public DateTime? RequestedFor { get; set; }
+
         /// <summary>
         /// The amount of time the access request should be requested for.
         /// </summary>
@@ -211,7 +221,9 @@ namespace OneIdentity.SafeguardDotNet.A2A
         public TimeSpan? RequestedDuration { get; set; }
 
         public int? RequestedDurationDays => RequestedDuration?.Days;
+
         public int? RequestedDurationHours => RequestedDuration?.Hours;
+
         public int? RequestedDurationMinutes => RequestedDuration?.Minutes;
     }
 }

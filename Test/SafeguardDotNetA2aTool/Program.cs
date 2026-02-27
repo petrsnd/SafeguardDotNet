@@ -41,6 +41,7 @@ SecureString PromptForSecret(string name)
             Console.Write("*");
         }
     }
+
     Console.Write(Environment.NewLine);
     return password;
 }
@@ -75,6 +76,7 @@ ISafeguardA2AContext CreateA2AContext(ToolOptions opts)
     {
         throw new InvalidOperationException("Must specify CertificateFile or Thumbprint");
     }
+
     return context;
 }
 
@@ -112,6 +114,7 @@ void Execute(ToolOptions opts)
                 var accounts = context.GetRetrievableAccounts();
                 Log.Information(System.Text.Json.JsonSerializer.Serialize(accounts));
             }
+
             if (opts.PrivateKey)
             {
                 if (opts.PrivateKeyFile != null)
@@ -158,14 +161,12 @@ void Execute(ToolOptions opts)
     }
 }
 
-
 void HandleParseError(IEnumerable<Error> errors)
 {
     Log.Logger = new LoggerConfiguration().WriteTo.Console(theme: AnsiConsoleTheme.Code).CreateLogger();
     Log.Error("Invalid command line options");
     Environment.Exit(1);
 }
-
 
 Parser.Default.ParseArguments<ToolOptions>(args)
 .WithParsed(Execute)

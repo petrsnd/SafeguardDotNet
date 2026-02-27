@@ -13,6 +13,7 @@ namespace OneIdentity.SafeguardDotNet
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+
     using OneIdentity.SafeguardDotNet.A2A;
     using OneIdentity.SafeguardDotNet.Authentication;
     using OneIdentity.SafeguardDotNet.Event;
@@ -1016,6 +1017,7 @@ namespace OneIdentity.SafeguardDotNet
                 {
                     rng.GetBytes(bytes);
                 }
+
                 return ToBase64Url(bytes);
             }
 
@@ -1048,6 +1050,7 @@ namespace OneIdentity.SafeguardDotNet
                 {
                     rng.GetBytes(bytes);
                 }
+
                 return ToBase64Url(bytes);
             }
 

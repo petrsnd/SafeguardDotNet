@@ -12,7 +12,9 @@ namespace OneIdentity.SafeguardDotNet.A2A
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+
     using OneIdentity.SafeguardDotNet.Event;
+
     using Serilog;
 
     internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
@@ -415,8 +417,11 @@ namespace OneIdentity.SafeguardDotNet.A2A
     internal class A2ARegistration
     {
         public string Id { get; set; }
+
         public string AppName { get; set; }
+
         public string Description { get; set; }
+
         public bool Disabled { get; set; }
     }
 }
