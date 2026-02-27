@@ -1,3 +1,5 @@
+namespace SafeguardDotNetTool;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -5,13 +7,9 @@ using System.Security;
 using System.Threading;
 
 using CommandLine;
-
 using OneIdentity.SafeguardDotNet;
-
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-
-namespace SafeguardDotNetTool;
 
 internal class Program
 {

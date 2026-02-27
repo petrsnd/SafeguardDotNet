@@ -1,11 +1,11 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Net.Security;
-using System.Security;
-
 namespace OneIdentity.SafeguardDotNet.Authentication
 {
+    using System;
+    using System.Net.Security;
+    using System.Security;
+
     internal class AccessTokenAuthenticator : AuthenticatorBase
     {
         public AccessTokenAuthenticator(string networkAddress, SecureString accessToken,

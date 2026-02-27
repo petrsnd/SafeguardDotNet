@@ -1,13 +1,13 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Net;
-using System.Runtime.Serialization;
-
-using Newtonsoft.Json.Linq;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+    using System.Net;
+    using System.Runtime.Serialization;
+
+    using Newtonsoft.Json.Linq;
+
     /// <summary>
     /// This class extends the base Exception class with a SafeguardDotNet specific exception.
     /// SafeguardDotNet tries to throw all exception using this class. SafeguardDotNet throws

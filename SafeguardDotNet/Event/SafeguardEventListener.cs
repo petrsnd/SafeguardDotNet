@@ -1,21 +1,19 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Security;
-using System.Security;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.SignalR.Client;
-
-using OneIdentity.SafeguardDotNet.A2A;
-
-using Serilog;
-
 namespace OneIdentity.SafeguardDotNet.Event
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Net.Security;
+    using System.Security;
+    using System.Threading.Tasks;
+
+    using Microsoft.AspNetCore.SignalR.Client;
+    using OneIdentity.SafeguardDotNet.A2A;
+    using Serilog;
+
     internal delegate void DisconnectHandler();
 
     internal class SafeguardEventListener : ISafeguardEventListener

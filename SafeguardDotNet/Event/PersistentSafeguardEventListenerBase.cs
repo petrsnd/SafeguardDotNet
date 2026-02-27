@@ -1,13 +1,13 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Serilog;
-
 namespace OneIdentity.SafeguardDotNet.Event
 {
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    using Serilog;
+
     internal abstract class PersistentSafeguardEventListenerBase : ISafeguardEventListener
     {
         private bool _disposed;

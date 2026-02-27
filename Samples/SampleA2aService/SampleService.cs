@@ -1,3 +1,5 @@
+namespace SampleA2aService;
+
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -7,14 +9,10 @@ using System.Security;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
 using OneIdentity.SafeguardDotNet;
 using OneIdentity.SafeguardDotNet.A2A;
 using OneIdentity.SafeguardDotNet.Event;
-
 using Serilog;
-
-namespace SampleA2aService;
 
 internal class SampleService
 {

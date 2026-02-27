@@ -1,13 +1,13 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Security;
-
-using OneIdentity.SafeguardDotNet.Event;
-
 namespace OneIdentity.SafeguardDotNet.A2A
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Security;
+
+    using OneIdentity.SafeguardDotNet.Event;
+
     /// <summary>
     /// This is a reusable interface for calling Safeguard A2A without having to continually
     /// pass the client certificate authentication information.

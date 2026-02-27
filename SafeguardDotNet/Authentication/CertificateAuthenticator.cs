@@ -1,16 +1,16 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Security;
-using System.Security;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 namespace OneIdentity.SafeguardDotNet.Authentication
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Net.Security;
+    using System.Security;
+
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+
     internal class CertificateAuthenticator : AuthenticatorBase
     {
         private readonly string _provider;

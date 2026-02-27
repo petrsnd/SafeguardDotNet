@@ -1,17 +1,17 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Security;
-
-using Serilog;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Http;
+    using System.Security;
+
+    using Serilog;
+
     /// <summary>
     /// A few extension methods that are useful when calling SafeguardDotNet methods.
     /// </summary>

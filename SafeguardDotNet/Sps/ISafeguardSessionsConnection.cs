@@ -1,9 +1,9 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-
 namespace OneIdentity.SafeguardDotNet.Sps
 {
+    using System;
+
     /// <summary>
     /// This is the reusable connection interface that can be used to call SPS API.
     /// </summary>

@@ -1,19 +1,19 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Handlers;
-using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
-
-using OneIdentity.SafeguardDotNet.Authentication;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Net.Http.Handlers;
+    using System.Net.Http.Headers;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    using OneIdentity.SafeguardDotNet.Authentication;
+
     internal class StreamingRequest : IStreamingRequest
     {
         private const int DefaultBufferSize = 81920;

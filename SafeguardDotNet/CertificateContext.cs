@@ -1,13 +1,13 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security;
-using System.Security.Cryptography.X509Certificates;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Security;
+    using System.Security.Cryptography.X509Certificates;
+
     internal class CertificateContext : IDisposable
     {
         private enum ContextType

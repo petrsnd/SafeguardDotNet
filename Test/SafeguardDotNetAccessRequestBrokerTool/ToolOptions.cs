@@ -1,10 +1,9 @@
+namespace SafeguardDotNetAccessRequestBrokerTool;
+
 using System;
 
 using CommandLine;
-
 using OneIdentity.SafeguardDotNet.A2A;
-
-namespace SafeguardDotNetAccessRequestBrokerTool;
 
 internal class ToolOptions
 {

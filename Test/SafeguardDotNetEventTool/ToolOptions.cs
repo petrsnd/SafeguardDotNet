@@ -1,6 +1,6 @@
-using CommandLine;
-
 namespace SafeguardDotNetEventTool;
+
+using CommandLine;
 
 internal class ToolOptions
 {

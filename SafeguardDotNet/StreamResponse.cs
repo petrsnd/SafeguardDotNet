@@ -1,12 +1,12 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+    using System.IO;
+    using System.Net.Http;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Represents a streamed response
     /// </summary>

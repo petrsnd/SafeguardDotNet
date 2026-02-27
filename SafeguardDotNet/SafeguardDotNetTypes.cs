@@ -1,15 +1,15 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Security;
-
-using Newtonsoft.Json;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net;
+    using System.Runtime.InteropServices;
+    using System.Security;
+
+    using Newtonsoft.Json;
+
     /// <summary>
     /// Service identifiers for the different services in the Safeguard API.
     /// </summary>

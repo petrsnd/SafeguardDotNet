@@ -1,10 +1,10 @@
-using System;
-using System.Threading;
-
-using Serilog;
-
 namespace OneIdentity.SafeguardDotNet.BrowserLogin
 {
+    using System;
+    using System.Threading;
+
+    using Serilog;
+
     /// <summary>
     /// Provides browser-based authentication to Safeguard using OAuth2/PKCE flow.
     /// This class launches the default browser and listens for the OAuth callback to complete authentication.

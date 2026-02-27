@@ -1,19 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net.Http;
-using System.Security;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-
-using Newtonsoft.Json.Linq;
-
-using Serilog;
-
 namespace OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Security;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Web;
+
+    using Newtonsoft.Json.Linq;
+    using Serilog;
+
     /// <summary>
     /// Provides PKCE-based authentication to Safeguard without launching a browser.
     /// This class enables programmatic authentication by manually handling the OAuth2/PKCE flow.

@@ -1,13 +1,13 @@
-using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Web;
-
 namespace OneIdentity.SafeguardDotNet.BrowserLogin
 {
+    using System;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Threading;
+    using System.Web;
+
     public class AuthorizationCodeExtractor
     {
         public AuthorizationCodeExtractor()

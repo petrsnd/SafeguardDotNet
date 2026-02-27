@@ -1,12 +1,12 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Linq;
-using System.Security;
-using System.Security.Cryptography.X509Certificates;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+    using System.Linq;
+    using System.Security;
+    using System.Security.Cryptography.X509Certificates;
+
     internal static class CertificateUtilities
     {
         public static X509Certificate2 GetClientCertificateFromStore(string thumbprint)

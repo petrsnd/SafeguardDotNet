@@ -1,14 +1,14 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Security;
-
-using OneIdentity.SafeguardDotNet.Event;
-using OneIdentity.SafeguardDotNet.Sps;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Security;
+
+    using OneIdentity.SafeguardDotNet.Event;
+    using OneIdentity.SafeguardDotNet.Sps;
+
     /// <summary>
     /// This is the reusable connection interface that can be used to call Safeguard API after
     /// connecting using the API access token obtained during authentication.

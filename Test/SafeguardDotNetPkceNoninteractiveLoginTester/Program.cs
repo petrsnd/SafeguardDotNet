@@ -1,15 +1,13 @@
+namespace SafeguardDotNetPkceNoninteractiveLoginTester;
+
 using System;
 using System.Security;
 
 using CommandLine;
-
 using OneIdentity.SafeguardDotNet;
 using OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin;
-
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-
-namespace SafeguardDotNetPkceNoninteractiveLoginTester;
 
 internal class Program
 {

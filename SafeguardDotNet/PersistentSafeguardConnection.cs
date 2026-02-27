@@ -1,14 +1,14 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Security;
-
-using OneIdentity.SafeguardDotNet.Event;
-using OneIdentity.SafeguardDotNet.Sps;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Security;
+
+    using OneIdentity.SafeguardDotNet.Event;
+    using OneIdentity.SafeguardDotNet.Sps;
+
     internal class PersistentSafeguardConnection : ISafeguardConnection
     {
         private readonly ISafeguardConnection _connection;

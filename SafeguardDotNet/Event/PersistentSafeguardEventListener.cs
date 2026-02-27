@@ -1,9 +1,9 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using Serilog;
-
 namespace OneIdentity.SafeguardDotNet.Event
 {
+    using Serilog;
+
     internal class PersistentSafeguardEventListener : PersistentSafeguardEventListenerBase
     {
         private bool _disposed;

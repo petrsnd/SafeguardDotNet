@@ -1,15 +1,13 @@
+namespace SafeguardDotNetBrowserLoginTester;
+
 using System;
 using System.Collections.Generic;
 
 using CommandLine;
-
 using OneIdentity.SafeguardDotNet;
 using OneIdentity.SafeguardDotNet.BrowserLogin;
-
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-
-namespace SafeguardDotNetBrowserLoginTester;
 
 internal class Program
 {

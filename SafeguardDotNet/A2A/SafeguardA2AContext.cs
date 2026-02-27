@@ -1,22 +1,20 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Security;
-using System.Security;
-using System.Text;
-using System.Threading.Tasks;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
-using OneIdentity.SafeguardDotNet.Event;
-
-using Serilog;
-
 namespace OneIdentity.SafeguardDotNet.A2A
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Net.Security;
+    using System.Security;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+    using OneIdentity.SafeguardDotNet.Event;
+    using Serilog;
+
     internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
     {
         private bool _disposed;

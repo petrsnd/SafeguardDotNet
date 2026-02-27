@@ -1,9 +1,9 @@
-using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-
 namespace OneIdentity.SafeguardDotNet.BrowserLogin
 {
+    using System;
+    using System.Diagnostics;
+    using System.Runtime.InteropServices;
+
     internal class BrowserLauncher
     {
         private readonly string _appliance;

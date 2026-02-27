@@ -1,12 +1,12 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Net.Http.Headers;
-using System.Security;
-using System.Text;
-
 namespace OneIdentity.SafeguardDotNet.Sps
 {
+    using System;
+    using System.Net.Http.Headers;
+    using System.Security;
+    using System.Text;
+
     internal class SpsAuthenticator : ISpsAuthenticator
     {
         internal SpsAuthenticator(string networkAddress, string userName, SecureString password, bool ignoreSsl = false)

@@ -1,11 +1,11 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-
-using OneIdentity.SafeguardDotNet.A2A;
-
 namespace OneIdentity.SafeguardDotNet.Event
 {
+    using System;
+
+    using OneIdentity.SafeguardDotNet.A2A;
+
     /// <summary>
     /// A callback that will be called when a given event occurs in Safeguard. The callback will
     /// receive the event name and JSON data representing the event.

@@ -1,6 +1,6 @@
-using CommandLine;
-
 namespace SafeguardDotNetExceptionTest;
+
+using CommandLine;
 
 internal class TestOptions
 {

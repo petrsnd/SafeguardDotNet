@@ -1,19 +1,19 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Security;
-using System.Security;
-using System.Text;
-using System.Threading.Tasks;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 namespace OneIdentity.SafeguardDotNet.Authentication
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Net.Security;
+    using System.Security;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+
     internal abstract class AuthenticatorBase : IAuthenticationMechanism
     {
         private bool _disposed;

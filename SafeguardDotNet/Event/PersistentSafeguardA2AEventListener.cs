@@ -1,16 +1,15 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security;
-
-using OneIdentity.SafeguardDotNet.A2A;
-
-using Serilog;
-
 namespace OneIdentity.SafeguardDotNet.Event
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Security;
+
+    using OneIdentity.SafeguardDotNet.A2A;
+    using Serilog;
+
     internal class PersistentSafeguardA2AEventListener : PersistentSafeguardEventListenerBase
     {
         private bool _disposed;

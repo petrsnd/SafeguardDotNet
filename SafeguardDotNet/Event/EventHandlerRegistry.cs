@@ -1,16 +1,15 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using Newtonsoft.Json.Linq;
-
-using Serilog;
-
 namespace OneIdentity.SafeguardDotNet.Event
 {
-    using DelegateRegistry = Dictionary<string, List<SafeguardEventHandler>>;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    using Newtonsoft.Json.Linq;
+    using Serilog;
+
+    using DelegateRegistry = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<SafeguardEventHandler>>;
 
     internal class EventHandlerRegistry
     {

@@ -1,10 +1,10 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System.Net.Http.Headers;
-using System.Security;
-
 namespace OneIdentity.SafeguardDotNet.Sps
 {
+    using System.Net.Http.Headers;
+    using System.Security;
+
     internal interface ISpsAuthenticator
     {
         string NetworkAddress { get; }

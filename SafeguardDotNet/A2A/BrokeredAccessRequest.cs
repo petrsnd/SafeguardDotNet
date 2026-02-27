@@ -1,11 +1,11 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-
-using Newtonsoft.Json;
-
 namespace OneIdentity.SafeguardDotNet.A2A
 {
+    using System;
+
+    using Newtonsoft.Json;
+
     /// <summary>
     /// Type of brokered access request to create.
     /// </summary>

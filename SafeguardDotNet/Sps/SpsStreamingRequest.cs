@@ -1,17 +1,17 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Handlers;
-using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace OneIdentity.SafeguardDotNet.Sps
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Net.Http.Handlers;
+    using System.Net.Http.Headers;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     internal class SpsStreamingRequest : ISpsStreamingRequest
     {
         private const int DefaultBufferSize = 81920;

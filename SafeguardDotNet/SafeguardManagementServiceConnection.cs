@@ -1,13 +1,13 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-
-using OneIdentity.SafeguardDotNet.Authentication;
-using OneIdentity.SafeguardDotNet.Event;
-using OneIdentity.SafeguardDotNet.Sps;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+
+    using OneIdentity.SafeguardDotNet.Authentication;
+    using OneIdentity.SafeguardDotNet.Event;
+    using OneIdentity.SafeguardDotNet.Sps;
+
     internal class SafeguardManagementServiceConnection : SafeguardConnection
     {
         private readonly Uri _managementUrl;

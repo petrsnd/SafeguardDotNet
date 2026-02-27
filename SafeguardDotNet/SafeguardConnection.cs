@@ -1,23 +1,21 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Security;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Newtonsoft.Json;
-
-using OneIdentity.SafeguardDotNet.Authentication;
-using OneIdentity.SafeguardDotNet.Event;
-using OneIdentity.SafeguardDotNet.Sps;
-
-using Serilog;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Security;
+    using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    using Newtonsoft.Json;
+    using OneIdentity.SafeguardDotNet.Authentication;
+    using OneIdentity.SafeguardDotNet.Event;
+    using OneIdentity.SafeguardDotNet.Sps;
+    using Serilog;
+
     internal class SafeguardConnection : ISafeguardConnection, ICloneable
     {
         private bool _disposed;

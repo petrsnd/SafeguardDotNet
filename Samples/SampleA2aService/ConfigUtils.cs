@@ -1,3 +1,5 @@
+namespace SampleA2aService;
+
 using System;
 using System.Configuration;
 using System.Diagnostics;
@@ -7,8 +9,6 @@ using System.Threading.Tasks;
 
 using Serilog;
 using Serilog.Events;
-
-namespace SampleA2aService;
 
 internal static class ConfigUtils
 {

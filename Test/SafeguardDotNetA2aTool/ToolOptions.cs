@@ -1,8 +1,7 @@
-using CommandLine;
-
-using OneIdentity.SafeguardDotNet;
-
 namespace SafeguardDotNetA2aTool;
+
+using CommandLine;
+using OneIdentity.SafeguardDotNet;
 
 internal class ToolOptions
 {

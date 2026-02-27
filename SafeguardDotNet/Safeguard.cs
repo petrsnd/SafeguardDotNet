@@ -1,23 +1,22 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Security;
-using System.Security;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
-using OneIdentity.SafeguardDotNet.A2A;
-using OneIdentity.SafeguardDotNet.Authentication;
-using OneIdentity.SafeguardDotNet.Event;
-
 namespace OneIdentity.SafeguardDotNet
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Net.Security;
+    using System.Security;
+    using System.Security.Cryptography;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+    using OneIdentity.SafeguardDotNet.A2A;
+    using OneIdentity.SafeguardDotNet.Authentication;
+    using OneIdentity.SafeguardDotNet.Event;
+
     /// <summary>
     /// This static class provides static methods for connecting to Safeguard API.
     /// </summary>

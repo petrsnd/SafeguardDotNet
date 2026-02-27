@@ -1,10 +1,10 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System.Net.Security;
-using System.Security;
-
 namespace OneIdentity.SafeguardDotNet.Authentication
 {
+    using System.Net.Security;
+    using System.Security;
+
     internal class ManagementServiceAuthenticator : IAuthenticationMechanism
     {
         internal ManagementServiceAuthenticator(IAuthenticationMechanism parentAuthenticationMechanism, string networkAddress)

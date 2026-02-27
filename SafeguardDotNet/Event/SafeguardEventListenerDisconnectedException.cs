@@ -1,9 +1,9 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System.Runtime.Serialization;
-
 namespace OneIdentity.SafeguardDotNet.Event
 {
+    using System.Runtime.Serialization;
+
     public class SafeguardEventListenerDisconnectedException : SafeguardDotNetException
     {
         public SafeguardEventListenerDisconnectedException()
