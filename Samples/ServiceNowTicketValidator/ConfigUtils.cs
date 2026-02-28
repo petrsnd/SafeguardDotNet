@@ -1,11 +1,12 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Configuration;
-using Serilog;
-
 namespace ServiceNowTicketValidator
 {
+    using System;
+    using System.Configuration;
+
+    using Serilog;
+
     static class ConfigUtils
     {
         public static string ReadRequiredSettingFromAppConfig(string key, string description)

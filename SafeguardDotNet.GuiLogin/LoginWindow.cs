@@ -1,7 +1,9 @@
-﻿using Serilog;
+﻿// Copyright (c) One Identity LLC. All rights reserved.
 
 namespace OneIdentity.SafeguardDotNet.GuiLogin
 {
+    using Serilog;
+
     /// <summary>
     /// Provides GUI-based authentication to Safeguard using OAuth2/PKCE flow with an embedded browser control.
     /// This class displays a Windows Forms dialog containing a web view for interactive user authentication.

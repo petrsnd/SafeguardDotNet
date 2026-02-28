@@ -1,14 +1,15 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.IO;
-using System.Reflection;
-using Serilog;
-using Serilog.Events;
-using Topshelf;
-
 namespace ServiceNowTicketValidator
 {
+    using System;
+    using System.IO;
+    using System.Reflection;
+
+    using Serilog;
+    using Serilog.Events;
+    using Topshelf;
+
     internal static class Program
     {
         static void Main(string[] args)

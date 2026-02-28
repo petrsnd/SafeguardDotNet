@@ -1,12 +1,13 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Security;
-using Serilog;
-using ServiceNowTicketValidator.DTOs;
-
 namespace ServiceNowTicketValidator
 {
+    using System;
+    using System.Security;
+
+    using Serilog;
+    using global::ServiceNowTicketValidator.DTOs;
+
     internal enum ValidationResult
     {
         Ignore,

@@ -1,12 +1,16 @@
-﻿using Microsoft.Web.WebView2.WinForms;
-using Serilog;
-using System;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿// Copyright (c) One Identity LLC. All rights reserved.
 
 namespace OneIdentity.SafeguardDotNet.GuiLogin
 {
+    using System;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+    using System.Windows.Forms;
+
+    using Microsoft.Web.WebView2.WinForms;
+
+    using Serilog;
+
     internal class RstsWindow
     {
         private readonly string _appliance;
@@ -14,6 +18,7 @@ namespace OneIdentity.SafeguardDotNet.GuiLogin
         private readonly WebView2 _browser;
 
         public string AuthorizationCode { get; set; }
+
         public string CodeVerifier { get; set; }
 
         public RstsWindow(string appliance)

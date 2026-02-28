@@ -1,18 +1,19 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security;
-using System.Text;
-using Newtonsoft.Json;
-using OneIdentity.SafeguardDotNet;
-using Serilog;
-using ServiceNowTicketValidator.DTOs;
-
 namespace ServiceNowTicketValidator
 {
+    using System;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Security;
+    using System.Text;
+
+    using Newtonsoft.Json;
+    using OneIdentity.SafeguardDotNet;
+    using Serilog;
+    using global::ServiceNowTicketValidator.DTOs;
+
     internal class ServiceNowClient : IDisposable
     {
         private const string IncidentByTicketNumberFormat = "api/now/table/incident?sysparm_query=number%3D{0}&sysparm_limit=1";

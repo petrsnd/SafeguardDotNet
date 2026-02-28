@@ -1,10 +1,10 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
 namespace ServiceNowTicketValidator.DTOs
 {
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal class ServiceNowResult<T> where T : class
     {

@@ -1,16 +1,17 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
-using System;
-using System.Configuration;
-using System.Security;
-using Newtonsoft.Json;
-using OneIdentity.SafeguardDotNet;
-using OneIdentity.SafeguardDotNet.Event;
-using Serilog;
-using ServiceNowTicketValidator.DTOs;
-
 namespace ServiceNowTicketValidator
 {
+    using System;
+    using System.Configuration;
+    using System.Security;
+
+    using Newtonsoft.Json;
+    using OneIdentity.SafeguardDotNet;
+    using OneIdentity.SafeguardDotNet.Event;
+    using Serilog;
+    using global::ServiceNowTicketValidator.DTOs;
+
     internal class ServiceNowTicketValidatorService
     {
         private readonly string _safeguardAddress;
