@@ -15,7 +15,7 @@ using OneIdentity.SafeguardDotNet;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
-internal class Program
+internal static class Program
 {
     private static CancellationTokenSource Cts { get; } = new CancellationTokenSource();
 

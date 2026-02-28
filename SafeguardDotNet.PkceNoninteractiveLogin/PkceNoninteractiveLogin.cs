@@ -193,7 +193,9 @@ namespace OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin
 
             if (ignoreSsl)
             {
+#pragma warning disable S4830 // Intentional SSL bypass when user explicitly opts in via ignoreSsl parameter
                 handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+#pragma warning restore S4830
             }
 
             return new HttpClient(handler);

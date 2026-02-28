@@ -22,7 +22,7 @@ using OneIdentity.SafeguardDotNet.Event;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
-internal class Program
+internal static class Program
 {
     private static SecureString PromptForSecret(string name)
     {
