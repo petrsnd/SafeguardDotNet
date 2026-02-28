@@ -7,7 +7,7 @@ namespace ServiceNowTicketValidator
 
     using Serilog;
 
-    static class ConfigUtils
+    internal static class ConfigUtils
     {
         public static string ReadRequiredSettingFromAppConfig(string key, string description)
         {
@@ -15,13 +15,16 @@ namespace ServiceNowTicketValidator
             {
                 var value = ConfigurationManager.AppSettings[key];
                 if (!string.IsNullOrEmpty(value))
+                {
                     return value;
-                Log.Error($"{key} is required in App.Config");
+                }
+
+                Log.Error("{Key} is required in App.Config", key);
                 throw new InvalidOperationException($"Unable to start ServiceNowTicketValidator with empty {description}.");
             }
             catch (ConfigurationErrorsException ex)
             {
-                Log.Error(ex, $"{key} is required in App.Config");
+                Log.Error(ex, "{Key} is required in App.Config", key);
                 throw new InvalidOperationException($"Unable to start ServiceNowTicketValidator without {description}.", ex);
             }
         }

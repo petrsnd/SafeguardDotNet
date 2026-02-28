@@ -12,16 +12,21 @@ namespace ServiceNowTicketValidator
 
     internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             if (Environment.UserInteractive)
+            {
                 Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.Console()
                     .CreateLogger();
+            }
             else
             {
                 var loggingDirectory = ConfigUtils.ReadRequiredSettingFromAppConfig("LoggingDirectory", "logging directory");
                 if (!Path.IsPathRooted(loggingDirectory))
+                {
                     loggingDirectory = Path.Combine(Assembly.GetEntryAssembly().Location, loggingDirectory);
+                }
+
                 Log.Logger = new LoggerConfiguration().WriteTo.File(
                         Path.Combine(loggingDirectory, "ServiceNowTicketValidator-{Date}.log").ToString(),
                         LogEventLevel.Debug)

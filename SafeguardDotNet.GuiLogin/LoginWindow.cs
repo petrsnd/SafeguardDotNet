@@ -10,8 +10,6 @@ namespace OneIdentity.SafeguardDotNet.GuiLogin
     /// </summary>
     public static class LoginWindow
     {
-        private static RstsWindow rstsWindow;
-
         /// <summary>
         /// Connect to Safeguard by displaying a GUI login window with an embedded browser for OAuth2/PKCE authentication.
         /// The user interacts with the Safeguard login page within a Windows Forms dialog.
@@ -24,7 +22,7 @@ namespace OneIdentity.SafeguardDotNet.GuiLogin
         {
             Log.Debug("Calling RSTS for primary authentication");
 
-            rstsWindow = new RstsWindow(appliance);
+            var rstsWindow = new RstsWindow(appliance);
 
             if (rstsWindow.Show())
             {
