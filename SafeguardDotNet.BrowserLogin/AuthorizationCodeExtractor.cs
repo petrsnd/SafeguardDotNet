@@ -83,7 +83,7 @@ namespace OneIdentity.SafeguardDotNet.BrowserLogin
             }
         }
 
-        private string ExtractUriFromHttpRequest(string httpRequest)
+        private static string ExtractUriFromHttpRequest(string httpRequest)
         {
             var regexp = @"GET \/\?(.*) HTTP";
             var r1 = new Regex(regexp);

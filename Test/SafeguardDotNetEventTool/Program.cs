@@ -69,7 +69,7 @@ internal class Program
 
     private static void EventListenerStateCallback(SafeguardEventListenerState newState)
     {
-        Log.Information($"The new event listener state is: {newState}");
+        Log.Information("The new event listener state is: {NewState}", newState);
     }
 
     private static List<SecureString> ReadAllApiKeys(ToolOptions opts, SecureString password)
@@ -346,7 +346,7 @@ internal class Program
 
         using var connection = CreateConnection(opts);
         Log.Information(
-            $"Access Token Lifetime Remaining: {connection.GetAccessTokenLifetimeRemaining()}");
+            "Access Token Lifetime Remaining: {Remaining}", connection.GetAccessTokenLifetimeRemaining());
         var listener = connection.GetEventListener();
         listener.RegisterEventHandler(opts.Event, (name, body) =>
         {

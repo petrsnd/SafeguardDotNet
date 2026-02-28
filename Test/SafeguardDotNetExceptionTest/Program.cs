@@ -340,7 +340,7 @@ void Execute(TestOptions opts)
             throw new InvalidOperationException("Must specify Anonymous or Username");
         }
 
-        Log.Debug($"Access Token Lifetime Remaining: {connection.GetAccessTokenLifetimeRemaining()}");
+        Log.Debug("Access Token Lifetime Remaining: {Remaining}", connection.GetAccessTokenLifetimeRemaining());
 
         TestApiExceptions(connection);
 

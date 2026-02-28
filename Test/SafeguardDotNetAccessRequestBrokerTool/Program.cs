@@ -151,7 +151,7 @@ BrokeredAccessRequest GetBrokeredAccessRequestObject(ToolOptions opts)
 
     if (!string.IsNullOrEmpty(opts.RequestedDuration))
     {
-        accessRequest.RequestedDuration = TimeSpan.Parse(opts.RequestedDuration);
+        accessRequest.RequestedDuration = TimeSpan.Parse(opts.RequestedDuration, System.Globalization.CultureInfo.InvariantCulture);
     }
 
     return accessRequest;

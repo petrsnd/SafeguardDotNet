@@ -24,12 +24,12 @@ internal static class ConfigUtils
                 return value;
             }
 
-            Log.Error($"{key} is required in App.Config");
+            Log.Error("{Key} is required in App.Config", key);
             throw new InvalidOperationException($"Unable to start SampleA2aService with empty {description}.");
         }
         catch (ConfigurationErrorsException ex)
         {
-            Log.Error(ex, $"{key} is required in App.Config");
+            Log.Error(ex, "{Key} is required in App.Config", key);
             throw new InvalidOperationException($"Unable to start SampleA2aService without {description}.", ex);
         }
     }

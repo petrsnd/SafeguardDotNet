@@ -29,7 +29,7 @@ internal class SampleService
     private ISafeguardA2AContext _a2AContext;
     private readonly List<ISafeguardEventListener> _listeners = new List<ISafeguardEventListener>();
 
-    private class MonitoredPassword
+    private sealed class MonitoredPassword
     {
         public SecureString ApiKey { get; set; }
 
@@ -106,10 +106,10 @@ internal class SampleService
             // password.ToInsecureString()
         }
 #pragma warning disable CA1031 // Intentional top-level catch-all for error logging
-        catch (Exception)
+        catch (Exception ex)
 #pragma warning restore CA1031
         {
-            Log.Information("Password not in monitored list for handled event {MonitoredPassword}", eventInfo);
+            Log.Information(ex, "Password not in monitored list for handled event {MonitoredPassword}", eventInfo);
         }
     }
 

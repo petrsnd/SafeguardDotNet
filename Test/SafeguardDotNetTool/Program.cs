@@ -118,7 +118,7 @@ internal class Program
                 throw new InvalidOperationException("Must specify Anonymous, Username, CertificateFile, or Thumbprint");
             }
 
-            Log.Debug($"Access Token Lifetime Remaining: {connection.GetAccessTokenLifetimeRemaining()}");
+            Log.Debug("Access Token Lifetime Remaining: {Remaining}", connection.GetAccessTokenLifetimeRemaining());
 
             string responseBody;
             if (!string.IsNullOrEmpty(opts.File))
@@ -175,9 +175,6 @@ internal class Program
                     Console.Write("\rDownloading: {0,3}% ({1}/{2})                                  ", p.PercentComplete, p.BytesTransferred, p.BytesTotal);
                 }
             }) : null;
-
-            // This is the alternate way to download directly to a file:
-            // connection.Streaming.DownloadAsync(opts.Service, opts.RelativeUrl, opts.File, progress: progress, cancellationToken: Cts.Token).Wait();
 
             using (var streamResult = connection.Streaming.DownloadStreamAsync(opts.Service, opts.RelativeUrl, progress: progress, cancellationToken: Cts.Token).Result)
             {
