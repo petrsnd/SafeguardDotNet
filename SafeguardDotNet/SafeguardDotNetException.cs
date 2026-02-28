@@ -4,7 +4,6 @@ namespace OneIdentity.SafeguardDotNet
 {
     using System;
     using System.Net;
-    using System.Runtime.Serialization;
 
     using Newtonsoft.Json.Linq;
 
@@ -68,11 +67,6 @@ namespace OneIdentity.SafeguardDotNet
                     ErrorMessage = response;
                 }
             }
-        }
-
-        protected SafeguardDotNetException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
         }
 
         /// <summary>
