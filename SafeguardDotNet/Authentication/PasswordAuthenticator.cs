@@ -19,8 +19,15 @@ namespace OneIdentity.SafeguardDotNet.Authentication
         private readonly string _username;
         private readonly SecureString _password;
 
-        public PasswordAuthenticator(string networkAddress, string provider, string username, SecureString password, int apiVersion,
-            bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : base(networkAddress, apiVersion, ignoreSsl, validationCallback)
+        public PasswordAuthenticator(
+            string networkAddress,
+            string provider,
+            string username,
+            SecureString password,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback)
+            : base(networkAddress, apiVersion, ignoreSsl, validationCallback)
         {
             _provider = provider;
             if (string.IsNullOrEmpty(_provider))

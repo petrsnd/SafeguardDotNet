@@ -45,8 +45,8 @@ namespace OneIdentity.SafeguardDotNet.Event
             _eventHandlerRegistry = new EventHandlerRegistry();
         }
 
-        public SafeguardEventListener(string eventUrl, SecureString accessToken, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) :
-            this(eventUrl, ignoreSsl, validationCallback)
+        public SafeguardEventListener(string eventUrl, SecureString accessToken, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback)
+            : this(eventUrl, ignoreSsl, validationCallback)
         {
             if (accessToken == null)
             {
@@ -56,8 +56,12 @@ namespace OneIdentity.SafeguardDotNet.Event
             _accessToken = accessToken.Copy();
         }
 
-        public SafeguardEventListener(string eventUrl, CertificateContext clientCertificate, SecureString apiKey,
-            bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : this(eventUrl, ignoreSsl, validationCallback)
+        public SafeguardEventListener(
+            string eventUrl,
+            CertificateContext clientCertificate,
+            SecureString apiKey,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback) : this(eventUrl, ignoreSsl, validationCallback)
         {
             _clientCertificate = clientCertificate.Clone();
             if (apiKey == null)
@@ -68,8 +72,12 @@ namespace OneIdentity.SafeguardDotNet.Event
             _apiKey = apiKey.Copy();
         }
 
-        public SafeguardEventListener(string eventUrl, CertificateContext clientCertificate, IEnumerable<SecureString> apiKeys,
-            bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : this(eventUrl, ignoreSsl, validationCallback)
+        public SafeguardEventListener(
+            string eventUrl,
+            CertificateContext clientCertificate,
+            IEnumerable<SecureString> apiKeys,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback) : this(eventUrl, ignoreSsl, validationCallback)
         {
             _clientCertificate = clientCertificate.Clone();
             if (apiKeys == null)

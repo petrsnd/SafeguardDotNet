@@ -15,40 +15,82 @@ namespace OneIdentity.SafeguardDotNet.Authentication
     {
         private readonly string _provider;
 
-        public CertificateAuthenticator(string networkAddress, string certificateThumbprint, int apiVersion,
-            bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificateThumbprint))
+        public CertificateAuthenticator(
+            string networkAddress,
+            string certificateThumbprint,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback)
+            : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificateThumbprint))
         {
         }
 
-        public CertificateAuthenticator(string networkAddress, string certificatePath, SecureString certificatePassword,
-            int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificatePath, certificatePassword))
+        public CertificateAuthenticator(
+            string networkAddress,
+            string certificatePath,
+            SecureString certificatePassword,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback)
+            : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificatePath, certificatePassword))
         {
         }
 
-        public CertificateAuthenticator(string networkAddress, IEnumerable<byte> certificateData, SecureString certificatePassword,
-            int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificateData, certificatePassword))
+        public CertificateAuthenticator(
+            string networkAddress,
+            IEnumerable<byte> certificateData,
+            SecureString certificatePassword,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback)
+            : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificateData, certificatePassword))
         {
         }
 
-        private CertificateAuthenticator(string networkAddress, CertificateContext clientCertificate, int apiVersion,
-            bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : base(networkAddress, apiVersion, ignoreSsl, validationCallback, clientCertificate.Clone())
+        private CertificateAuthenticator(
+            string networkAddress,
+            CertificateContext clientCertificate,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback)
+            : base(networkAddress, apiVersion, ignoreSsl, validationCallback, clientCertificate.Clone())
         {
         }
 
-        public CertificateAuthenticator(string networkAddress, string certificateThumbprint, int apiVersion,
-            bool ignoreSsl, RemoteCertificateValidationCallback validationCallback, string provider) : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificateThumbprint))
+        public CertificateAuthenticator(
+            string networkAddress,
+            string certificateThumbprint,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback,
+            string provider)
+            : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificateThumbprint))
         {
             _provider = provider;
         }
 
-        public CertificateAuthenticator(string networkAddress, string certificatePath, SecureString certificatePassword,
-            int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback, string provider) : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificatePath, certificatePassword))
+        public CertificateAuthenticator(
+            string networkAddress,
+            string certificatePath,
+            SecureString certificatePassword,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback,
+            string provider)
+            : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificatePath, certificatePassword))
         {
             _provider = provider;
         }
 
-        public CertificateAuthenticator(string networkAddress, IEnumerable<byte> certificateData, SecureString certificatePassword,
-            int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback, string provider) : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificateData, certificatePassword))
+        public CertificateAuthenticator(
+            string networkAddress,
+            IEnumerable<byte> certificateData,
+            SecureString certificatePassword,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback,
+            string provider)
+            : base(networkAddress, apiVersion, ignoreSsl, validationCallback, new CertificateContext(certificateData, certificatePassword))
         {
             _provider = provider;
         }

@@ -221,7 +221,8 @@ namespace OneIdentity.SafeguardDotNet.Sps
                 fullResponse.Body = response.Content.ReadAsStringAsync().Result;
                 throw new SafeguardDotNetException(
                     $"Response does not indicate OK status. Error: {fullResponse.StatusCode} {fullResponse.Body}",
-                    fullResponse.StatusCode, fullResponse.Body);
+                    fullResponse.StatusCode,
+                    fullResponse.Body);
             }
 
             fullResponse.LogResponseDetails();

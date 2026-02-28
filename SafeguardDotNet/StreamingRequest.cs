@@ -181,7 +181,8 @@ namespace OneIdentity.SafeguardDotNet
                 fullResponse.Body = response.Content.ReadAsStringAsync().Result;
                 throw new SafeguardDotNetException(
                     $"Response does not indicate OK status. Error: {fullResponse.StatusCode} {fullResponse.Body}",
-                    fullResponse.StatusCode, fullResponse.Body);
+                    fullResponse.StatusCode,
+                    fullResponse.Body);
             }
 
             fullResponse.LogResponseDetails();
@@ -200,7 +201,8 @@ namespace OneIdentity.SafeguardDotNet
             {
                 throw new SafeguardDotNetException(
                     $"Error returned from Safeguard API, Error: {fullResponse.StatusCode} {fullResponse.Body}",
-                    fullResponse.StatusCode, fullResponse.Body);
+                    fullResponse.StatusCode,
+                    fullResponse.Body);
             }
 
             fullResponse.LogResponseDetails();

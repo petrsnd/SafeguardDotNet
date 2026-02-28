@@ -101,8 +101,13 @@ namespace OneIdentity.SafeguardDotNet
             Log.Debug("Successfully obtained a new access token");
         }
 
-        public string InvokeMethod(Service service, Method method, string relativeUrl, string body,
-            IDictionary<string, string> parameters, IDictionary<string, string> additionalHeaders,
+        public string InvokeMethod(
+            Service service,
+            Method method,
+            string relativeUrl,
+            string body,
+            IDictionary<string, string> parameters,
+            IDictionary<string, string> additionalHeaders,
             TimeSpan? timeout = null)
         {
             if (_disposed)
@@ -122,9 +127,14 @@ namespace OneIdentity.SafeguardDotNet
         /// <param name="additionalHeaders">Additional HTTP headers to be added to the request.</param>
         /// <param name="timeout">Override the default request timeout of 100 seconds.</param>
         /// <returns>The HTTP response data.</returns>
-        public FullResponse InvokeMethodFull(Service service, Method method, string relativeUrl,
-            string body = null, IDictionary<string, string> parameters = null,
-            IDictionary<string, string> additionalHeaders = null, TimeSpan? timeout = null)
+        public FullResponse InvokeMethodFull(
+            Service service,
+            Method method,
+            string relativeUrl,
+            string body = null,
+            IDictionary<string, string> parameters = null,
+            IDictionary<string, string> additionalHeaders = null,
+            TimeSpan? timeout = null)
         {
             if (_disposed)
             {
@@ -239,9 +249,14 @@ namespace OneIdentity.SafeguardDotNet
             }
         }
 
-        public string InvokeMethodCsv(Service service, Method method, string relativeUrl,
-            string body = null, IDictionary<string, string> parameters = null,
-            IDictionary<string, string> additionalHeaders = null, TimeSpan? timeout = null)
+        public string InvokeMethodCsv(
+            Service service,
+            Method method,
+            string relativeUrl,
+            string body = null,
+            IDictionary<string, string> parameters = null,
+            IDictionary<string, string> additionalHeaders = null,
+            TimeSpan? timeout = null)
         {
             if (_disposed)
             {
@@ -289,7 +304,9 @@ namespace OneIdentity.SafeguardDotNet
 
             var eventListener = new SafeguardEventListener(
                 $"https://{authenticationMechanism.NetworkAddress}/service/event/signalr",
-                authenticationMechanism.GetAccessToken(), authenticationMechanism.IgnoreSsl, authenticationMechanism.ValidationCallback);
+                authenticationMechanism.GetAccessToken(),
+                authenticationMechanism.IgnoreSsl,
+                authenticationMechanism.ValidationCallback);
             Log.Debug("Event listener successfully created for Safeguard connection.");
             return eventListener;
         }

@@ -8,8 +8,8 @@ namespace OneIdentity.SafeguardDotNet.Authentication
 
     internal class AnonymousAuthenticator : AuthenticatorBase
     {
-        public AnonymousAuthenticator(string networkAddress, int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) :
-            base(networkAddress, apiVersion, ignoreSsl, validationCallback)
+        public AnonymousAuthenticator(string networkAddress, int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback)
+            : base(networkAddress, apiVersion, ignoreSsl, validationCallback)
         {
             var notificationUrl = $"https://{NetworkAddress}/service/notification/v{ApiVersion}/Status";
 

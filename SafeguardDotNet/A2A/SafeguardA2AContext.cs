@@ -32,8 +32,12 @@ namespace OneIdentity.SafeguardDotNet.A2A
         private readonly CertificateContext _clientCertificate;
         private readonly HttpClient _http;
 
-        private SafeguardA2AContext(string networkAddress, CertificateContext clientCertificate, int apiVersion,
-            bool ignoreSsl, RemoteCertificateValidationCallback validationCallback)
+        private SafeguardA2AContext(
+            string networkAddress,
+            CertificateContext clientCertificate,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback)
         {
             _networkAddress = networkAddress;
             _apiVersion = apiVersion;
@@ -69,20 +73,30 @@ namespace OneIdentity.SafeguardDotNet.A2A
             return new HttpClient(handler);
         }
 
-        public SafeguardA2AContext(string networkAddress, string certificateThumbprint, int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) :
-            this(networkAddress, new CertificateContext(certificateThumbprint), apiVersion, ignoreSsl, validationCallback)
+        public SafeguardA2AContext(string networkAddress, string certificateThumbprint, int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback)
+            : this(networkAddress, new CertificateContext(certificateThumbprint), apiVersion, ignoreSsl, validationCallback)
         {
         }
 
-        public SafeguardA2AContext(string networkAddress, string certificatePath, SecureString certificatePassword,
-            int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) :
-            this(networkAddress, new CertificateContext(certificatePath, certificatePassword), apiVersion, ignoreSsl, validationCallback)
+        public SafeguardA2AContext(
+            string networkAddress,
+            string certificatePath,
+            SecureString certificatePassword,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback)
+            : this(networkAddress, new CertificateContext(certificatePath, certificatePassword), apiVersion, ignoreSsl, validationCallback)
         {
         }
 
-        public SafeguardA2AContext(string networkAddress, IEnumerable<byte> certificateData, SecureString certificatePassword,
-            int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) :
-            this(networkAddress, new CertificateContext(certificateData, certificatePassword), apiVersion, ignoreSsl, validationCallback)
+        public SafeguardA2AContext(
+            string networkAddress,
+            IEnumerable<byte> certificateData,
+            SecureString certificatePassword,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback)
+            : this(networkAddress, new CertificateContext(certificateData, certificatePassword), apiVersion, ignoreSsl, validationCallback)
         {
         }
 
@@ -246,8 +260,12 @@ namespace OneIdentity.SafeguardDotNet.A2A
                 throw new ArgumentException("Parameter may not be null", nameof(apiKey));
             }
 
-            var eventListener = new SafeguardEventListener($"https://{_networkAddress}/service/a2a/signalr",
-                _clientCertificate, apiKey, _ignoreSsl, _validationCallback);
+            var eventListener = new SafeguardEventListener(
+                $"https://{_networkAddress}/service/a2a/signalr",
+                _clientCertificate,
+                apiKey,
+                _ignoreSsl,
+                _validationCallback);
             eventListener.RegisterEventHandler("AssetAccountPasswordUpdated", handler);
             eventListener.RegisterEventHandler("AssetAccountSshKeyUpdated", handler);
             eventListener.RegisterEventHandler("AccountApiKeySecretUpdated", handler);
@@ -267,8 +285,12 @@ namespace OneIdentity.SafeguardDotNet.A2A
                 throw new ArgumentException("Parameter may not be null", nameof(apiKeys));
             }
 
-            var eventListener = new SafeguardEventListener($"https://{_networkAddress}/service/a2a/signalr", _clientCertificate,
-                apiKeys, _ignoreSsl, _validationCallback);
+            var eventListener = new SafeguardEventListener(
+                $"https://{_networkAddress}/service/a2a/signalr",
+                _clientCertificate,
+                apiKeys,
+                _ignoreSsl,
+                _validationCallback);
             eventListener.RegisterEventHandler("AssetAccountPasswordUpdated", handler);
             eventListener.RegisterEventHandler("AssetAccountSshKeyUpdated", handler);
             eventListener.RegisterEventHandler("AccountApiKeySecretUpdated", handler);

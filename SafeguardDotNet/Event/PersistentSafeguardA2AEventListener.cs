@@ -34,7 +34,9 @@ namespace OneIdentity.SafeguardDotNet.Event
             Log.Debug("Persistent A2A event listener successfully created.");
         }
 
-        public PersistentSafeguardA2AEventListener(ISafeguardA2AContext a2AContext, IEnumerable<SecureString> apiKeys,
+        public PersistentSafeguardA2AEventListener(
+            ISafeguardA2AContext a2AContext,
+            IEnumerable<SecureString> apiKeys,
             SafeguardEventHandler handler)
         {
             _a2AContext = a2AContext;

@@ -48,7 +48,11 @@ namespace OneIdentity.SafeguardDotNet.A2A
             }
         }
 
-        public override BrokeredAccessRequestType ReadJson(JsonReader reader, Type objectType, BrokeredAccessRequestType existingValue, bool hasExistingValue,
+        public override BrokeredAccessRequestType ReadJson(
+            JsonReader reader,
+            Type objectType,
+            BrokeredAccessRequestType existingValue,
+            bool hasExistingValue,
             JsonSerializer serializer)
         {
             var value = (string)reader.Value;
@@ -82,7 +86,11 @@ namespace OneIdentity.SafeguardDotNet.A2A
             writer.WriteValue(utc.ToString("u"));
         }
 
-        public override DateTime ReadJson(JsonReader reader, Type objectType, DateTime existingValue, bool hasExistingValue,
+        public override DateTime ReadJson(
+            JsonReader reader,
+            Type objectType,
+            DateTime existingValue,
+            bool hasExistingValue,
             JsonSerializer serializer)
         {
             return DateTime.Parse((string)reader.Value);
@@ -96,7 +104,11 @@ namespace OneIdentity.SafeguardDotNet.A2A
             writer.WriteValue($"{value.Days}:{value.Hours}:{value.Minutes}");
         }
 
-        public override TimeSpan ReadJson(JsonReader reader, Type objectType, TimeSpan existingValue, bool hasExistingValue,
+        public override TimeSpan ReadJson(
+            JsonReader reader,
+            Type objectType,
+            TimeSpan existingValue,
+            bool hasExistingValue,
             JsonSerializer serializer)
         {
             var spanstr = (string)reader.Value;

@@ -8,8 +8,13 @@ namespace OneIdentity.SafeguardDotNet.Authentication
 
     internal class AccessTokenAuthenticator : AuthenticatorBase
     {
-        public AccessTokenAuthenticator(string networkAddress, SecureString accessToken,
-            int apiVersion, bool ignoreSsl, RemoteCertificateValidationCallback validationCallback) : base(networkAddress, apiVersion, ignoreSsl, validationCallback)
+        public AccessTokenAuthenticator(
+            string networkAddress,
+            SecureString accessToken,
+            int apiVersion,
+            bool ignoreSsl,
+            RemoteCertificateValidationCallback validationCallback)
+            : base(networkAddress, apiVersion, ignoreSsl, validationCallback)
         {
             if (accessToken == null)
             {

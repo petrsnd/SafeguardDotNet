@@ -71,7 +71,8 @@ namespace OneIdentity.SafeguardDotNet.Event
                         Thread.Sleep(5000);
                     }
                 }
-            }, _reconnectCancel.Token);
+            },
+                _reconnectCancel.Token);
             _reconnectTask.ContinueWith((task) =>
             {
                 _reconnectCancel?.Dispose();

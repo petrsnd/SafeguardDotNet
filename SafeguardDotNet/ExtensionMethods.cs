@@ -69,8 +69,10 @@ namespace OneIdentity.SafeguardDotNet
     {
         public static bool ContainsNoCase(this string thisString, string otherString)
         {
-            return CultureInfo.InvariantCulture.CompareInfo.IndexOf(thisString, otherString,
-                       CompareOptions.IgnoreCase) >= 0;
+            return CultureInfo.InvariantCulture.CompareInfo.IndexOf(
+                thisString,
+                otherString,
+                CompareOptions.IgnoreCase) >= 0;
         }
 
         public static bool EqualsNoCase(this string thisString, string otherString)
@@ -108,7 +110,7 @@ namespace OneIdentity.SafeguardDotNet
 
             Log.Debug("  Response headers: {ResponseHeaders}",
                 fullResponse.Headers?.Select(kv => $"{kv.Key}: {kv.Value}")
-                    .Aggregate("", (str, header) => $"{str}{header}, ").TrimEnd(',', ' '));
+                    .Aggregate(string.Empty, (str, header) => $"{str}{header}, ").TrimEnd(',', ' '));
 
             Log.Debug("  Body size: {ResponseBodySize}", fullResponse.Body == null ? "None" : $"{fullResponse.Body.Length}");
         }
@@ -129,12 +131,12 @@ namespace OneIdentity.SafeguardDotNet
             Log.Debug($"Invoking method: {method.ToString().ToUpper()} {uri}");
 
             Log.Debug("  Query parameters: {QueryParameters}",
-                parameters?.Select(kv => $"{kv.Key}={kv.Value}").Aggregate("", (str, param) => $"{str}{param}&")
+                parameters?.Select(kv => $"{kv.Key}={kv.Value}").Aggregate(string.Empty, (str, param) => $"{str}{param}&")
                     .TrimEnd('&') ?? "None");
 
             Log.Debug("  Additional headers: {AdditionalHeaders}",
                 additionalHeaders?.Select(kv => $"{kv.Key}: {kv.Value}")
-                    .Aggregate("", (str, header) => $"{str}{header}, ").TrimEnd(',', ' ') ?? "None");
+                    .Aggregate(string.Empty, (str, header) => $"{str}{header}, ").TrimEnd(',', ' ') ?? "None");
         }
     }
 }
