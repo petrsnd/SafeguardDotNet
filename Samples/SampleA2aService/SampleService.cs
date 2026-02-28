@@ -125,10 +125,16 @@ internal class SampleService
         ConfigUtils.CheckForDebugHook();
 
         // connect to Safeguard
-        _connection = Safeguard.Connect(_safeguardAddress, _safeguardClientCertificateThumbprint,
-            _safeguardApiVersion, _safeguardIgnoreSsl);
-        _a2AContext = Safeguard.A2A.GetContext(_safeguardAddress, _safeguardClientCertificateThumbprint,
-            _safeguardApiVersion, _safeguardIgnoreSsl);
+        _connection = Safeguard.Connect(
+            _safeguardAddress,
+            _safeguardClientCertificateThumbprint,
+            _safeguardApiVersion,
+            _safeguardIgnoreSsl);
+        _a2AContext = Safeguard.A2A.GetContext(
+            _safeguardAddress,
+            _safeguardClientCertificateThumbprint,
+            _safeguardApiVersion,
+            _safeguardIgnoreSsl);
 
         // figure out what API keys to monitor
         GetApiKeysFromA2ARegistrations();

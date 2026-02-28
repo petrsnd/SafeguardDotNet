@@ -66,7 +66,11 @@ ISafeguardA2AContext CreateA2AContext(ToolOptions opts)
         }
         else
         {
-            context = Safeguard.A2A.GetContext(opts.Appliance, opts.CertificateFile, password, opts.ApiVersion,
+            context = Safeguard.A2A.GetContext(
+                opts.Appliance,
+                opts.CertificateFile,
+                password,
+                opts.ApiVersion,
                 opts.Insecure);
         }
     }

@@ -113,47 +113,90 @@ internal class Program
                         var apiKeys = ReadAllApiKeys(opts, password);
                         if (opts.UseCertValidation)
                         {
-                            return Safeguard.A2A.Event.GetPersistentA2AEventListener(apiKeys, A2AHandler,
-                                opts.Appliance, bytes, password, CertificateValidationCallback, opts.ApiVersion);
+                            return Safeguard.A2A.Event.GetPersistentA2AEventListener(
+                                apiKeys,
+                                A2AHandler,
+                                opts.Appliance,
+                                bytes,
+                                password,
+                                CertificateValidationCallback,
+                                opts.ApiVersion);
                         }
 
-                        return Safeguard.A2A.Event.GetPersistentA2AEventListener(apiKeys, A2AHandler,
-                            opts.Appliance, bytes, password, opts.ApiVersion, opts.Insecure);
+                        return Safeguard.A2A.Event.GetPersistentA2AEventListener(
+                            apiKeys,
+                            A2AHandler,
+                            opts.Appliance,
+                            bytes,
+                            password,
+                            opts.ApiVersion,
+                            opts.Insecure);
                     }
 
                     if (!opts.ApiKey.Contains(','))
                     {
-                        return Safeguard.A2A.Event.GetPersistentA2AEventListener(opts.ApiKey.ToSecureString(),
-                            A2AHandler, opts.Appliance, bytes, password, opts.ApiVersion, opts.Insecure);
+                        return Safeguard.A2A.Event.GetPersistentA2AEventListener(
+                            opts.ApiKey.ToSecureString(),
+                            A2AHandler,
+                            opts.Appliance,
+                            bytes,
+                            password,
+                            opts.ApiVersion,
+                            opts.Insecure);
                     }
 
                     return Safeguard.A2A.Event.GetPersistentA2AEventListener(
-                        opts.ApiKey.Split(',').Select(k => k.ToSecureString()), A2AHandler, opts.Appliance,
-                        bytes, password, opts.ApiVersion, opts.Insecure);
+                        opts.ApiKey.Split(',').Select(k => k.ToSecureString()),
+                        A2AHandler,
+                        opts.Appliance,
+                        bytes,
+                        password,
+                        opts.ApiVersion,
+                        opts.Insecure);
                 }
 
                 if (!opts.ApiKey.Contains(','))
                 {
-                    return Safeguard.A2A.Event.GetPersistentA2AEventListener(opts.ApiKey.ToSecureString(),
-                        A2AHandler, opts.Appliance, opts.CertificateFile, password, opts.ApiVersion, opts.Insecure);
+                    return Safeguard.A2A.Event.GetPersistentA2AEventListener(
+                        opts.ApiKey.ToSecureString(),
+                        A2AHandler,
+                        opts.Appliance,
+                        opts.CertificateFile,
+                        password,
+                        opts.ApiVersion,
+                        opts.Insecure);
                 }
 
                 return Safeguard.A2A.Event.GetPersistentA2AEventListener(
-                    opts.ApiKey.Split(',').Select(k => k.ToSecureString()), A2AHandler, opts.Appliance,
-                    opts.CertificateFile, password, opts.ApiVersion, opts.Insecure);
+                    opts.ApiKey.Split(',').Select(k => k.ToSecureString()),
+                    A2AHandler,
+                    opts.Appliance,
+                    opts.CertificateFile,
+                    password,
+                    opts.ApiVersion,
+                    opts.Insecure);
             }
 
             if (!string.IsNullOrEmpty(opts.Thumbprint))
             {
                 if (!opts.ApiKey.Contains(','))
                 {
-                    return Safeguard.A2A.Event.GetPersistentA2AEventListener(opts.ApiKey.ToSecureString(),
-                        A2AHandler, opts.Appliance, opts.Thumbprint, opts.ApiVersion, opts.Insecure);
+                    return Safeguard.A2A.Event.GetPersistentA2AEventListener(
+                        opts.ApiKey.ToSecureString(),
+                        A2AHandler,
+                        opts.Appliance,
+                        opts.Thumbprint,
+                        opts.ApiVersion,
+                        opts.Insecure);
                 }
 
                 return Safeguard.A2A.Event.GetPersistentA2AEventListener(
-                    opts.ApiKey.Split(',').Select(k => k.ToSecureString()), A2AHandler, opts.Appliance,
-                    opts.Thumbprint, opts.ApiVersion, opts.Insecure);
+                    opts.ApiKey.Split(',').Select(k => k.ToSecureString()),
+                    A2AHandler,
+                    opts.Appliance,
+                    opts.Thumbprint,
+                    opts.ApiVersion,
+                    opts.Insecure);
             }
 
             throw new InvalidOperationException("Must specify CertificateFile or Thumbprint");
@@ -173,18 +216,30 @@ internal class Program
         if (!string.IsNullOrEmpty(opts.Username))
         {
             using var password = HandlePassword(opts.ReadPassword);
-            listener = Safeguard.Event.GetPersistentEventListener(opts.Appliance, opts.IdentityProvider, opts.Username,
-                password, opts.ApiVersion, opts.Insecure);
+            listener = Safeguard.Event.GetPersistentEventListener(
+                opts.Appliance,
+                opts.IdentityProvider,
+                opts.Username,
+                password,
+                opts.ApiVersion,
+                opts.Insecure);
         }
         else if (!string.IsNullOrEmpty(opts.CertificateFile))
         {
             using var password = HandlePassword(opts.ReadPassword);
-            listener = Safeguard.Event.GetPersistentEventListener(opts.Appliance, opts.CertificateFile, password,
-                opts.ApiVersion, opts.Insecure);
+            listener = Safeguard.Event.GetPersistentEventListener(
+                opts.Appliance,
+                opts.CertificateFile,
+                password,
+                opts.ApiVersion,
+                opts.Insecure);
         }
         else if (!string.IsNullOrEmpty(opts.Thumbprint))
         {
-            listener = Safeguard.Event.GetPersistentEventListener(opts.Appliance, opts.Thumbprint, opts.ApiVersion,
+            listener = Safeguard.Event.GetPersistentEventListener(
+                opts.Appliance,
+                opts.Thumbprint,
+                opts.ApiVersion,
                 opts.Insecure);
         }
         else
@@ -252,13 +307,22 @@ internal class Program
         if (!string.IsNullOrEmpty(opts.Username))
         {
             using var password = HandlePassword(opts.ReadPassword);
-            connection = Safeguard.Connect(opts.Appliance, opts.IdentityProvider, opts.Username, password,
-                opts.ApiVersion, opts.Insecure);
+            connection = Safeguard.Connect(
+                opts.Appliance,
+                opts.IdentityProvider,
+                opts.Username,
+                password,
+                opts.ApiVersion,
+                opts.Insecure);
         }
         else if (!string.IsNullOrEmpty(opts.CertificateFile))
         {
             using var password = HandlePassword(opts.ReadPassword);
-            connection = Safeguard.Connect(opts.Appliance, opts.CertificateFile, password, opts.ApiVersion,
+            connection = Safeguard.Connect(
+                opts.Appliance,
+                opts.CertificateFile,
+                password,
+                opts.ApiVersion,
                 opts.Insecure);
         }
         else if (!string.IsNullOrEmpty(opts.Thumbprint))

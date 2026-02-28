@@ -79,8 +79,13 @@ internal class Program
             if (!string.IsNullOrEmpty(opts.Username))
             {
                 using var password = HandlePassword(opts.ReadPassword);
-                connection = Safeguard.Connect(opts.Appliance, opts.IdentityProvider, opts.Username, password,
-                    opts.ApiVersion, opts.Insecure);
+                connection = Safeguard.Connect(
+                    opts.Appliance,
+                    opts.IdentityProvider,
+                    opts.Username,
+                    password,
+                    opts.ApiVersion,
+                    opts.Insecure);
             }
             else if (!string.IsNullOrEmpty(opts.CertificateFile))
             {
@@ -92,7 +97,11 @@ internal class Program
                 }
                 else
                 {
-                    connection = Safeguard.Connect(opts.Appliance, opts.CertificateFile, password, opts.ApiVersion,
+                    connection = Safeguard.Connect(
+                        opts.Appliance,
+                        opts.CertificateFile,
+                        password,
+                        opts.ApiVersion,
                         opts.Insecure);
                 }
             }

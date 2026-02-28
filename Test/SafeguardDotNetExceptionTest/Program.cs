@@ -63,11 +63,14 @@ void TestConnectExceptions(string appliance)
     catch (SafeguardDotNetException ex)
     {
         // RestSharp will now return two different error messages on Windows for an invalid host.
-        if (!string.Equals(ex.Message,
-            "Unable to anonymously connect to bad.dns.name, Error: The requested name is valid, but no data of the requested type was found. The requested name is valid, but no data of the requested type was found.", StringComparison.Ordinal)
-            && !string.Equals(ex.Message,
-            "Unable to anonymously connect to bad.dns.name, Error: No such host is known. (bad.dns.name:443)", StringComparison.Ordinal)
-        )
+        if (!string.Equals(
+            ex.Message,
+            "Unable to anonymously connect to bad.dns.name, Error: The requested name is valid, but no data of the requested type was found. The requested name is valid, but no data of the requested type was found.",
+            StringComparison.Ordinal)
+            && !string.Equals(
+                ex.Message,
+                "Unable to anonymously connect to bad.dns.name, Error: No such host is known. (bad.dns.name:443)",
+                StringComparison.Ordinal))
         {
             throw;
         }
@@ -102,11 +105,14 @@ void TestConnectExceptions(string appliance)
     catch (SafeguardDotNetException ex)
     {
         // RestSharp will now return two different error messages on Windows for an invalid host.
-        if (!string.Equals(ex.Message,
-            "Unable to connect to RSTS to find identity provider scopes, Error: The requested name is valid, but no data of the requested type was found. The requested name is valid, but no data of the requested type was found.", StringComparison.Ordinal)
-            && !string.Equals(ex.Message,
-            "Unable to connect to RSTS to find identity provider scopes, Error: No such host is known. (bad.dns.name:443)", StringComparison.Ordinal)
-        )
+        if (!string.Equals(
+            ex.Message,
+            "Unable to connect to RSTS to find identity provider scopes, Error: The requested name is valid, but no data of the requested type was found. The requested name is valid, but no data of the requested type was found.",
+            StringComparison.Ordinal)
+            && !string.Equals(
+                ex.Message,
+                "Unable to connect to RSTS to find identity provider scopes, Error: No such host is known. (bad.dns.name:443)",
+                StringComparison.Ordinal))
         {
             throw;
         }
@@ -225,7 +231,10 @@ void TestApiExceptions(ISafeguardConnection connection)
     Console.WriteLine("Test catching one for bad request no filter");
     try
     {
-        connection.InvokeMethod(Service.Core, Method.Get, "Me/AccessRequestAssets",
+        connection.InvokeMethod(
+            Service.Core,
+            Method.Get,
+            "Me/AccessRequestAssets",
             parameters: new Dictionary<string, string>() { ["filter"] = "This eq 'broken'" });
         throw new InvalidOperationException("Bad filter did not throw an exception");
     }
@@ -246,8 +255,10 @@ void TestApiExceptions(ISafeguardConnection connection)
             throw;
         }
 
-        if (!string.Equals(ex.ErrorMessage,
-                    "Invalid filter property - 'This' is not a valid filter property name.", StringComparison.Ordinal))
+        if (!string.Equals(
+            ex.ErrorMessage,
+            "Invalid filter property - 'This' is not a valid filter property name.",
+            StringComparison.Ordinal))
         {
             throw;
         }
@@ -256,9 +267,12 @@ void TestApiExceptions(ISafeguardConnection connection)
     Console.WriteLine("Test catching one with model state issues");
     try
     {
-        connection.InvokeMethod(Service.Appliance, Method.Put, "NetworkInterfaces/X1",
-                                 /*lang=json,strict*/
-                                 "{\"Name\":\"X1\",\"LinkDuplex\":\"FakeValue\"}");
+        connection.InvokeMethod(
+            Service.Appliance,
+            Method.Put,
+            "NetworkInterfaces/X1",
+            /*lang=json,strict*/
+            "{\"Name\":\"X1\",\"LinkDuplex\":\"FakeValue\"}");
         throw new InvalidOperationException("Bad model state did not throw an exception");
     }
     catch (SafeguardDotNetException ex)
@@ -309,8 +323,13 @@ void Execute(TestOptions opts)
         if (!string.IsNullOrEmpty(opts.Username))
         {
             using var password = HandlePassword(opts.ReadPassword);
-            connection = Safeguard.Connect(opts.Appliance, opts.IdentityProvider, opts.Username, password,
-                opts.ApiVersion, opts.Insecure);
+            connection = Safeguard.Connect(
+                opts.Appliance,
+                opts.IdentityProvider,
+                opts.Username,
+                password,
+                opts.ApiVersion,
+                opts.Insecure);
         }
         else if (opts.Anonymous)
         {

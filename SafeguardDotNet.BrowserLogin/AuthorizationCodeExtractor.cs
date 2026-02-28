@@ -52,7 +52,8 @@ namespace OneIdentity.SafeguardDotNet.BrowserLogin
                         await networkStream.FlushAsync(cancellationToken);
                         return sb.ToString();
                     }
-                }, cancellationToken);
+                },
+                cancellationToken);
 
                 listenTask.Wait(cancellationToken);
 

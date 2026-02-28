@@ -130,13 +130,15 @@ namespace OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin
 
                 if (scope.Name == null)
                 {
-                    scope = knownScopes.FirstOrDefault(s => CultureInfo.InvariantCulture.CompareInfo.IndexOf(s.RstsProviderId, provider,
-                       CompareOptions.IgnoreCase) >= 0);
+                    scope = knownScopes.FirstOrDefault(s => CultureInfo.InvariantCulture.CompareInfo.IndexOf(
+                        s.RstsProviderId,
+                        provider,
+                        CompareOptions.IgnoreCase) >= 0);
 
                     if (scope.RstsProviderId == null)
                     {
                         throw new SafeguardDotNetException(
-                        $"Unable to find scope matching '{provider}' in [{string.Join(",", knownScopes)}]");
+                            $"Unable to find scope matching '{provider}' in [{string.Join(",", knownScopes)}]");
                     }
                 }
             }
