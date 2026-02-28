@@ -26,108 +26,6 @@ namespace OneIdentity.SafeguardDotNet.A2A
     }
 
     /// <summary>
-    /// Simple JSON converter for dealing with brokered access request type enumeration.
-    /// </summary>
-    public class AccessRequestTypeConverter : JsonConverter<BrokeredAccessRequestType>
-    {
-        public override void WriteJson(JsonWriter writer, BrokeredAccessRequestType value, JsonSerializer serializer)
-        {
-            switch (value)
-            {
-                case BrokeredAccessRequestType.Password:
-                    writer.WriteValue("Password");
-                    break;
-                case BrokeredAccessRequestType.Ssh:
-                    writer.WriteValue("SSH");
-                    break;
-                case BrokeredAccessRequestType.Rdp:
-                    writer.WriteValue("RemoteDesktop");
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(value), value, null);
-            }
-        }
-
-        public override BrokeredAccessRequestType ReadJson(
-            JsonReader reader,
-            Type objectType,
-            BrokeredAccessRequestType existingValue,
-            bool hasExistingValue,
-            JsonSerializer serializer)
-        {
-            var value = (string)reader.Value;
-            if (value.EqualsNoCase("Password"))
-            {
-                return BrokeredAccessRequestType.Password;
-            }
-
-            if (value.EqualsNoCase("SSH"))
-            {
-                return BrokeredAccessRequestType.Ssh;
-            }
-
-            if (value.EqualsNoCase("RemoteDesktop"))
-            {
-                return BrokeredAccessRequestType.Rdp;
-            }
-
-            throw new SafeguardDotNetException($"Unknown access request type \"{value}\"");
-        }
-    }
-
-    /// <summary>
-    /// Simple JSON converter for UTC date times.
-    /// </summary>
-    public class UtcDateTimeConverter : JsonConverter<DateTime>
-    {
-        public override void WriteJson(JsonWriter writer, DateTime value, JsonSerializer serializer)
-        {
-            var utc = value.ToUniversalTime();
-            writer.WriteValue(utc.ToString("u"));
-        }
-
-        public override DateTime ReadJson(
-            JsonReader reader,
-            Type objectType,
-            DateTime existingValue,
-            bool hasExistingValue,
-            JsonSerializer serializer)
-        {
-            return DateTime.Parse((string)reader.Value);
-        }
-    }
-
-    public class CustomTimeSpanConverter : JsonConverter<TimeSpan>
-    {
-        public override void WriteJson(JsonWriter writer, TimeSpan value, JsonSerializer serializer)
-        {
-            writer.WriteValue($"{value.Days}:{value.Hours}:{value.Minutes}");
-        }
-
-        public override TimeSpan ReadJson(
-            JsonReader reader,
-            Type objectType,
-            TimeSpan existingValue,
-            bool hasExistingValue,
-            JsonSerializer serializer)
-        {
-            var spanstr = (string)reader.Value;
-            if (spanstr != null)
-            {
-                var fields = spanstr.Split(':');
-                if (fields.Length < 3)
-                {
-                    throw new SafeguardDotNetException($"Unexpected timespan value \"{spanstr}\"");
-                }
-
-                return new TimeSpan(int.Parse(fields[0]), int.Parse(fields[1]), int.Parse(fields[2]));
-            }
-
-            return TimeSpan.Zero;
-        }
-    }
-
-    /// <summary>
     /// This class is used to define a brokered access request.
     /// </summary>
     public class BrokeredAccessRequest
@@ -237,5 +135,107 @@ namespace OneIdentity.SafeguardDotNet.A2A
         public int? RequestedDurationHours => RequestedDuration?.Hours;
 
         public int? RequestedDurationMinutes => RequestedDuration?.Minutes;
+    }
+
+    /// <summary>
+    /// Simple JSON converter for dealing with brokered access request type enumeration.
+    /// </summary>
+    public class AccessRequestTypeConverter : JsonConverter<BrokeredAccessRequestType>
+    {
+        public override void WriteJson(JsonWriter writer, BrokeredAccessRequestType value, JsonSerializer serializer)
+        {
+            switch (value)
+            {
+                case BrokeredAccessRequestType.Password:
+                    writer.WriteValue("Password");
+                    break;
+                case BrokeredAccessRequestType.Ssh:
+                    writer.WriteValue("SSH");
+                    break;
+                case BrokeredAccessRequestType.Rdp:
+                    writer.WriteValue("RemoteDesktop");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value), value, null);
+            }
+        }
+
+        public override BrokeredAccessRequestType ReadJson(
+            JsonReader reader,
+            Type objectType,
+            BrokeredAccessRequestType existingValue,
+            bool hasExistingValue,
+            JsonSerializer serializer)
+        {
+            var value = (string)reader.Value;
+            if (value.EqualsNoCase("Password"))
+            {
+                return BrokeredAccessRequestType.Password;
+            }
+
+            if (value.EqualsNoCase("SSH"))
+            {
+                return BrokeredAccessRequestType.Ssh;
+            }
+
+            if (value.EqualsNoCase("RemoteDesktop"))
+            {
+                return BrokeredAccessRequestType.Rdp;
+            }
+
+            throw new SafeguardDotNetException($"Unknown access request type \"{value}\"");
+        }
+    }
+
+    /// <summary>
+    /// Simple JSON converter for UTC date times.
+    /// </summary>
+    public class UtcDateTimeConverter : JsonConverter<DateTime>
+    {
+        public override void WriteJson(JsonWriter writer, DateTime value, JsonSerializer serializer)
+        {
+            var utc = value.ToUniversalTime();
+            writer.WriteValue(utc.ToString("u"));
+        }
+
+        public override DateTime ReadJson(
+            JsonReader reader,
+            Type objectType,
+            DateTime existingValue,
+            bool hasExistingValue,
+            JsonSerializer serializer)
+        {
+            return DateTime.Parse((string)reader.Value);
+        }
+    }
+
+    public class CustomTimeSpanConverter : JsonConverter<TimeSpan>
+    {
+        public override void WriteJson(JsonWriter writer, TimeSpan value, JsonSerializer serializer)
+        {
+            writer.WriteValue($"{value.Days}:{value.Hours}:{value.Minutes}");
+        }
+
+        public override TimeSpan ReadJson(
+            JsonReader reader,
+            Type objectType,
+            TimeSpan existingValue,
+            bool hasExistingValue,
+            JsonSerializer serializer)
+        {
+            var spanstr = (string)reader.Value;
+            if (spanstr != null)
+            {
+                var fields = spanstr.Split(':');
+                if (fields.Length < 3)
+                {
+                    throw new SafeguardDotNetException($"Unexpected timespan value \"{spanstr}\"");
+                }
+
+                return new TimeSpan(int.Parse(fields[0]), int.Parse(fields[1]), int.Parse(fields[2]));
+            }
+
+            return TimeSpan.Zero;
+        }
     }
 }

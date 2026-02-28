@@ -41,7 +41,8 @@ namespace OneIdentity.SafeguardDotNet
         }
 
         private CertificateContext()
-        { }
+        {
+        }
 
         private ContextType Type { get; set; }
 
