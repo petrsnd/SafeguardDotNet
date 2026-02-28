@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+// Copyright (c) One Identity LLC. All rights reserved.
+
+using System.Diagnostics.CodeAnalysis;
 
 namespace ServiceNowTicketValidator.DTOs
 {

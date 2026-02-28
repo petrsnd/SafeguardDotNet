@@ -1,3 +1,5 @@
+// Copyright (c) One Identity LLC. All rights reserved.
+
 using SampleA2aService;
 
 using Topshelf;

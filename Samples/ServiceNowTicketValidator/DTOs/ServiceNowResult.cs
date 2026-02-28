@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+// Copyright (c) One Identity LLC. All rights reserved.
+
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ServiceNowTicketValidator.DTOs

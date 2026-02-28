@@ -1,4 +1,6 @@
-﻿namespace ServiceNowTicketValidator.DTOs
+// Copyright (c) One Identity LLC. All rights reserved.
+
+namespace ServiceNowTicketValidator.DTOs
 {
     // There are more fields available. I trimmed out what I thought was most useful.
     // I decided to remove all time-based data, but it could be added back.

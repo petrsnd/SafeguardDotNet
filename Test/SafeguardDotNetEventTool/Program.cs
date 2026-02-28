@@ -1,5 +1,9 @@
+// Copyright (c) One Identity LLC. All rights reserved.
+
 // CA5359: This test tool intentionally bypasses SSL validation for testing against dev appliances
 #pragma warning disable CA5359
+
+namespace SafeguardDotNetEventTool;
 
 using System;
 using System.Collections.Generic;
@@ -17,8 +21,6 @@ using OneIdentity.SafeguardDotNet.Event;
 
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-
-namespace SafeguardDotNetEventTool;
 
 internal class Program
 {

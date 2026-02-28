@@ -1,3 +1,5 @@
+// Copyright (c) One Identity LLC. All rights reserved.
+
 namespace OneIdentity.SafeguardDotNet.BrowserLogin
 {
     using System;

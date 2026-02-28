@@ -1,4 +1,6 @@
-﻿namespace ServiceNowTicketValidator.DTOs
+// Copyright (c) One Identity LLC. All rights reserved.
+
+namespace ServiceNowTicketValidator.DTOs
 {
     internal class AccessRequestApprovalPendingEvent
     {

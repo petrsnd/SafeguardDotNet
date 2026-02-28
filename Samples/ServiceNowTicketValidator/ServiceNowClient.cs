@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) One Identity LLC. All rights reserved.
+
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;

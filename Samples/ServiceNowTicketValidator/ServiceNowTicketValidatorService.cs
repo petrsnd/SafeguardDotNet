@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) One Identity LLC. All rights reserved.
+
+using System;
 using System.Configuration;
 using System.Security;
 using Newtonsoft.Json;

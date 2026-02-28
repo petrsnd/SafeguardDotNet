@@ -1,3 +1,5 @@
+// Copyright (c) One Identity LLC. All rights reserved.
+
 namespace SafeguardDotNetA2aTool;
 
 using CommandLine;
