@@ -97,8 +97,10 @@ namespace OneIdentity.SafeguardDotNet
                 case ContextType.Data:
                     return $"data={DataBuffer.Length} bytes";
                 default:
+#pragma warning disable S3877 // Throw in default case is intentional for exhaustive enum handling
                     throw new SafeguardDotNetException(
                         $"Error calling ToString() on unknown CertificateContext type: {Enum.GetName(typeof(ContextType), Type)}");
+#pragma warning restore S3877
             }
         }
 

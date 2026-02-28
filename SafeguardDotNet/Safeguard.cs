@@ -938,7 +938,9 @@ namespace OneIdentity.SafeguardDotNet
             /// recommended to use these interfaces when listening for Safeguard events from a long-running service.
             /// </summary>
             // ReSharper disable once MemberHidesStaticFromOuterClass
+#pragma warning disable S3218 // Inner class intentionally shadows outer class member name for API consistency
             public static class Event
+#pragma warning restore S3218
             {
                 /// <summary>
                 /// Get a persistent A2A event listener. The handler passed in will be registered

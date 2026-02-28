@@ -158,10 +158,12 @@ namespace OneIdentity.SafeguardDotNet.Authentication
 
                 return scope.RstsProviderScope;
             }
+#pragma warning disable S2737 // Intentionally rethrow SafeguardDotNetException without wrapping
             catch (SafeguardDotNetException)
             {
                 throw;
             }
+#pragma warning restore S2737
             catch (HttpRequestException ex)
             {
                 throw new SafeguardDotNetException($"Unable to connect to RSTS to find identity provider scopes, Error: {ex.Message}", ex);
