@@ -9,11 +9,11 @@ namespace ServiceNowTicketValidator
     using System.Security;
     using System.Text;
 
+    using global::ServiceNowTicketValidator.DTOs;
+
     using Newtonsoft.Json;
     using OneIdentity.SafeguardDotNet;
     using Serilog;
-
-    using ServiceNowTicketValidator.DTOs;
 
     internal class ServiceNowClient : IDisposable
     {

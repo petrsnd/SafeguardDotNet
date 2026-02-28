@@ -5,9 +5,9 @@ namespace ServiceNowTicketValidator
     using System;
     using System.Security;
 
-    using Serilog;
+    using global::ServiceNowTicketValidator.DTOs;
 
-    using ServiceNowTicketValidator.DTOs;
+    using Serilog;
 
     internal enum ValidationResult
     {

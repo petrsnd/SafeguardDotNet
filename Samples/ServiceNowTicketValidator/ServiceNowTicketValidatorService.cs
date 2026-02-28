@@ -6,12 +6,12 @@ namespace ServiceNowTicketValidator
     using System.Configuration;
     using System.Security;
 
+    using global::ServiceNowTicketValidator.DTOs;
+
     using Newtonsoft.Json;
     using OneIdentity.SafeguardDotNet;
     using OneIdentity.SafeguardDotNet.Event;
     using Serilog;
-
-    using ServiceNowTicketValidator.DTOs;
 
     internal class ServiceNowTicketValidatorService
     {
