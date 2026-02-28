@@ -11,8 +11,7 @@ namespace OneIdentity.SafeguardDotNet.Event
         {
         }
 
-        protected SafeguardEventListenerDisconnectedException
-            (SerializationInfo info, StreamingContext context)
+        protected SafeguardEventListenerDisconnectedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

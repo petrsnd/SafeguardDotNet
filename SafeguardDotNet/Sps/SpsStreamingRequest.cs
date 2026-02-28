@@ -91,7 +91,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
                 var progressHandlerFunc = ConfigureProgressHandler(progress);
                 try
                 {
-                    var response = await Client.SendAsync(request, completionOption: HttpCompletionOption.ResponseContentRead, token);//.Result;
+                    var response = await Client.SendAsync(request, completionOption: HttpCompletionOption.ResponseContentRead, token); // .Result;
                     ValidateGetResponse(response);
                     return new StreamResponse(response, () => CleanupProgress(progressHandlerFunc));
                 }

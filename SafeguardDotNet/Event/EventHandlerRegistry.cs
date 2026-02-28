@@ -10,7 +10,7 @@ namespace OneIdentity.SafeguardDotNet.Event
 
     using Serilog;
 
-    using DelegateRegistry = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<SafeguardEventHandler>>;
+    using DelegateRegistry = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<OneIdentity.SafeguardDotNet.Event.SafeguardEventHandler>>;
 
     internal class EventHandlerRegistry
     {

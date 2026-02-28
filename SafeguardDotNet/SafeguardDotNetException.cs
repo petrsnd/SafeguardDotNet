@@ -70,8 +70,7 @@ namespace OneIdentity.SafeguardDotNet
             }
         }
 
-        protected SafeguardDotNetException
-            (SerializationInfo info, StreamingContext context)
+        protected SafeguardDotNetException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

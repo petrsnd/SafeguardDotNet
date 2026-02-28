@@ -61,7 +61,8 @@ namespace OneIdentity.SafeguardDotNet.Event
             CertificateContext clientCertificate,
             SecureString apiKey,
             bool ignoreSsl,
-            RemoteCertificateValidationCallback validationCallback) : this(eventUrl, ignoreSsl, validationCallback)
+            RemoteCertificateValidationCallback validationCallback)
+            : this(eventUrl, ignoreSsl, validationCallback)
         {
             _clientCertificate = clientCertificate.Clone();
             if (apiKey == null)
@@ -77,7 +78,8 @@ namespace OneIdentity.SafeguardDotNet.Event
             CertificateContext clientCertificate,
             IEnumerable<SecureString> apiKeys,
             bool ignoreSsl,
-            RemoteCertificateValidationCallback validationCallback) : this(eventUrl, ignoreSsl, validationCallback)
+            RemoteCertificateValidationCallback validationCallback)
+            : this(eventUrl, ignoreSsl, validationCallback)
         {
             _clientCertificate = clientCertificate.Clone();
             if (apiKeys == null)

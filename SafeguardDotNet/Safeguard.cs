@@ -1318,16 +1318,16 @@ namespace OneIdentity.SafeguardDotNet
             /// <param name="appliance">Network address of the Safeguard appliance.</param>
             /// <param name="authorizationCode">The authorization code received from the authorization endpoint.</param>
             /// <param name="codeVerifier">The PKCE code verifier that matches the code challenge sent in the authorization request.</param>
-            /// <param name="RedirectUri">The redirect URI that was used in the authorization request.</param>
+            /// <param name="redirectUri">The redirect URI that was used in the authorization request.</param>
             /// <param name="httpClient">Optional HttpClient instance to use for the request. If null, a default client will be used.</param>
             /// <returns>An RSTS access token as a SecureString.</returns>
-            public static SecureString PostAuthorizationCodeFlow(string appliance, string authorizationCode, string codeVerifier, string RedirectUri)
+            public static SecureString PostAuthorizationCodeFlow(string appliance, string authorizationCode, string codeVerifier, string redirectUri)
             {
                 var safeguardRstsUrl = $"https://{appliance}/RSTS";
                 var data = JsonConvert.SerializeObject(new
                 {
                     grant_type = "authorization_code",
-                    redirect_uri = RedirectUri,
+                    redirect_uri = redirectUri,
                     code = authorizationCode,
                     code_verifier = codeVerifier,
                 });
