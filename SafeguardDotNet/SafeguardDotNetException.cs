@@ -42,12 +42,10 @@ namespace OneIdentity.SafeguardDotNet
                 {
                     if (JToken.Parse(Response) is JObject responseObj)
                     {
-                        if (responseObj.TryGetValue("Code", StringComparison.OrdinalIgnoreCase, out var codeVal))
+                        if (responseObj.TryGetValue("Code", StringComparison.OrdinalIgnoreCase, out var codeVal)
+                            && int.TryParse(codeVal.ToString(), out var code))
                         {
-                            if (int.TryParse(codeVal.ToString(), out var code))
-                            {
-                                ErrorCode = code;
-                            }
+                            ErrorCode = code;
                         }
 
                         if (responseObj.TryGetValue("Message", StringComparison.OrdinalIgnoreCase, out var messageVal))

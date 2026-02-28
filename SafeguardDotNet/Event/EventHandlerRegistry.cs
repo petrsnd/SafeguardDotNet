@@ -46,7 +46,7 @@ namespace OneIdentity.SafeguardDotNet.Event
             }
         }
 
-        private (string, JToken)[] ParseEvents(string eventObject)
+        private static (string, JToken)[] ParseEvents(string eventObject)
         {
             try
             {
@@ -65,17 +65,17 @@ namespace OneIdentity.SafeguardDotNet.Event
 
                 return events.ToArray();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Log.Warning("Unable to parse event object {EventObject}", eventObject);
-                return null;
+                Log.Warning(ex, "Unable to parse event object {EventObject}", eventObject);
+                return Array.Empty<(string, JToken)>();
             }
         }
 
         public void HandleEvent(string eventObject)
         {
             var events = ParseEvents(eventObject);
-            if (events == null)
+            if (events.Length == 0)
             {
                 return;
             }

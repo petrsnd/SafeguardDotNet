@@ -205,7 +205,7 @@ namespace OneIdentity.SafeguardDotNet.A2A
             bool hasExistingValue,
             JsonSerializer serializer)
         {
-            return DateTime.Parse((string)reader.Value);
+            return DateTime.Parse((string)reader.Value, System.Globalization.CultureInfo.InvariantCulture);
         }
     }
 

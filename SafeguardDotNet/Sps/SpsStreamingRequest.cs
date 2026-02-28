@@ -37,7 +37,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
             // Ideally we'd authenticate when creating the http client, but this way we don't have to worry about token lifetime issues.
             await Authenticate(token);
 
-            using (var request = PrepareStreamingRequest(HttpMethod.Post, relativeUrl, additionalHeaders, parameters))
+            using (var request = PrepareStreamingRequest(HttpMethod.Post, relativeUrl, parameters, additionalHeaders))
             {
                 EventHandler<HttpProgressEventArgs> progressHandlerFunc = null;
 
@@ -91,7 +91,7 @@ namespace OneIdentity.SafeguardDotNet.Sps
                 var progressHandlerFunc = ConfigureProgressHandler(progress);
                 try
                 {
-                    var response = await Client.SendAsync(request, completionOption: HttpCompletionOption.ResponseContentRead, token); // .Result;
+                    var response = await Client.SendAsync(request, completionOption: HttpCompletionOption.ResponseContentRead, cancellationToken: token);
                     ValidateGetResponse(response);
                     return new StreamResponse(response, () => CleanupProgress(progressHandlerFunc));
                 }
