@@ -134,8 +134,11 @@ namespace OneIdentity.SafeguardDotNet.Authentication
 
         protected override void Dispose(bool disposing)
         {
-            base.Dispose(true);
-            clientCertificate?.Dispose();
+            if (disposing)
+            {
+                base.Dispose(disposing);
+                clientCertificate?.Dispose();
+            }
         }
     }
 }

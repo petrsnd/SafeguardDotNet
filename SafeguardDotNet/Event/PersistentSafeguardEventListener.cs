@@ -35,7 +35,7 @@ namespace OneIdentity.SafeguardDotNet.Event
 
             try
             {
-                base.Dispose(true);
+                base.Dispose(disposing);
                 _connection?.Dispose();
             }
             finally

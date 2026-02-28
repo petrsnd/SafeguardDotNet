@@ -82,7 +82,7 @@ namespace OneIdentity.SafeguardDotNet.Event
 
             try
             {
-                base.Dispose(true);
+                base.Dispose(disposing);
                 _apiKey?.Dispose();
                 if (_apiKeys != null)
                 {

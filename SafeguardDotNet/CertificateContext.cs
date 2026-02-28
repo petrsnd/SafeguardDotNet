@@ -106,8 +106,17 @@ namespace OneIdentity.SafeguardDotNet
 
         public void Dispose()
         {
-            Password?.Dispose();
-            Certificate?.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Password?.Dispose();
+                Certificate?.Dispose();
+            }
         }
     }
 }

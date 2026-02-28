@@ -89,9 +89,9 @@ namespace OneIdentity.SafeguardDotNet.Authentication
                 return;
             }
 
-            base.Dispose(true);
             try
             {
+                base.Dispose(disposing);
                 _password?.Dispose();
             }
             finally

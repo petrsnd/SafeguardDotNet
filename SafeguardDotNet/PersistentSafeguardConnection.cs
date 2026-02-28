@@ -17,7 +17,19 @@ namespace OneIdentity.SafeguardDotNet
 
         public IStreamingRequest Streaming => _connection.Streaming;
 
-        public void Dispose() => _connection.Dispose();
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _connection.Dispose();
+            }
+        }
 
         public int GetAccessTokenLifetimeRemaining() => _connection.GetAccessTokenLifetimeRemaining();
 

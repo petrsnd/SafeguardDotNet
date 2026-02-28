@@ -87,6 +87,8 @@ namespace OneIdentity.SafeguardDotNet
     /// </summary>
     public class ApiKeySecret : IDisposable
     {
+        private bool _disposed;
+
         public int Id { get; set; }
 
         public string Name { get; set; }
@@ -107,8 +109,20 @@ namespace OneIdentity.SafeguardDotNet
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed || !disposing)
+            {
+                return;
+            }
+
             ClientSecret?.Dispose();
             ClientSecret = null;
+            _disposed = true;
         }
     }
 
@@ -164,6 +178,8 @@ namespace OneIdentity.SafeguardDotNet
     /// </summary>
     public class A2ARetrievableAccount : IDisposable
     {
+        private bool _disposed;
+
         public string ApplicationName { get; set; }
 
         public string Description { get; set; }
@@ -201,8 +217,20 @@ namespace OneIdentity.SafeguardDotNet
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed || !disposing)
+            {
+                return;
+            }
+
             ApiKey?.Dispose();
             ApiKey = null;
+            _disposed = true;
         }
     }
 }
