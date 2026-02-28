@@ -107,9 +107,9 @@ namespace OneIdentity.SafeguardDotNet
             Service service,
             Method method,
             string relativeUrl,
-            string body,
-            IDictionary<string, string> parameters,
-            IDictionary<string, string> additionalHeaders,
+            string body = null,
+            IDictionary<string, string> parameters = null,
+            IDictionary<string, string> additionalHeaders = null,
             TimeSpan? timeout = null)
         {
             if (_disposed)

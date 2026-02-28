@@ -106,7 +106,7 @@ namespace OneIdentity.SafeguardDotNet
                 return;
             }
 
-            Log.Debug($"Response status code: {fullResponse.StatusCode}");
+            Log.Debug("Response status code: {ResponseStatusCode}", fullResponse.StatusCode);
 
             Log.Debug("  Response headers: {ResponseHeaders}",
                 fullResponse.Headers?.Select(kv => $"{kv.Key}: {kv.Value}")
@@ -128,7 +128,7 @@ namespace OneIdentity.SafeguardDotNet
 
         private static void LogRequestDetails(HttpMethod method, string uri, IDictionary<string, string> parameters = null, IDictionary<string, string> additionalHeaders = null)
         {
-            Log.Debug($"Invoking method: {method.ToString().ToUpper()} {uri}");
+            Log.Debug("Invoking method: {HttpMethod} {Uri}", method.ToString().ToUpper(), uri);
 
             Log.Debug("  Query parameters: {QueryParameters}",
                 parameters?.Select(kv => $"{kv.Key}={kv.Value}").Aggregate(string.Empty, (str, param) => $"{str}{param}&")
