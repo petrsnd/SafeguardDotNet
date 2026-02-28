@@ -222,8 +222,10 @@ namespace OneIdentity.SafeguardDotNet.Event
                         {
                             if (_ignoreSsl)
                             {
+#pragma warning disable S4830 // Server certificate validation is intentionally bypassed when IgnoreSsl is set
                                 clientHandler.ServerCertificateCustomValidationCallback =
                                     (sender, certificate, chain, sslPolicyErrors) => true;
+#pragma warning restore S4830
                             }
                             else
                             {

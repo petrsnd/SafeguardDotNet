@@ -1442,7 +1442,9 @@ namespace OneIdentity.SafeguardDotNet
                 var handler = new HttpClientHandler()
                 {
                     SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
+#pragma warning disable S4830 // Server certificate validation is intentionally bypassed for RSTS token requests
                     ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true,
+#pragma warning restore S4830
                 };
 
                 return new HttpClient(handler);

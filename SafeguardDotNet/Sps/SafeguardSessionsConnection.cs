@@ -50,7 +50,9 @@ namespace OneIdentity.SafeguardDotNet.Sps
 
             if (_authenticator.IgnoreSsl)
             {
+#pragma warning disable S4830 // Server certificate validation is intentionally bypassed when IgnoreSsl is set
                 handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+#pragma warning restore S4830
             }
 
             handler.CookieContainer = new CookieContainer();

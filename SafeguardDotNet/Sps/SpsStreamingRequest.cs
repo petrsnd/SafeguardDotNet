@@ -150,7 +150,9 @@ namespace OneIdentity.SafeguardDotNet.Sps
             var httpClientHandler = new HttpClientHandler();
             if (_authenticator.IgnoreSsl)
             {
+#pragma warning disable S4830 // Server certificate validation is intentionally bypassed when IgnoreSsl is set
                 httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+#pragma warning restore S4830
             }
 
             progressHandler.InnerHandler = httpClientHandler;
