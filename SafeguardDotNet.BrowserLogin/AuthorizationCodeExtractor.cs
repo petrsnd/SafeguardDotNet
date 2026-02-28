@@ -42,7 +42,8 @@ namespace OneIdentity.SafeguardDotNet.BrowserLogin
                             var numberOfBytesRead = await networkStream.ReadAsync(readBuffer, 0, readBuffer.Length, cancellationToken).ConfigureAwait(false);
                             var s = Encoding.ASCII.GetString(readBuffer, 0, numberOfBytesRead);
                             sb.Append(s);
-                        } while (networkStream.DataAvailable);
+                        }
+                        while (networkStream.DataAvailable);
 
                         var fullResponse =
                             "HTTP/1.1 200 OK\r\n\r\n<html><head><title>Authentication Complete</title></head><body><h2>Authentication complete.</h2>" +

@@ -60,8 +60,9 @@ internal class SampleService
         // currently this requires auditor permission, but we will enhance A2A to include read ability without it
         try
         {
-            var a2AJson = _connection.InvokeMethod(Service.Core, Method.Get, "A2ARegistrations", parameters: new Dictionary<string, string> {
-                {"filter", $"CertificateUserThumbprint ieq '{_safeguardClientCertificateThumbprint}'"},
+            var a2AJson = _connection.InvokeMethod(Service.Core, Method.Get, "A2ARegistrations", parameters: new Dictionary<string, string>
+            {
+                { "filter", $"CertificateUserThumbprint ieq '{_safeguardClientCertificateThumbprint}'" },
             });
             var a2AArray = JArray.Parse(a2AJson);
             foreach (dynamic a2A in a2AArray)

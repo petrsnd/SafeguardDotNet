@@ -132,7 +132,7 @@ internal class Program
                 : connection.InvokeMethod(opts.Service, opts.Method, opts.RelativeUrl, opts.Body);
             }
 
-            //Log.Information(responseBody); // if JSON is nested too deep Serilog swallows a '}' -- need to file issue with them
+            // Log.Information(responseBody); // if JSON is nested too deep Serilog swallows a '}' -- need to file issue with them
             Console.WriteLine(responseBody);
 
             connection.LogOut();
@@ -203,7 +203,7 @@ internal class Program
 
     private static void Main(string[] args)
     {
-        Console.CancelKeyPress += delegate
+        Console.CancelKeyPress += (sender, e) =>
         {
             Cts.Cancel();
         };
