@@ -428,6 +428,9 @@ function Invoke-SgDnSafeguardApi {
     .PARAMETER Anonymous
         Use anonymous authentication (no credentials).
 
+    .PARAMETER AccessToken
+        Pre-obtained access token string for authentication (overrides all other auth).
+
     .PARAMETER Csv
         Request CSV format response.
 
@@ -484,6 +487,9 @@ function Invoke-SgDnSafeguardApi {
         [switch]$Anonymous,
 
         [Parameter()]
+        [string]$AccessToken,
+
+        [Parameter()]
         [switch]$Csv,
 
         [Parameter()]
@@ -507,6 +513,9 @@ function Invoke-SgDnSafeguardApi {
 
     if ($Anonymous) {
         $toolArgs += " -A"
+    }
+    elseif ($AccessToken) {
+        $toolArgs += " -k `"$AccessToken`""
     }
     elseif ($Thumbprint) {
         $toolArgs += " -t $Thumbprint -p"
@@ -569,10 +578,11 @@ function Invoke-SgDnTokenCommand {
         Test context. If omitted, uses the module-scoped context.
 
     .PARAMETER Command
-        Token command: 'TokenLifetime', 'RefreshToken', or 'Logout'.
+        Token command: 'TokenLifetime', 'RefreshToken', 'Logout', or 'GetToken'.
         - TokenLifetime: returns { TokenLifetimeRemaining: N }
         - RefreshToken: refreshes then returns { TokenLifetimeRemaining: N }
         - Logout: logs out and returns { AccessToken: "...", LoggedOut: true }
+        - GetToken: returns { AccessToken: "..." } without logging out
 
     .PARAMETER Username
         Username for auth. If omitted, uses context AdminUserName.
@@ -590,7 +600,7 @@ function Invoke-SgDnTokenCommand {
         [PSCustomObject]$Context,
 
         [Parameter(Mandatory)]
-        [ValidateSet("TokenLifetime", "RefreshToken", "Logout")]
+        [ValidateSet("TokenLifetime", "RefreshToken", "Logout", "GetToken")]
         [string]$Command,
 
         [Parameter()]
@@ -612,6 +622,7 @@ function Invoke-SgDnTokenCommand {
         "TokenLifetime" { $toolArgs += " -T" }
         "RefreshToken"  { $toolArgs += " -T -R" }
         "Logout"        { $toolArgs += " -L" }
+        "GetToken"      { $toolArgs += " -G" }
     }
 
     return Invoke-SgDnSafeguardTool -ProjectDir $Context.ToolDir -Arguments $toolArgs -StdinLine $effectivePass -ParseJson $true

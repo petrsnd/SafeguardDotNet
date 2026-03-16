@@ -78,8 +78,8 @@ internal static class Program
 
             Log.Logger = config.CreateLogger();
 
-            if (!opts.TokenLifetime && !opts.Logout
-                && (opts.Service == default || opts.Method == default || string.IsNullOrEmpty(opts.RelativeUrl)))
+            if (!opts.TokenLifetime && !opts.Logout && !opts.GetToken
+                && string.IsNullOrEmpty(opts.RelativeUrl))
             {
                 throw new ArgumentException("--Service, --Method, and --RelativeUrl are required for API invocation");
             }
@@ -118,13 +118,18 @@ internal static class Program
             {
                 connection = Safeguard.Connect(opts.Appliance, opts.Thumbprint, opts.ApiVersion, opts.Insecure);
             }
+            else if (!string.IsNullOrEmpty(opts.AccessToken))
+            {
+                using var token = opts.AccessToken.ToSecureString();
+                connection = Safeguard.Connect(opts.Appliance, token, opts.ApiVersion, opts.Insecure);
+            }
             else if (opts.Anonymous)
             {
                 connection = Safeguard.Connect(opts.Appliance, opts.ApiVersion, opts.Insecure);
             }
             else
             {
-                throw new InvalidOperationException("Must specify Anonymous, Username, CertificateFile, or Thumbprint");
+                throw new InvalidOperationException("Must specify Anonymous, Username, CertificateFile, Thumbprint, or AccessToken");
             }
 
             Log.Debug("Access Token Lifetime Remaining: {Remaining}", connection.GetAccessTokenLifetimeRemaining());
@@ -154,6 +159,17 @@ internal static class Program
                 {
                     AccessToken = accessToken,
                     LoggedOut = true,
+                };
+                Console.WriteLine(JsonConvert.SerializeObject(envelope));
+                return;
+            }
+
+            if (opts.GetToken)
+            {
+                var accessToken = connection.GetAccessToken().ToInsecureString();
+                var envelope = new
+                {
+                    AccessToken = accessToken,
                 };
                 Console.WriteLine(JsonConvert.SerializeObject(envelope));
                 return;
@@ -208,7 +224,11 @@ internal static class Program
             // Log.Information(responseBody); // if JSON is nested too deep Serilog swallows a '}' -- need to file issue with them
             Console.WriteLine(responseBody);
 
-            connection.LogOut();
+            // Don't logout when using access token auth — the caller owns the token lifecycle
+            if (string.IsNullOrEmpty(opts.AccessToken))
+            {
+                connection.LogOut();
+            }
         }
 #pragma warning disable CA1031 // Intentional top-level catch-all for error logging
         catch (Exception ex)

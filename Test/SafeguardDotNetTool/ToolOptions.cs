@@ -99,6 +99,14 @@ internal class ToolOptions
     public bool CertificateAsData { get; set; }
 
     [Option(
+        'k',
+        "AccessToken",
+        Required = true,
+        SetName = "AccessTokenSet",
+        HelpText = "Pre-obtained access token for authentication")]
+    public string AccessToken { get; set; }
+
+    [Option(
         's',
         "Service",
         Required = false,
@@ -190,4 +198,12 @@ internal class ToolOptions
         Default = false,
         HelpText = "Output the access token before logging out, to verify the token is invalidated")]
     public bool Logout { get; set; }
+
+    [Option(
+        'G',
+        "GetToken",
+        Required = false,
+        Default = false,
+        HelpText = "Output the current access token as JSON and exit without logging out")]
+    public bool GetToken { get; set; }
 }
