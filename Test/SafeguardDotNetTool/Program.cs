@@ -78,6 +78,12 @@ internal static class Program
 
             Log.Logger = config.CreateLogger();
 
+            if (!opts.TokenLifetime && !opts.Logout
+                && (opts.Service == default || opts.Method == default || string.IsNullOrEmpty(opts.RelativeUrl)))
+            {
+                throw new ArgumentException("--Service, --Method, and --RelativeUrl are required for API invocation");
+            }
+
             ISafeguardConnection connection;
             if (!string.IsNullOrEmpty(opts.Username))
             {
@@ -122,6 +128,36 @@ internal static class Program
             }
 
             Log.Debug("Access Token Lifetime Remaining: {Remaining}", connection.GetAccessTokenLifetimeRemaining());
+
+            if (opts.RefreshToken)
+            {
+                connection.RefreshAccessToken();
+                Log.Debug("Token refreshed. Lifetime Remaining: {Remaining}", connection.GetAccessTokenLifetimeRemaining());
+            }
+
+            if (opts.TokenLifetime)
+            {
+                var envelope = new
+                {
+                    TokenLifetimeRemaining = connection.GetAccessTokenLifetimeRemaining(),
+                };
+                Console.WriteLine(JsonConvert.SerializeObject(envelope));
+                connection.LogOut();
+                return;
+            }
+
+            if (opts.Logout)
+            {
+                var accessToken = connection.GetAccessToken().ToInsecureString();
+                connection.LogOut();
+                var envelope = new
+                {
+                    AccessToken = accessToken,
+                    LoggedOut = true,
+                };
+                Console.WriteLine(JsonConvert.SerializeObject(envelope));
+                return;
+            }
 
             var additionalHeaders = ParseKeyValuePairs(opts.Headers);
             var queryParameters = ParseKeyValuePairs(opts.Parameters);

@@ -101,22 +101,22 @@ internal class ToolOptions
     [Option(
         's',
         "Service",
-        Required = true,
-        HelpText = "Safeguard service to use")]
+        Required = false,
+        HelpText = "Safeguard service to use (required for API invocation)")]
     public Service Service { get; set; }
 
     [Option(
         'm',
         "Method",
-        Required = true,
-        HelpText = "HTTP Method to use")]
+        Required = false,
+        HelpText = "HTTP method to use (required for API invocation)")]
     public Method Method { get; set; }
 
     [Option(
         'U',
         "RelativeUrl",
-        Required = true,
-        HelpText = "HTTP Method to use")]
+        Required = false,
+        HelpText = "API endpoint relative URL (required for API invocation)")]
     public string RelativeUrl { get; set; }
 
     [Option(
@@ -166,4 +166,28 @@ internal class ToolOptions
         Default = null,
         HelpText = "Path to a file to stream as the request body")]
     public string File { get; set; }
+
+    [Option(
+        'T',
+        "TokenLifetime",
+        Required = false,
+        Default = false,
+        HelpText = "Output token lifetime remaining (in minutes) as JSON and skip API invocation")]
+    public bool TokenLifetime { get; set; }
+
+    [Option(
+        'R',
+        "RefreshToken",
+        Required = false,
+        Default = false,
+        HelpText = "Refresh the access token before API invocation or token lifetime output")]
+    public bool RefreshToken { get; set; }
+
+    [Option(
+        'L',
+        "Logout",
+        Required = false,
+        Default = false,
+        HelpText = "Output the access token before logging out, to verify the token is invalidated")]
+    public bool Logout { get; set; }
 }

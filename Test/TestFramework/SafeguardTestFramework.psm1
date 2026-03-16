@@ -556,6 +556,67 @@ function Invoke-SgDnSafeguardApi {
     return Invoke-SgDnSafeguardTool -ProjectDir $Context.ToolDir -Arguments $toolArgs -StdinLine $stdinLine -ParseJson $ParseJson
 }
 
+function Invoke-SgDnTokenCommand {
+    <#
+    .SYNOPSIS
+        Runs a token management command via SafeguardDotNetTool.
+
+    .DESCRIPTION
+        Connects to the appliance and performs token-related operations:
+        TokenLifetime, RefreshToken, or Logout. Returns parsed JSON output.
+
+    .PARAMETER Context
+        Test context. If omitted, uses the module-scoped context.
+
+    .PARAMETER Command
+        Token command: 'TokenLifetime', 'RefreshToken', or 'Logout'.
+        - TokenLifetime: returns { TokenLifetimeRemaining: N }
+        - RefreshToken: refreshes then returns { TokenLifetimeRemaining: N }
+        - Logout: logs out and returns { AccessToken: "...", LoggedOut: true }
+
+    .PARAMETER Username
+        Username for auth. If omitted, uses context AdminUserName.
+
+    .PARAMETER Password
+        Password for auth. If omitted, uses context AdminPassword.
+
+    .EXAMPLE
+        $result = Invoke-SgDnTokenCommand -Command TokenLifetime
+        $result.TokenLifetimeRemaining  # e.g. 1440
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [PSCustomObject]$Context,
+
+        [Parameter(Mandatory)]
+        [ValidateSet("TokenLifetime", "RefreshToken", "Logout")]
+        [string]$Command,
+
+        [Parameter()]
+        [string]$Username,
+
+        [Parameter()]
+        [string]$Password
+    )
+
+    if (-not $Context) { $Context = Get-SgDnTestContext }
+
+    $toolArgs = "-a $($Context.Appliance) -x"
+
+    $effectiveUser = if ($Username) { $Username } else { $Context.AdminUserName }
+    $effectivePass = if ($Password) { $Password } else { $Context.AdminPassword }
+    $toolArgs += " -u $effectiveUser -p"
+
+    switch ($Command) {
+        "TokenLifetime" { $toolArgs += " -T" }
+        "RefreshToken"  { $toolArgs += " -T -R" }
+        "Logout"        { $toolArgs += " -L" }
+    }
+
+    return Invoke-SgDnSafeguardTool -ProjectDir $Context.ToolDir -Arguments $toolArgs -StdinLine $effectivePass -ParseJson $true
+}
+
 function Invoke-SgDnSafeguardA2a {
     <#
     .SYNOPSIS
@@ -1776,6 +1837,7 @@ Export-ModuleMember -Function @(
     # Tool invocation
     'Invoke-SgDnSafeguardTool'
     'Invoke-SgDnSafeguardApi'
+    'Invoke-SgDnTokenCommand'
     'Invoke-SgDnSafeguardA2a'
     'Invoke-SgDnSafeguardSessions'
     'Build-SgDnTestProjects'
