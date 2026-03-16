@@ -443,6 +443,9 @@ function Invoke-SgDnSafeguardApi {
     .PARAMETER Parameters
         Hashtable of query parameters to include in the request URL.
 
+    .PARAMETER File
+        Path to a file for streaming operations. POST=upload from file, GET=download to file.
+
     .PARAMETER ParseJson
         Whether to parse the response as JSON. Default: $true.
     #>
@@ -502,6 +505,9 @@ function Invoke-SgDnSafeguardApi {
         [hashtable]$Parameters,
 
         [Parameter()]
+        [string]$File,
+
+        [Parameter()]
         [bool]$ParseJson = $true
     )
 
@@ -549,6 +555,7 @@ function Invoke-SgDnSafeguardApi {
 
     if ($Csv) { $toolArgs += " -C" }
     if ($Full) { $toolArgs += " -f" }
+    if ($File) { $toolArgs += " -F `"$File`"" }
 
     if ($Headers -and $Headers.Count -gt 0) {
         $headerPairs = ($Headers.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ","
