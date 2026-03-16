@@ -1,6 +1,6 @@
 @{
     Name        = "API Invocation Patterns"
-    Description = "Tests HTTP methods, CSV output, query parameters, and PUT updates via SafeguardDotNet"
+    Description = "Tests HTTP methods, CSV output, query parameters, PUT updates, InvokeMethodFull, custom headers, and structured parameters via SafeguardDotNet"
     Tags        = @("api", "core")
 
     Setup = {
@@ -14,6 +14,8 @@
         Remove-SgDnStaleTestObject -Context $Context -Collection "AssetAccounts" -Name "${prefix}_ApiAccount"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Assets" -Name "${prefix}_ApiAsset"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name "${prefix}_ApiDeleteMe"
+        Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name "${prefix}_ApiFullPost"
+        Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name "${prefix}_ApiFullDel"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name $adminUser
 
         # 1. Create admin user for privileged operations
@@ -191,6 +193,96 @@
             $result = Invoke-SgDnSafeguardApi -Context $Context -Service Notification -Method Get `
                 -RelativeUrl "Status" -Anonymous -ParseJson $false
             $null -ne $result -and $result.Length -gt 0
+        }
+
+        # --- InvokeMethodFull: GET returns 200 ---
+        Test-SgDnAssert "Full response GET returns StatusCode 200" {
+            $result = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Get `
+                -RelativeUrl "Me" -Full
+            $result.StatusCode -eq 200
+        }
+
+        # --- InvokeMethodFull: response contains Headers ---
+        Test-SgDnAssert "Full response contains Headers dictionary" {
+            $result = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Get `
+                -RelativeUrl "Me" -Full
+            $null -ne $result.Headers -and $result.Headers.Count -gt 0
+        }
+
+        # --- InvokeMethodFull: response contains Body ---
+        Test-SgDnAssert "Full response Body contains user identity" {
+            $result = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Get `
+                -RelativeUrl "Me" -Full
+            $body = $result.Body
+            if ($body -is [string]) { $body = $body | ConvertFrom-Json }
+            $null -ne $body.Name
+        }
+
+        # --- InvokeMethodFull: POST returns 201 ---
+        Test-SgDnAssert "Full response POST returns StatusCode 201" {
+            $tempUser = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
+                -RelativeUrl "Users" -Full -Body @{
+                    PrimaryAuthenticationProvider = @{ Id = -1 }
+                    Name = "${prefix}_ApiFullPost"
+                }
+            try {
+                $tempUser.StatusCode -eq 201
+            }
+            finally {
+                # Cleanup the temp user
+                $body = $tempUser.Body
+                if ($body -is [string]) { $body = $body | ConvertFrom-Json }
+                if ($body.Id) {
+                    try {
+                        Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Delete `
+                            -RelativeUrl "Users/$($body.Id)" -ParseJson $false
+                    } catch {}
+                }
+            }
+        }
+
+        # --- InvokeMethodFull: DELETE returns 204 ---
+        Test-SgDnAssert "Full response DELETE returns StatusCode 204" {
+            # Create a user to delete
+            $tempUser = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
+                -RelativeUrl "Users" -Body @{
+                    PrimaryAuthenticationProvider = @{ Id = -1 }
+                    Name = "${prefix}_ApiFullDel"
+                }
+            $deleteResult = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Delete `
+                -RelativeUrl "Users/$($tempUser.Id)" -Full
+            $deleteResult.StatusCode -eq 204
+        }
+
+        # --- Query parameters via -Parameters flag ---
+        Test-SgDnAssert "GET with -Parameters filter returns matching objects" {
+            $result = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Get `
+                -RelativeUrl "Users" -Parameters @{ filter = "Name eq '$adminUser'" }
+            $items = @($result)
+            $items.Count -eq 1 -and $items[0].Name -eq $adminUser
+        }
+
+        # --- Query parameters: orderby via -Parameters ---
+        Test-SgDnAssert "GET with -Parameters orderby returns ordered results" {
+            $result = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Get `
+                -RelativeUrl "Users" -Parameters @{ orderby = "Name" }
+            $items = @($result)
+            if ($items.Count -lt 2) { $false; return }
+            $ordered = $true
+            for ($i = 1; $i -lt $items.Count; $i++) {
+                if ($items[$i].Name -lt $items[$i - 1].Name) {
+                    $ordered = $false
+                    break
+                }
+            }
+            $ordered
+        }
+
+        # --- Custom headers: Accept header ---
+        Test-SgDnAssert "GET with custom Accept header succeeds" {
+            $result = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Get `
+                -RelativeUrl "Me" -Headers @{ "Accept" = "application/json" }
+            $null -ne $result.Name
         }
     }
 

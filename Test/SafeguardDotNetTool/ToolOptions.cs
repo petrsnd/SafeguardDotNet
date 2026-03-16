@@ -2,6 +2,8 @@
 
 namespace SafeguardDotNetTool;
 
+using System.Collections.Generic;
+
 using CommandLine;
 
 using OneIdentity.SafeguardDotNet;
@@ -132,6 +134,30 @@ internal class ToolOptions
         Default = null,
         HelpText = "Request for a response as CSV")]
     public bool Csv { get; set; }
+
+    [Option(
+        'f',
+        "Full",
+        Required = false,
+        Default = false,
+        HelpText = "Use InvokeMethodFull and output JSON envelope with StatusCode, Headers, and Body")]
+    public bool Full { get; set; }
+
+    [Option(
+        'H',
+        "Header",
+        Required = false,
+        Separator = ',',
+        HelpText = "Additional HTTP headers as Key=Value pairs (comma-separated or repeated)")]
+    public IEnumerable<string> Headers { get; set; }
+
+    [Option(
+        'P',
+        "Parameter",
+        Required = false,
+        Separator = ',',
+        HelpText = "Query parameters as Key=Value pairs (comma-separated or repeated)")]
+    public IEnumerable<string> Parameters { get; set; }
 
     [Option(
         'F',

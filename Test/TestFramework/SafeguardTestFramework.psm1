@@ -343,7 +343,25 @@ function Invoke-SgDnSafeguardTool {
         return ($stdout | ConvertFrom-Json)
     }
     catch {
-        # Fall through to line-by-line parsing
+        # Fall through to noise-stripped and line-by-line parsing
+    }
+
+    # Strip leading non-JSON noise lines and try again (handles multi-line JSON with prefix noise)
+    $jsonStartIndex = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match '^\s*[\[\{"]') {
+            $jsonStartIndex = $i
+            break
+        }
+    }
+    if ($jsonStartIndex -gt 0) {
+        $jsonRegion = ($lines[$jsonStartIndex..($lines.Count - 1)]) -join "`n"
+        try {
+            return ($jsonRegion | ConvertFrom-Json)
+        }
+        catch {
+            # Fall through to line-by-line parsing
+        }
     }
 
     # Try each line — find the last valid JSON line (tools sometimes emit logs before JSON)
@@ -413,6 +431,15 @@ function Invoke-SgDnSafeguardApi {
     .PARAMETER Csv
         Request CSV format response.
 
+    .PARAMETER Full
+        Use InvokeMethodFull to get StatusCode, Headers, and Body envelope.
+
+    .PARAMETER Headers
+        Hashtable of additional HTTP headers to include in the request.
+
+    .PARAMETER Parameters
+        Hashtable of query parameters to include in the request URL.
+
     .PARAMETER ParseJson
         Whether to parse the response as JSON. Default: $true.
     #>
@@ -460,6 +487,15 @@ function Invoke-SgDnSafeguardApi {
         [switch]$Csv,
 
         [Parameter()]
+        [switch]$Full,
+
+        [Parameter()]
+        [hashtable]$Headers,
+
+        [Parameter()]
+        [hashtable]$Parameters,
+
+        [Parameter()]
         [bool]$ParseJson = $true
     )
 
@@ -503,6 +539,17 @@ function Invoke-SgDnSafeguardApi {
     }
 
     if ($Csv) { $toolArgs += " -C" }
+    if ($Full) { $toolArgs += " -f" }
+
+    if ($Headers -and $Headers.Count -gt 0) {
+        $headerPairs = ($Headers.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ","
+        $toolArgs += " -H `"$headerPairs`""
+    }
+
+    if ($Parameters -and $Parameters.Count -gt 0) {
+        $paramPairs = ($Parameters.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ","
+        $toolArgs += " -P `"$paramPairs`""
+    }
 
     Write-Verbose "Invoke-SgDnSafeguardApi: dotnet run -- $toolArgs"
 

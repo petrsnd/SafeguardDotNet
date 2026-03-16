@@ -5,10 +5,13 @@ namespace SafeguardDotNetTool;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security;
 using System.Threading;
 
 using CommandLine;
+
+using Newtonsoft.Json;
 
 using OneIdentity.SafeguardDotNet;
 
@@ -120,16 +123,50 @@ internal static class Program
 
             Log.Debug("Access Token Lifetime Remaining: {Remaining}", connection.GetAccessTokenLifetimeRemaining());
 
+            var additionalHeaders = ParseKeyValuePairs(opts.Headers);
+            var queryParameters = ParseKeyValuePairs(opts.Parameters);
+
             string responseBody;
             if (!string.IsNullOrEmpty(opts.File))
             {
                 responseBody = HandleStreamingRequest(opts, connection);
             }
+            else if (opts.Full)
+            {
+                var fullResponse = connection.InvokeMethodFull(
+                    opts.Service,
+                    opts.Method,
+                    opts.RelativeUrl,
+                    opts.Body,
+                    queryParameters,
+                    additionalHeaders);
+                var envelope = new
+                {
+                    StatusCode = (int)fullResponse.StatusCode,
+                    fullResponse.Headers,
+                    fullResponse.Body,
+                };
+                responseBody = JsonConvert.SerializeObject(envelope);
+            }
+            else if (opts.Csv)
+            {
+                responseBody = connection.InvokeMethodCsv(
+                    opts.Service,
+                    opts.Method,
+                    opts.RelativeUrl,
+                    opts.Body,
+                    queryParameters,
+                    additionalHeaders);
+            }
             else
             {
-                responseBody = opts.Csv
-                ? connection.InvokeMethodCsv(opts.Service, opts.Method, opts.RelativeUrl, opts.Body)
-                : connection.InvokeMethod(opts.Service, opts.Method, opts.RelativeUrl, opts.Body);
+                responseBody = connection.InvokeMethod(
+                    opts.Service,
+                    opts.Method,
+                    opts.RelativeUrl,
+                    opts.Body,
+                    queryParameters,
+                    additionalHeaders);
             }
 
             // Log.Information(responseBody); // if JSON is nested too deep Serilog swallows a '}' -- need to file issue with them
@@ -144,6 +181,26 @@ internal static class Program
             Log.Error(ex, "Fatal exception occurred");
             Environment.Exit(1);
         }
+    }
+
+    private static IDictionary<string, string> ParseKeyValuePairs(IEnumerable<string> pairs)
+    {
+        if (pairs == null || !pairs.Any())
+        {
+            return new Dictionary<string, string>();
+        }
+
+        var dict = new Dictionary<string, string>();
+        foreach (var pair in pairs)
+        {
+            var eqIndex = pair.IndexOf('=');
+            if (eqIndex > 0)
+            {
+                dict[pair[..eqIndex]] = pair[(eqIndex + 1)..];
+            }
+        }
+
+        return dict;
     }
 
     private static string HandleStreamingRequest(ToolOptions opts, ISafeguardConnection connection)
