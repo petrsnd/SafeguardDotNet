@@ -20,7 +20,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{DD89D86B-68DA-4EB0-8EBC-60DE3DC2B084}"
 	ProjectSection(SolutionItems) = preProject
 		Test\Invoke-SafeguardDotNetTests.ps1 = Test\Invoke-SafeguardDotNetTests.ps1
+		Test\TestFramework\Invoke-SafeguardTests.ps1 = Test\TestFramework\Invoke-SafeguardTests.ps1
 		Test\README.md = Test\README.md
+		Test\TestFramework\README.md = Test\TestFramework\README.md
+		Test\TestFramework\SafeguardTestFramework.psm1 = Test\TestFramework\SafeguardTestFramework.psm1
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SafeguardDotNetExceptionTest", "Test\SafeguardDotNetExceptionTest\SafeguardDotNetExceptionTest.csproj", "{EACEF9A1-0E06-4AF4-9589-12E3F77CB959}"
@@ -59,6 +62,25 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleA2aService", "Samples\SampleA2aService\SampleA2aService.csproj", "{0149D659-78E3-476B-81F1-A80BDFA6F8A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceNowTicketValidator", "Samples\ServiceNowTicketValidator\ServiceNowTicketValidator.csproj", "{BE0C60E2-002E-42A0-A1D1-3BB9AE90D607}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestFramework", "TestFramework", "{FB679533-9E9A-416B-BDE6-CC2D5EE52D49}"
+	ProjectSection(SolutionItems) = preProject
+		Test\TestFramework\Invoke-SafeguardTests.ps1 = Test\TestFramework\Invoke-SafeguardTests.ps1
+		Test\TestFramework\README.md = Test\TestFramework\README.md
+		Test\TestFramework\SafeguardTestFramework.psm1 = Test\TestFramework\SafeguardTestFramework.psm1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Suites", "Suites", "{6375085D-EE95-49E7-A496-90CC10DB1369}"
+	ProjectSection(SolutionItems) = preProject
+		Test\TestFramework\Suites\Suite-A2ACredentialRetrieval.ps1 = Test\TestFramework\Suites\Suite-A2ACredentialRetrieval.ps1
+		Test\TestFramework\Suites\Suite-AccessRequestWorkflow.ps1 = Test\TestFramework\Suites\Suite-AccessRequestWorkflow.ps1
+		Test\TestFramework\Suites\Suite-AnonymousAccess.ps1 = Test\TestFramework\Suites\Suite-AnonymousAccess.ps1
+		Test\TestFramework\Suites\Suite-ApiInvocation.ps1 = Test\TestFramework\Suites\Suite-ApiInvocation.ps1
+		Test\TestFramework\Suites\Suite-CertificateAuth.ps1 = Test\TestFramework\Suites\Suite-CertificateAuth.ps1
+		Test\TestFramework\Suites\Suite-ExceptionHandling.ps1 = Test\TestFramework\Suites\Suite-ExceptionHandling.ps1
+		Test\TestFramework\Suites\Suite-PasswordAuth.ps1 = Test\TestFramework\Suites\Suite-PasswordAuth.ps1
+		Test\TestFramework\Suites\Suite-SpsIntegration.ps1 = Test\TestFramework\Suites\Suite-SpsIntegration.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -143,6 +165,8 @@ Global
 		{C6D34567-3456-4321-9876-345678901CDE} = {DD89D86B-68DA-4EB0-8EBC-60DE3DC2B084}
 		{0149D659-78E3-476B-81F1-A80BDFA6F8A9} = {867EB36D-7893-444D-900D-29733E8E2636}
 		{BE0C60E2-002E-42A0-A1D1-3BB9AE90D607} = {867EB36D-7893-444D-900D-29733E8E2636}
+		{FB679533-9E9A-416B-BDE6-CC2D5EE52D49} = {DD89D86B-68DA-4EB0-8EBC-60DE3DC2B084}
+		{6375085D-EE95-49E7-A496-90CC10DB1369} = {FB679533-9E9A-416B-BDE6-CC2D5EE52D49}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D9CB73C2-C8BA-4198-AC5A-583C98326F2D}
