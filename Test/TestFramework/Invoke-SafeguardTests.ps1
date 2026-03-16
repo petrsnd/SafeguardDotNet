@@ -208,6 +208,11 @@ if (-not $SkipBuild) {
     }
 }
 
+# --- Global pre-cleanup ---
+Write-Host ""
+Write-Host "Pre-cleanup: removing stale objects from previous runs..." -ForegroundColor Yellow
+Clear-SgDnStaleTestEnvironment -Context $context
+
 # --- Run suites ---
 foreach ($suiteFile in $selectedSuites) {
     Invoke-SgDnTestSuite -SuiteFile $suiteFile.FullName -Context $context

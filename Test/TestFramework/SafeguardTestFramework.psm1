@@ -1385,6 +1385,148 @@ function Remove-SgDnSafeguardTestObject {
     }
 }
 
+function Remove-SgDnStaleTestObject {
+    <#
+    .SYNOPSIS
+        Finds and deletes a Safeguard object by Name filter. Used for pre-cleanup of stale objects.
+
+    .DESCRIPTION
+        Queries the specified collection for objects whose Name matches the given value,
+        then deletes each match. Errors are silently ignored — this is best-effort cleanup
+        for objects left behind by previous failed test runs.
+
+    .PARAMETER Context
+        Test context (required).
+
+    .PARAMETER Collection
+        The API collection to search (e.g., "Users", "Assets", "AssetAccounts", "Roles",
+        "AccessPolicies", "A2ARegistrations").
+
+    .PARAMETER Name
+        The exact Name value to search for.
+
+    .PARAMETER Username
+        Optional username override for authentication.
+
+    .PARAMETER Password
+        Optional password override for authentication.
+
+    .EXAMPLE
+        Remove-SgDnStaleTestObject -Context $ctx -Collection "Users" -Name "SgDnTest_A2aAdmin"
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Context,
+
+        [Parameter(Mandatory)]
+        [string]$Collection,
+
+        [Parameter(Mandatory)]
+        [string]$Name,
+
+        [Parameter()]
+        [string]$Username,
+
+        [Parameter()]
+        [string]$Password
+    )
+
+    try {
+        $filterParams = @{
+            Context     = $Context
+            Service     = "Core"
+            Method      = "Get"
+            RelativeUrl = "${Collection}?filter=Name eq '${Name}'"
+        }
+        if ($Username) { $filterParams.Username = $Username }
+        if ($Password) { $filterParams.Password = $Password }
+
+        $existing = Invoke-SgDnSafeguardApi @filterParams
+        if ($existing) {
+            $items = @($existing)
+            foreach ($item in $items) {
+                if ($item.Id) {
+                    Write-Verbose "  Pre-cleanup: removing stale $Collection object '$Name' (Id=$($item.Id))"
+                    Remove-SgDnSafeguardTestObject -Context $Context `
+                        -RelativeUrl "${Collection}/$($item.Id)" `
+                        -Username:$Username -Password:$Password
+                }
+            }
+        }
+    }
+    catch {
+        # Silently ignore — best-effort pre-cleanup
+    }
+}
+
+function Remove-SgDnStaleTestCert {
+    <#
+    .SYNOPSIS
+        Finds and deletes a trusted certificate by thumbprint. Used for pre-cleanup.
+
+    .DESCRIPTION
+        Queries TrustedCertificates for certificates matching the given thumbprint,
+        then deletes each match. Errors are silently ignored.
+
+    .PARAMETER Context
+        Test context (required).
+
+    .PARAMETER Thumbprint
+        The certificate thumbprint to search for.
+
+    .PARAMETER Username
+        Optional username override for authentication.
+
+    .PARAMETER Password
+        Optional password override for authentication.
+
+    .EXAMPLE
+        Remove-SgDnStaleTestCert -Context $ctx -Thumbprint "ABC123..."
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Context,
+
+        [Parameter(Mandatory)]
+        [string]$Thumbprint,
+
+        [Parameter()]
+        [string]$Username,
+
+        [Parameter()]
+        [string]$Password
+    )
+
+    try {
+        $filterParams = @{
+            Context     = $Context
+            Service     = "Core"
+            Method      = "Get"
+            RelativeUrl = "TrustedCertificates?filter=Thumbprint ieq '${Thumbprint}'"
+        }
+        if ($Username) { $filterParams.Username = $Username }
+        if ($Password) { $filterParams.Password = $Password }
+
+        $existing = Invoke-SgDnSafeguardApi @filterParams
+        if ($existing) {
+            $items = @($existing)
+            foreach ($item in $items) {
+                if ($item.Id) {
+                    Write-Verbose "  Pre-cleanup: removing stale TrustedCertificate (Thumbprint=$Thumbprint, Id=$($item.Id))"
+                    Remove-SgDnSafeguardTestObject -Context $Context `
+                        -RelativeUrl "TrustedCertificates/$($item.Id)" `
+                        -Username:$Username -Password:$Password
+                }
+            }
+        }
+    }
+    catch {
+        # Silently ignore — best-effort pre-cleanup
+    }
+}
+
 function Test-SgDnSpsConfigured {
     <#
     .SYNOPSIS
@@ -1419,6 +1561,156 @@ function Test-SgDnIsElevated {
     else {
         return (id -u) -eq 0
     }
+}
+
+function Clear-SgDnStaleTestEnvironment {
+    <#
+    .SYNOPSIS
+        Removes all stale test objects from the appliance before a test run.
+
+    .DESCRIPTION
+        Creates a temporary admin user with full rights, then searches for and deletes
+        all objects created by previous test runs (identified by the TestPrefix) in the
+        correct dependency order. This handles cross-suite contamination.
+
+        This function is best-effort — individual deletion errors are silently ignored.
+
+    .PARAMETER Context
+        Test context (required).
+
+    .EXAMPLE
+        Clear-SgDnStaleTestEnvironment -Context $ctx
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Context
+    )
+
+    $prefix = $Context.TestPrefix
+    $cleanupAdmin = "${prefix}_CleanupAdmin"
+    $cleanupPassword = "Cleanup8392!xyzABC"
+    Write-Host "  Checking for stale test objects (prefix: ${prefix})..." -ForegroundColor DarkGray
+
+    # Create a temporary admin with full rights for cleanup operations
+    $adminId = $null
+    try {
+        # First remove any stale cleanup admin from a previous failed cleanup
+        Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name $cleanupAdmin
+
+        $admin = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
+            -RelativeUrl "Users" -Body @{
+                PrimaryAuthenticationProvider = @{ Id = -1 }
+                Name = $cleanupAdmin
+                AdminRoles = @('GlobalAdmin','Auditor','AssetAdmin','ApplianceAdmin','PolicyAdmin','UserAdmin','HelpdeskAdmin','OperationsAdmin')
+            }
+        $adminId = $admin.Id
+        Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Put `
+            -RelativeUrl "Users/$adminId/Password" -Body "'$cleanupPassword'" -ParseJson $false
+    }
+    catch {
+        Write-Host "  Could not create cleanup admin — skipping pre-cleanup." -ForegroundColor DarkYellow
+        return
+    }
+
+    $foundAny = $false
+
+    # Delete in dependency order: policies → roles → A2A registrations → accounts → assets → users → certs
+    $collections = @(
+        @{ Collection = "AccessPolicies"; NameField = "Name" },
+        @{ Collection = "Roles"; NameField = "Name" },
+        @{ Collection = "A2ARegistrations"; NameField = "AppName" },
+        @{ Collection = "AssetAccounts"; NameField = "Name" },
+        @{ Collection = "Assets"; NameField = "Name" }
+    )
+
+    foreach ($col in $collections) {
+        try {
+            $items = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Get `
+                -RelativeUrl "$($col.Collection)?filter=$($col.NameField) contains '${prefix}'" `
+                -Username $cleanupAdmin -Password $cleanupPassword
+            $list = @($items)
+            foreach ($item in $list) {
+                if ($item.Id) {
+                    if (-not $foundAny) {
+                        $foundAny = $true
+                        Write-Host "  Found stale test objects — removing..." -ForegroundColor Yellow
+                    }
+                    $displayName = if ($item.Name) { $item.Name } elseif ($item.AppName) { $item.AppName } else { "Id=$($item.Id)" }
+                    Write-Host "    Deleting $($col.Collection): $displayName" -ForegroundColor DarkYellow
+                    Remove-SgDnSafeguardTestObject -Context $Context `
+                        -RelativeUrl "$($col.Collection)/$($item.Id)" `
+                        -Username $cleanupAdmin -Password $cleanupPassword
+                }
+            }
+        }
+        catch {
+            # Silently ignore — best-effort
+        }
+    }
+
+    # Delete stale test users (excluding the cleanup admin itself)
+    try {
+        $staleUsers = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Get `
+            -RelativeUrl "Users?filter=Name contains '${prefix}'"
+        $list = @($staleUsers)
+        foreach ($user in $list) {
+            if ($user.Id -and $user.Id -ne $adminId) {
+                if (-not $foundAny) {
+                    $foundAny = $true
+                    Write-Host "  Found stale test objects — removing..." -ForegroundColor Yellow
+                }
+                Write-Host "    Deleting user: $($user.Name) (Id=$($user.Id))" -ForegroundColor DarkYellow
+                Remove-SgDnSafeguardTestObject -Context $Context `
+                    -RelativeUrl "Users/$($user.Id)" `
+                    -Username $cleanupAdmin -Password $cleanupPassword
+            }
+        }
+    }
+    catch {
+        # Silently ignore
+    }
+
+    # Delete stale trusted certificates by test cert thumbprints
+    $certPaths = @($Context.RootCert, $Context.CaCert)
+    foreach ($certPath in $certPaths) {
+        if (-not $certPath -or -not (Test-Path $certPath)) { continue }
+        try {
+            $thumbprint = (Get-PfxCertificate $certPath).Thumbprint
+            Remove-SgDnStaleTestCert -Context $Context -Thumbprint $thumbprint `
+                -Username $cleanupAdmin -Password $cleanupPassword
+        }
+        catch {
+            # Silently ignore
+        }
+    }
+
+    # Clean up local cert store entries from test certificates
+    if ($Context.UserCert -and (Test-Path $Context.UserCert)) {
+        try {
+            $tp = (Get-PfxCertificate $Context.UserCert).Thumbprint
+            if ($tp -and (Test-Path "Cert:\CurrentUser\My\$tp")) {
+                Write-Host "    Removing stale cert from user store" -ForegroundColor DarkYellow
+                Remove-Item "Cert:\CurrentUser\My\$tp" -ErrorAction SilentlyContinue
+            }
+        }
+        catch {
+            # Silently ignore
+        }
+    }
+
+    # Delete the cleanup admin
+    try {
+        Remove-SgDnSafeguardTestObject -Context $Context -RelativeUrl "Users/$adminId"
+    }
+    catch {
+        # Silently ignore
+    }
+
+    if (-not $foundAny) {
+        Write-Host "  No stale objects found." -ForegroundColor DarkGray
+    }
+    Write-Host "  Pre-cleanup complete." -ForegroundColor DarkGray
 }
 
 # ============================================================================
@@ -1458,6 +1750,9 @@ Export-ModuleMember -Function @(
 
     # Helpers
     'Remove-SgDnSafeguardTestObject'
+    'Remove-SgDnStaleTestObject'
+    'Remove-SgDnStaleTestCert'
+    'Clear-SgDnStaleTestEnvironment'
     'Test-SgDnSpsConfigured'
     'Test-SgDnIsElevated'
 )
