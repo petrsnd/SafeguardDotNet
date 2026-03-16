@@ -28,6 +28,36 @@ function New-SgDnTestContext {
     <#
     .SYNOPSIS
         Creates a new test context tracking appliance info, credentials, results, and cleanup.
+
+    .DESCRIPTION
+        Initializes a PSCustomObject that carries all state for a test run: connection info,
+        tool paths, certificate paths, per-suite data, cleanup stack, and result collection.
+        The context is also stored at module scope so other functions can retrieve it via
+        Get-SgDnTestContext.
+
+    .PARAMETER Appliance
+        Network address of the Safeguard appliance to test against.
+
+    .PARAMETER AdminUserName
+        Bootstrap admin username. Default: "admin".
+
+    .PARAMETER AdminPassword
+        Bootstrap admin password. Default: "Admin123".
+
+    .PARAMETER SpsAppliance
+        Optional network address of a Safeguard for Privileged Sessions appliance.
+
+    .PARAMETER SpsUser
+        SPS admin username. Default: "admin".
+
+    .PARAMETER SpsPassword
+        SPS admin password.
+
+    .PARAMETER TestPrefix
+        Prefix used for naming test objects on the appliance. Default: "SgDnTest".
+
+    .EXAMPLE
+        $ctx = New-SgDnTestContext -Appliance "sg.example.com" -AdminPassword "Secret123"
     #>
     [CmdletBinding()]
     param(
@@ -143,6 +173,12 @@ function Invoke-SgDnTestCleanup {
     .SYNOPSIS
         Executes all registered cleanup actions in LIFO order.
         Each action is wrapped in try/catch — failures are logged but never propagate.
+
+    .PARAMETER Context
+        The test context whose cleanup stack should be drained.
+
+    .EXAMPLE
+        Invoke-SgDnTestCleanup -Context $ctx
     #>
     [CmdletBinding()]
     param(
@@ -170,7 +206,7 @@ function Invoke-SgDnTestCleanup {
 }
 
 # ============================================================================
-# Tool Invocation (improved from legacy Invoke-DotNetRun)
+# SafeguardDotNetTool Invocation
 # ============================================================================
 
 function Invoke-SgDnSafeguardTool {
@@ -178,8 +214,10 @@ function Invoke-SgDnSafeguardTool {
     .SYNOPSIS
         Runs a dotnet test tool project with proper process management.
 
-        Replaces the legacy Invoke-Expression + regex approach with Start-Process
-        for clean stdin/stdout/stderr separation and exit code checking.
+    .DESCRIPTION
+        Replaces the legacy Invoke-Expression + regex approach with
+        System.Diagnostics.Process for clean stdin/stdout/stderr separation and
+        exit code checking. Stdout is captured asynchronously to avoid deadlocks.
 
     .PARAMETER ProjectDir
         Path to the dotnet project directory.
@@ -197,9 +235,17 @@ function Invoke-SgDnSafeguardTool {
     .PARAMETER TimeoutSeconds
         Maximum time to wait for the process. Default: 120.
 
-    .RETURNS
+    .OUTPUTS
         PSObject if JSON parsed successfully, or raw string output.
-        Throws on non-zero exit code.
+
+    .EXAMPLE
+        Invoke-SgDnSafeguardTool -ProjectDir $ctx.ToolDir `
+            -Arguments "-a sg.example.com -A -x -s Notification -m Get -U Status"
+
+    .EXAMPLE
+        Invoke-SgDnSafeguardTool -ProjectDir $ctx.A2aToolDir `
+            -Arguments "-a sg.example.com -x -c cert.pfx -A `"key`" -R -p" `
+            -StdinLine "certpassword"
     #>
     [CmdletBinding()]
     param(
@@ -463,10 +509,54 @@ function Invoke-SgDnSafeguardApi {
     return Invoke-SgDnSafeguardTool -ProjectDir $Context.ToolDir -Arguments $toolArgs -StdinLine $stdinLine -ParseJson $ParseJson
 }
 
-function Invoke-SgDnSafeguardA2aTool {
+function Invoke-SgDnSafeguardA2a {
     <#
     .SYNOPSIS
         Convenience wrapper for calling SafeguardDotNetA2aTool.
+
+    .DESCRIPTION
+        Builds the argument string for the A2A tool and invokes it via
+        Invoke-SgDnSafeguardTool. Supports certificate auth from file or store.
+
+    .PARAMETER Context
+        Test context. If omitted, uses the module-scoped context.
+
+    .PARAMETER ApiKey
+        The A2A API key for the retrievable account.
+
+    .PARAMETER CertificateFile
+        Path to a PFX file for certificate authentication.
+
+    .PARAMETER CertificatePassword
+        Password for the PFX file.
+
+    .PARAMETER CertificateAsData
+        Load the PFX as a data buffer instead of a file path.
+
+    .PARAMETER Thumbprint
+        Certificate thumbprint for cert store authentication.
+
+    .PARAMETER RetrievableAccounts
+        List retrievable accounts instead of retrieving a credential.
+
+    .PARAMETER NewPassword
+        Set a new password on the account.
+
+    .PARAMETER PrivateKey
+        Retrieve the SSH private key instead of a password.
+
+    .PARAMETER ApiKeySecret
+        Retrieve the API key secret instead of a password.
+
+    .PARAMETER KeyFormat
+        SSH key format: OpenSsh, Ssh2, or Putty.
+
+    .PARAMETER ParseJson
+        Whether to parse the response as JSON. Default: $true.
+
+    .EXAMPLE
+        Invoke-SgDnSafeguardA2a -ApiKey $key -CertificateFile $ctx.UserPfx `
+            -CertificatePassword "a" -RetrievableAccounts
     #>
     [CmdletBinding()]
     param(
@@ -529,16 +619,43 @@ function Invoke-SgDnSafeguardA2aTool {
     if ($ApiKeySecret) { $toolArgs += " -P" }
     if ($KeyFormat) { $toolArgs += " -F $KeyFormat" }
 
-    Write-Verbose "Invoke-SgDnSafeguardA2aTool: dotnet run -- $toolArgs"
+    Write-Verbose "Invoke-SgDnSafeguardA2a: dotnet run -- $toolArgs"
 
     return Invoke-SgDnSafeguardTool -ProjectDir $Context.A2aToolDir -Arguments $toolArgs -StdinLine $stdinLine -ParseJson $ParseJson
 }
 
-function Invoke-SgDnSafeguardSessionsTool {
+function Invoke-SgDnSafeguardSessions {
     <#
     .SYNOPSIS
         Convenience wrapper for calling SafeguardSessionsDotNetTool.
-        Note: This tool takes password as a CLI argument, not stdin.
+
+    .DESCRIPTION
+        Unlike the other tools, SafeguardSessionsDotNetTool takes the password as a
+        command-line argument (-p) rather than reading from stdin.
+
+    .PARAMETER Context
+        Test context. If omitted, uses the module-scoped context.
+
+    .PARAMETER Method
+        HTTP method: Get, Post, Put, Delete, or Patch.
+
+    .PARAMETER RelativeUrl
+        SPS API endpoint relative URL.
+
+    .PARAMETER Body
+        Optional request body string.
+
+    .PARAMETER Username
+        SPS username. Defaults to the context SpsUser.
+
+    .PARAMETER Password
+        SPS password. Defaults to the context SpsPassword.
+
+    .PARAMETER ParseJson
+        Whether to parse the response as JSON. Default: $true.
+
+    .EXAMPLE
+        Invoke-SgDnSafeguardSessions -Method Get -RelativeUrl "firmware/slots"
     #>
     [CmdletBinding()]
     param(
@@ -573,7 +690,7 @@ function Invoke-SgDnSafeguardSessionsTool {
     $toolArgs = "-a $($Context.SpsAppliance) -k -u $effectiveUser -p $effectivePass -m $Method -U `"$RelativeUrl`""
     if ($Body) { $toolArgs += " -b `"$Body`"" }
 
-    Write-Verbose "Invoke-SgDnSafeguardSessionsTool: dotnet run -- $toolArgs"
+    Write-Verbose "Invoke-SgDnSafeguardSessions: dotnet run -- $toolArgs"
 
     # Sessions tool does NOT read from stdin
     return Invoke-SgDnSafeguardTool -ProjectDir $Context.SessionsToolDir -Arguments $toolArgs -ParseJson $ParseJson
@@ -587,6 +704,20 @@ function Build-SgDnTestProjects {
     <#
     .SYNOPSIS
         Builds all test tool projects. Throws on build failure.
+
+    .PARAMETER Context
+        Test context. If omitted, uses the module-scoped context.
+
+    .PARAMETER Projects
+        Optional array of project directory paths to build. If omitted, builds all
+        default test tool projects (SafeguardDotNetTool, ExceptionTest, A2aTool,
+        AccessRequestBrokerTool, EventTool).
+
+    .EXAMPLE
+        Build-SgDnTestProjects -Context $ctx
+
+    .EXAMPLE
+        Build-SgDnTestProjects -Projects @($ctx.ToolDir, $ctx.A2aToolDir)
     #>
     [CmdletBinding()]
     param(
@@ -627,8 +758,23 @@ function Test-SgDnAssert {
     <#
     .SYNOPSIS
         Records a named test result. Pass a scriptblock that returns $true/$false or throws.
+
+    .DESCRIPTION
+        Executes the scriptblock, records pass/fail/duration, and appends to the current
+        suite's test results. A return value of $false or a thrown exception counts as failure.
+        All other return values (including $null) count as pass.
+
+    .PARAMETER Name
+        Human-readable name for this test assertion.
+
+    .PARAMETER Test
+        ScriptBlock to evaluate. Return $true for pass, $false for fail, or throw for fail.
+
     .EXAMPLE
         Test-SgDnAssert "User can log in" { (Invoke-SgDnSafeguardApi ...).Name -eq "admin" }
+
+    .EXAMPLE
+        Test-SgDnAssert "API call succeeds" { Invoke-SgDnSafeguardApi -Service Core -Method Get -RelativeUrl "Me"; $true }
     #>
     [CmdletBinding()]
     param(
@@ -682,6 +828,18 @@ function Test-SgDnAssertEqual {
     <#
     .SYNOPSIS
         Asserts two values are equal.
+
+    .PARAMETER Name
+        Human-readable name for this test assertion.
+
+    .PARAMETER Expected
+        The expected value.
+
+    .PARAMETER Actual
+        The actual value to compare against Expected.
+
+    .EXAMPLE
+        Test-SgDnAssertEqual "Status is active" "Active" $user.Status
     #>
     [CmdletBinding()]
     param(
@@ -707,6 +865,15 @@ function Test-SgDnAssertNotNull {
     <#
     .SYNOPSIS
         Asserts a value is not null or empty.
+
+    .PARAMETER Name
+        Human-readable name for this test assertion.
+
+    .PARAMETER Value
+        The value to check for null or empty.
+
+    .EXAMPLE
+        Test-SgDnAssertNotNull "User ID is set" $user.Id
     #>
     [CmdletBinding()]
     param(
@@ -729,6 +896,21 @@ function Test-SgDnAssertContains {
     <#
     .SYNOPSIS
         Asserts a string contains a substring, or a collection contains an element.
+
+    .PARAMETER Name
+        Human-readable name for this test assertion.
+
+    .PARAMETER Haystack
+        The string or collection to search in.
+
+    .PARAMETER Needle
+        The substring or element to search for.
+
+    .EXAMPLE
+        Test-SgDnAssertContains "Has admin role" $user.AdminRoles "GlobalAdmin"
+
+    .EXAMPLE
+        Test-SgDnAssertContains "Error mentions auth" $errorMsg "authentication"
     #>
     [CmdletBinding()]
     param(
@@ -764,6 +946,21 @@ function Test-SgDnAssertThrows {
     <#
     .SYNOPSIS
         Asserts that a scriptblock throws an exception.
+
+    .PARAMETER Name
+        Human-readable name for this test assertion.
+
+    .PARAMETER Action
+        ScriptBlock expected to throw an exception.
+
+    .PARAMETER ExpectedMessage
+        Optional substring that the exception message must contain.
+
+    .EXAMPLE
+        Test-SgDnAssertThrows "Bad endpoint throws" { Invoke-SgDnSafeguardApi -Service Core -Method Get -RelativeUrl "NonExistent" }
+
+    .EXAMPLE
+        Test-SgDnAssertThrows "Auth failure message" -ExpectedMessage "unauthorized" { Invoke-SgDnSafeguardApi ... }
     #>
     [CmdletBinding()]
     param(
@@ -799,6 +996,15 @@ function Test-SgDnSkip {
     <#
     .SYNOPSIS
         Records a named test as skipped with a reason.
+
+    .PARAMETER Name
+        Human-readable name for the skipped test.
+
+    .PARAMETER Reason
+        Explanation of why the test was skipped.
+
+    .EXAMPLE
+        Test-SgDnSkip "Computer cert store auth" "Requires elevation"
     #>
     [CmdletBinding()]
     param(
@@ -833,7 +1039,20 @@ function Invoke-SgDnTestSuite {
     <#
     .SYNOPSIS
         Runs a single test suite through Setup → Execute → Cleanup.
-        Failures in Setup or Execute do not prevent Cleanup from running.
+
+    .DESCRIPTION
+        Loads a suite definition file, resets per-suite state, then runs Setup, Execute,
+        and Cleanup phases. Setup failures skip Execute but Cleanup always runs.
+        Results are appended to the context's SuiteResults collection.
+
+    .PARAMETER SuiteFile
+        Full path to the Suite-*.ps1 file to run.
+
+    .PARAMETER Context
+        Test context. If omitted, uses the module-scoped context.
+
+    .EXAMPLE
+        Invoke-SgDnTestSuite -SuiteFile "C:\Tests\Suites\Suite-PasswordAuth.ps1" -Context $ctx
     #>
     [CmdletBinding()]
     param(
@@ -957,6 +1176,19 @@ function Write-SgDnTestReport {
     <#
     .SYNOPSIS
         Writes a formatted test report to the console.
+
+    .DESCRIPTION
+        Prints a summary table of all suite results with pass/fail/skip counts,
+        overall pass rate, and a detailed list of failures.
+
+    .PARAMETER Context
+        Test context. If omitted, uses the module-scoped context.
+
+    .OUTPUTS
+        Returns the total number of failed tests (int) for use as exit code.
+
+    .EXAMPLE
+        $failCount = Write-SgDnTestReport -Context $ctx
     #>
     [CmdletBinding()]
     param(
@@ -1045,6 +1277,15 @@ function Export-SgDnTestReport {
     <#
     .SYNOPSIS
         Exports test results to a JSON file for CI integration.
+
+    .PARAMETER OutputPath
+        File path to write the JSON report to.
+
+    .PARAMETER Context
+        Test context. If omitted, uses the module-scoped context.
+
+    .EXAMPLE
+        Export-SgDnTestReport -OutputPath "C:\results\test-report.json" -Context $ctx
     #>
     [CmdletBinding()]
     param(
@@ -1095,6 +1336,21 @@ function Remove-SgDnSafeguardTestObject {
     <#
     .SYNOPSIS
         Idempotent delete — removes an object if it exists, silently ignores if not found.
+
+    .PARAMETER Context
+        Test context (required).
+
+    .PARAMETER RelativeUrl
+        API endpoint for the DELETE call (e.g., "Users/123").
+
+    .PARAMETER Username
+        Optional username override for authentication.
+
+    .PARAMETER Password
+        Optional password override for authentication.
+
+    .EXAMPLE
+        Remove-SgDnSafeguardTestObject -Context $ctx -RelativeUrl "Users/$userId"
     #>
     [CmdletBinding()]
     param(
@@ -1133,6 +1389,12 @@ function Test-SgDnSpsConfigured {
     <#
     .SYNOPSIS
         Returns $true if SPS connection parameters are configured.
+
+    .PARAMETER Context
+        Test context. If omitted, uses the module-scoped context.
+
+    .EXAMPLE
+        if (Test-SgDnSpsConfigured) { Invoke-SgDnSafeguardSessions -Method Get -RelativeUrl "firmware/slots" }
     #>
     [CmdletBinding()]
     param(
@@ -1175,8 +1437,8 @@ Export-ModuleMember -Function @(
     # Tool invocation
     'Invoke-SgDnSafeguardTool'
     'Invoke-SgDnSafeguardApi'
-    'Invoke-SgDnSafeguardA2aTool'
-    'Invoke-SgDnSafeguardSessionsTool'
+    'Invoke-SgDnSafeguardA2a'
+    'Invoke-SgDnSafeguardSessions'
     'Build-SgDnTestProjects'
 
     # Assertions

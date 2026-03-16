@@ -159,8 +159,8 @@ must return a hashtable with this structure:
 | Function | Description |
 |---|---|
 | `Invoke-SgDnSafeguardApi` | Call Safeguard API via SafeguardDotNetTool |
-| `Invoke-SgDnSafeguardA2aTool` | Call A2A operations via SafeguardDotNetA2aTool |
-| `Invoke-SgDnSafeguardSessionsTool` | Call SPS API via SafeguardSessionsDotNetTool |
+| `Invoke-SgDnSafeguardA2a` | Call A2A operations via SafeguardDotNetA2aTool |
+| `Invoke-SgDnSafeguardSessions` | Call SPS API via SafeguardSessionsDotNetTool |
 | `Invoke-SgDnSafeguardTool` | Low-level: run any dotnet test tool project |
 
 ### Available Helper Functions
