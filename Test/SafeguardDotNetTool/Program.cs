@@ -5,10 +5,13 @@ namespace SafeguardDotNetTool;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security;
 using System.Threading;
 
 using CommandLine;
+
+using Newtonsoft.Json;
 
 using OneIdentity.SafeguardDotNet;
 
@@ -75,6 +78,18 @@ internal static class Program
 
             Log.Logger = config.CreateLogger();
 
+            if (!opts.TokenLifetime && !opts.Logout && !opts.GetToken
+                && string.IsNullOrEmpty(opts.RelativeUrl))
+            {
+                throw new ArgumentException("--Service, --Method, and --RelativeUrl are required for API invocation");
+            }
+
+            // Resolve BodyFile: read the file contents into Body
+            if (!string.IsNullOrEmpty(opts.BodyFile))
+            {
+                opts.Body = File.ReadAllText(opts.BodyFile);
+            }
+
             ISafeguardConnection connection;
             if (!string.IsNullOrEmpty(opts.Username))
             {
@@ -109,33 +124,130 @@ internal static class Program
             {
                 connection = Safeguard.Connect(opts.Appliance, opts.Thumbprint, opts.ApiVersion, opts.Insecure);
             }
+            else if (!string.IsNullOrEmpty(opts.AccessToken))
+            {
+                using var token = opts.AccessToken.ToSecureString();
+                connection = Safeguard.Connect(opts.Appliance, token, opts.ApiVersion, opts.Insecure);
+            }
             else if (opts.Anonymous)
             {
                 connection = Safeguard.Connect(opts.Appliance, opts.ApiVersion, opts.Insecure);
             }
             else
             {
-                throw new InvalidOperationException("Must specify Anonymous, Username, CertificateFile, or Thumbprint");
+                throw new InvalidOperationException("Must specify Anonymous, Username, CertificateFile, Thumbprint, or AccessToken");
             }
 
             Log.Debug("Access Token Lifetime Remaining: {Remaining}", connection.GetAccessTokenLifetimeRemaining());
+
+            if (opts.Persist)
+            {
+                connection = Safeguard.Persist(connection);
+                Log.Debug("Connection wrapped with Safeguard.Persist() for automatic token refresh");
+            }
+
+            if (opts.DelaySeconds > 0)
+            {
+                Log.Information("Waiting {Seconds} seconds before executing operation...", opts.DelaySeconds);
+                Thread.Sleep(opts.DelaySeconds * 1000);
+                Log.Information("Delay complete, proceeding with operation");
+            }
+
+            if (opts.RefreshToken)
+            {
+                connection.RefreshAccessToken();
+                Log.Debug("Token refreshed. Lifetime Remaining: {Remaining}", connection.GetAccessTokenLifetimeRemaining());
+            }
+
+            if (opts.TokenLifetime)
+            {
+                var envelope = new
+                {
+                    TokenLifetimeRemaining = connection.GetAccessTokenLifetimeRemaining(),
+                };
+                Console.WriteLine(JsonConvert.SerializeObject(envelope));
+                connection.LogOut();
+                return;
+            }
+
+            if (opts.Logout)
+            {
+                var accessToken = connection.GetAccessToken().ToInsecureString();
+                connection.LogOut();
+                var envelope = new
+                {
+                    AccessToken = accessToken,
+                    LoggedOut = true,
+                };
+                Console.WriteLine(JsonConvert.SerializeObject(envelope));
+                return;
+            }
+
+            if (opts.GetToken)
+            {
+                var accessToken = connection.GetAccessToken().ToInsecureString();
+                var envelope = new
+                {
+                    AccessToken = accessToken,
+                };
+                Console.WriteLine(JsonConvert.SerializeObject(envelope));
+                return;
+            }
+
+            var additionalHeaders = ParseKeyValuePairs(opts.Headers);
+            var queryParameters = ParseKeyValuePairs(opts.Parameters);
 
             string responseBody;
             if (!string.IsNullOrEmpty(opts.File))
             {
                 responseBody = HandleStreamingRequest(opts, connection);
             }
+            else if (opts.Full)
+            {
+                var fullResponse = connection.InvokeMethodFull(
+                    opts.Service,
+                    opts.Method,
+                    opts.RelativeUrl,
+                    opts.Body,
+                    queryParameters,
+                    additionalHeaders);
+                var envelope = new
+                {
+                    StatusCode = (int)fullResponse.StatusCode,
+                    fullResponse.Headers,
+                    fullResponse.Body,
+                };
+                responseBody = JsonConvert.SerializeObject(envelope);
+            }
+            else if (opts.Csv)
+            {
+                responseBody = connection.InvokeMethodCsv(
+                    opts.Service,
+                    opts.Method,
+                    opts.RelativeUrl,
+                    opts.Body,
+                    queryParameters,
+                    additionalHeaders);
+            }
             else
             {
-                responseBody = opts.Csv
-                ? connection.InvokeMethodCsv(opts.Service, opts.Method, opts.RelativeUrl, opts.Body)
-                : connection.InvokeMethod(opts.Service, opts.Method, opts.RelativeUrl, opts.Body);
+                responseBody = connection.InvokeMethod(
+                    opts.Service,
+                    opts.Method,
+                    opts.RelativeUrl,
+                    opts.Body,
+                    queryParameters,
+                    additionalHeaders);
             }
 
             // Log.Information(responseBody); // if JSON is nested too deep Serilog swallows a '}' -- need to file issue with them
             Console.WriteLine(responseBody);
 
-            connection.LogOut();
+            // Don't logout when using access token auth — the caller owns the token lifecycle
+            if (string.IsNullOrEmpty(opts.AccessToken))
+            {
+                connection.LogOut();
+            }
         }
 #pragma warning disable CA1031 // Intentional top-level catch-all for error logging
         catch (Exception ex)
@@ -144,6 +256,26 @@ internal static class Program
             Log.Error(ex, "Fatal exception occurred");
             Environment.Exit(1);
         }
+    }
+
+    private static IDictionary<string, string> ParseKeyValuePairs(IEnumerable<string> pairs)
+    {
+        if (pairs == null || !pairs.Any())
+        {
+            return new Dictionary<string, string>();
+        }
+
+        var dict = new Dictionary<string, string>();
+        foreach (var pair in pairs)
+        {
+            var eqIndex = pair.IndexOf('=');
+            if (eqIndex > 0)
+            {
+                dict[pair[..eqIndex]] = pair[(eqIndex + 1)..];
+            }
+        }
+
+        return dict;
     }
 
     private static string HandleStreamingRequest(ToolOptions opts, ISafeguardConnection connection)

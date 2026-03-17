@@ -2,6 +2,8 @@
 
 namespace SafeguardDotNetTool;
 
+using System.Collections.Generic;
+
 using CommandLine;
 
 using OneIdentity.SafeguardDotNet;
@@ -97,24 +99,32 @@ internal class ToolOptions
     public bool CertificateAsData { get; set; }
 
     [Option(
+        'k',
+        "AccessToken",
+        Required = true,
+        SetName = "AccessTokenSet",
+        HelpText = "Pre-obtained access token for authentication")]
+    public string AccessToken { get; set; }
+
+    [Option(
         's',
         "Service",
-        Required = true,
-        HelpText = "Safeguard service to use")]
+        Required = false,
+        HelpText = "Safeguard service to use (required for API invocation)")]
     public Service Service { get; set; }
 
     [Option(
         'm',
         "Method",
-        Required = true,
-        HelpText = "HTTP Method to use")]
+        Required = false,
+        HelpText = "HTTP method to use (required for API invocation)")]
     public Method Method { get; set; }
 
     [Option(
         'U',
         "RelativeUrl",
-        Required = true,
-        HelpText = "HTTP Method to use")]
+        Required = false,
+        HelpText = "API endpoint relative URL (required for API invocation)")]
     public string RelativeUrl { get; set; }
 
     [Option(
@@ -126,6 +136,14 @@ internal class ToolOptions
     public string Body { get; set; }
 
     [Option(
+        'B',
+        "BodyFile",
+        Required = false,
+        Default = null,
+        HelpText = "Path to a file containing the JSON body")]
+    public string BodyFile { get; set; }
+
+    [Option(
         'C',
         "Csv",
         Required = false,
@@ -134,10 +152,82 @@ internal class ToolOptions
     public bool Csv { get; set; }
 
     [Option(
+        'f',
+        "Full",
+        Required = false,
+        Default = false,
+        HelpText = "Use InvokeMethodFull and output JSON envelope with StatusCode, Headers, and Body")]
+    public bool Full { get; set; }
+
+    [Option(
+        'H',
+        "Header",
+        Required = false,
+        Separator = ',',
+        HelpText = "Additional HTTP headers as Key=Value pairs (comma-separated or repeated)")]
+    public IEnumerable<string> Headers { get; set; }
+
+    [Option(
+        'P',
+        "Parameter",
+        Required = false,
+        Separator = ',',
+        HelpText = "Query parameters as Key=Value pairs (comma-separated or repeated)")]
+    public IEnumerable<string> Parameters { get; set; }
+
+    [Option(
         'F',
         "File",
         Required = false,
         Default = null,
         HelpText = "Path to a file to stream as the request body")]
     public string File { get; set; }
+
+    [Option(
+        'T',
+        "TokenLifetime",
+        Required = false,
+        Default = false,
+        HelpText = "Output token lifetime remaining (in minutes) as JSON and skip API invocation")]
+    public bool TokenLifetime { get; set; }
+
+    [Option(
+        'R',
+        "RefreshToken",
+        Required = false,
+        Default = false,
+        HelpText = "Refresh the access token before API invocation or token lifetime output")]
+    public bool RefreshToken { get; set; }
+
+    [Option(
+        'L',
+        "Logout",
+        Required = false,
+        Default = false,
+        HelpText = "Output the access token before logging out, to verify the token is invalidated")]
+    public bool Logout { get; set; }
+
+    [Option(
+        'G',
+        "GetToken",
+        Required = false,
+        Default = false,
+        HelpText = "Output the current access token as JSON and exit without logging out")]
+    public bool GetToken { get; set; }
+
+    [Option(
+        'Z',
+        "Persist",
+        Required = false,
+        Default = false,
+        HelpText = "Wrap connection with Safeguard.Persist() for automatic token refresh")]
+    public bool Persist { get; set; }
+
+    [Option(
+        'W',
+        "DelaySeconds",
+        Required = false,
+        Default = 0,
+        HelpText = "Wait this many seconds after connecting before executing the operation")]
+    public int DelaySeconds { get; set; }
 }
