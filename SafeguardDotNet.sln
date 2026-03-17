@@ -72,14 +72,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestFramework", "TestFramew
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Suites", "Suites", "{6375085D-EE95-49E7-A496-90CC10DB1369}"
 	ProjectSection(SolutionItems) = preProject
+		Test\TestFramework\Suites\Suite-A2AAccessRequestBroker.ps1 = Test\TestFramework\Suites\Suite-A2AAccessRequestBroker.ps1
 		Test\TestFramework\Suites\Suite-A2ACredentialRetrieval.ps1 = Test\TestFramework\Suites\Suite-A2ACredentialRetrieval.ps1
 		Test\TestFramework\Suites\Suite-AccessRequestWorkflow.ps1 = Test\TestFramework\Suites\Suite-AccessRequestWorkflow.ps1
+		Test\TestFramework\Suites\Suite-AccessTokenAuth.ps1 = Test\TestFramework\Suites\Suite-AccessTokenAuth.ps1
 		Test\TestFramework\Suites\Suite-AnonymousAccess.ps1 = Test\TestFramework\Suites\Suite-AnonymousAccess.ps1
 		Test\TestFramework\Suites\Suite-ApiInvocation.ps1 = Test\TestFramework\Suites\Suite-ApiInvocation.ps1
 		Test\TestFramework\Suites\Suite-CertificateAuth.ps1 = Test\TestFramework\Suites\Suite-CertificateAuth.ps1
+		Test\TestFramework\Suites\Suite-EventListeners.ps1 = Test\TestFramework\Suites\Suite-EventListeners.ps1
 		Test\TestFramework\Suites\Suite-ExceptionHandling.ps1 = Test\TestFramework\Suites\Suite-ExceptionHandling.ps1
 		Test\TestFramework\Suites\Suite-PasswordAuth.ps1 = Test\TestFramework\Suites\Suite-PasswordAuth.ps1
 		Test\TestFramework\Suites\Suite-SpsIntegration.ps1 = Test\TestFramework\Suites\Suite-SpsIntegration.ps1
+		Test\TestFramework\Suites\Suite-Streaming.ps1 = Test\TestFramework\Suites\Suite-Streaming.ps1
+		Test\TestFramework\Suites\Suite-TokenManagement.ps1 = Test\TestFramework\Suites\Suite-TokenManagement.ps1
 	EndProjectSection
 EndProject
 Global

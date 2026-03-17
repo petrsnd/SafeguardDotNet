@@ -377,8 +377,8 @@ internal static class Program
             static void RunListener(ISafeguardEventListener listener)
             {
                 listener.Start();
-                Log.Information("Press any key to shut down the event listener...");
-                Console.ReadKey();
+                Log.Information("Press enter to shut down the event listener...");
+                Console.ReadLine();
                 listener.Stop();
             }
 
