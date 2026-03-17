@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.net.ssl.HostnameVerifier;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 abstract class AuthenticatorBase implements IAuthenticationMechanism {
 
@@ -115,7 +115,7 @@ abstract class AuthenticatorBase implements IAuthenticationMechanism {
         if (response == null) {
             throw new SafeguardForJavaException(String.format("Unable to connect to web service %s", coreClient.getBaseURL()));
         }
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             return 0;
         }
 
@@ -151,9 +151,9 @@ abstract class AuthenticatorBase implements IAuthenticationMechanism {
         }
 
         String reply = Utils.getResponse(response);
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error exchanging RSTS token from " + this.getId() + "authenticator for Safeguard API access token, Error: "
-                    + String.format("%d %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%d %s", response.getCode(), reply));
         }
 
         Map<String, String> map = Utils.parseResponse(reply);
@@ -178,9 +178,9 @@ abstract class AuthenticatorBase implements IAuthenticationMechanism {
                 throw new SafeguardForJavaException("Unable to connect to RSTS to find identity provider scopes");
 
             String reply = Utils.getResponse(response);
-            if (!Utils.isSuccessful(response.getStatusLine().getStatusCode()))
+            if (!Utils.isSuccessful(response.getCode()))
                 throw new SafeguardForJavaException("Error requesting identity provider scopes from RSTS, Error: " +
-                        String.format("%d %s", response.getStatusLine().getStatusCode(), reply));
+                        String.format("%d %s", response.getCode(), reply));
 
             List<Provider> knownScopes = parseLoginResponse(reply);
 

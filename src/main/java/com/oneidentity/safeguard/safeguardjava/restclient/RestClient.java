@@ -44,31 +44,31 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
+import org.apache.hc.core5.http.config.Registry;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.client5.http.entity.mime.HttpMultipartMode;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.util.Timeout;
 
 public class RestClient {
 
@@ -91,13 +91,10 @@ public class RestClient {
 
 
         HttpClientBuilder builder = createClientBuilder(connectionAddr, ignoreSsl, validationCallback);
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userName, new String(password)));
-
-        RequestConfig customizedRequestConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
+        BasicCredentialsProvider provider = new BasicCredentialsProvider();
+        provider.setCredentials(new AuthScope(null, -1), new UsernamePasswordCredentials(userName, password));
 
         client = builder.setDefaultCredentialsProvider(provider)
-                .setDefaultRequestConfig(customizedRequestConfig)
                 .setDefaultCookieStore(cookieStore)
                 .build();
     }
@@ -136,7 +133,7 @@ public class RestClient {
         Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("https", sslsf).build();
         BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
 
-        return HttpClients.custom().setSSLSocketFactory(sslsf).setConnectionManager(connectionManager);
+        return HttpClients.custom().setConnectionManager(connectionManager);
     }
 
     private URI getBaseURI(String segments) {
@@ -186,7 +183,7 @@ public class RestClient {
                 if (expiryDate != null) {
                     SimpleDateFormat formatter = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
                     Date date = formatter.parse(expiryDate);
-                    cookie.setExpiryDate(date);
+                    cookie.setExpiryDate(date.toInstant());
                 }
 
                 String path = keyValues.get("Path");
@@ -213,10 +210,10 @@ public class RestClient {
 
     public CloseableHttpResponse execGET(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout) {
 
-        RequestBuilder rb = prepareRequest (RequestBuilder.get(getBaseURI(path)), queryParams, headers, timeout);
+        ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.get(getBaseURI(path)), queryParams, headers);
 
         try {
-            CloseableHttpResponse r = client.execute(rb.build());
+            CloseableHttpResponse r = client.execute(rb.build(), createContext(timeout));
             return r;
         } catch (Exception ex) {
             return null;
@@ -228,10 +225,10 @@ public class RestClient {
         CloseableHttpClient certClient = getClientWithCertificate(certificateContext);
 
         if (certClient != null) {
-            RequestBuilder rb = prepareRequest(RequestBuilder.get(getBaseURI(path)), queryParams, headers, timeout);
+            ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.get(getBaseURI(path)), queryParams, headers);
 
             try {
-                CloseableHttpResponse r = certClient.execute(rb.build());
+                CloseableHttpResponse r = certClient.execute(rb.build(), createContext(timeout));
                 return r;
             } catch (Exception ex) {
                 return null;
@@ -247,10 +244,10 @@ public class RestClient {
             headers = headers == null ? new HashMap<>() : headers;
             headers.put(HttpHeaders.ACCEPT, "application/octet-stream");
         }
-        RequestBuilder rb = prepareRequest(RequestBuilder.get(getBaseURI(path)), queryParams, headers, timeout);
+        ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.get(getBaseURI(path)), queryParams, headers);
 
         try {
-            CloseableHttpResponse r = client.execute(rb.build());
+            CloseableHttpResponse r = client.execute(rb.build(), createContext(timeout));
             return r;
         } catch (IOException ex) {
             return null;
@@ -267,10 +264,10 @@ public class RestClient {
                 headers = headers == null ? new HashMap<>() : headers;
                 headers.put(HttpHeaders.ACCEPT, "application/octet-stream");
             }
-            RequestBuilder rb = prepareRequest(RequestBuilder.get(getBaseURI(path)), queryParams, headers, timeout);
+            ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.get(getBaseURI(path)), queryParams, headers);
 
             try {
-                CloseableHttpResponse r = client.execute(rb.build());
+                CloseableHttpResponse r = client.execute(rb.build(), createContext(timeout));
                 return r;
             } catch (IOException ex) {
                 return null;
@@ -281,12 +278,12 @@ public class RestClient {
 
     public CloseableHttpResponse execPUT(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout, JsonObject requestEntity) {
 
-        RequestBuilder rb = prepareRequest(RequestBuilder.put(getBaseURI(path)), queryParams, headers, timeout);
+        ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.put(getBaseURI(path)), queryParams, headers);
 
         try {
             String body = requestEntity.toJson();
             rb.setEntity(new StringEntity(body == null ? "{}" : body));
-            CloseableHttpResponse r = client.execute(rb.build());
+            CloseableHttpResponse r = client.execute(rb.build(), createContext(timeout));
             return r;
         } catch (Exception ex) {
             return null;
@@ -298,12 +295,12 @@ public class RestClient {
         CloseableHttpClient certClient = getClientWithCertificate(certificateContext);
 
         if (certClient != null) {
-            RequestBuilder rb = prepareRequest(RequestBuilder.put(getBaseURI(path)), queryParams, headers, timeout);
+            ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.put(getBaseURI(path)), queryParams, headers);
 
             try {
                 String body = requestEntity.toJson();
                 rb.setEntity(new StringEntity(body == null ? "{}" : body));
-                CloseableHttpResponse r = certClient.execute(rb.build());
+                CloseableHttpResponse r = certClient.execute(rb.build(), createContext(timeout));
                 return r;
             } catch (Exception ex) {
                 return null;
@@ -314,12 +311,12 @@ public class RestClient {
 
     public CloseableHttpResponse execPOST(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout, JsonObject requestEntity) {
 
-        RequestBuilder rb = prepareRequest(RequestBuilder.post(getBaseURI(path)), queryParams, headers, timeout);
+        ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.post(getBaseURI(path)), queryParams, headers);
 
         try {
             String body = requestEntity.toJson();
             rb.setEntity(new StringEntity(body == null ? "{}" : body));
-            CloseableHttpResponse r = client.execute(rb.build());
+            CloseableHttpResponse r = client.execute(rb.build(), createContext(timeout));
             return r;
         } catch (Exception ex) {
             return null;
@@ -332,12 +329,12 @@ public class RestClient {
         CloseableHttpClient certClient = getClientWithCertificate(certificateContext);
 
         if (certClient != null) {
-            RequestBuilder rb = prepareRequest(RequestBuilder.post(getBaseURI(path)), queryParams, headers, timeout);
+            ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.post(getBaseURI(path)), queryParams, headers);
 
             try {
                 String body = requestEntity.toJson();
                 rb.setEntity(new StringEntity(body == null ? "{}" : body));
-                CloseableHttpResponse r = certClient.execute(rb.build());
+                CloseableHttpResponse r = certClient.execute(rb.build(), createContext(timeout));
                 return r;
             } catch (IOException ex) {
                 return null;
@@ -354,11 +351,11 @@ public class RestClient {
             headers = headers == null ? new HashMap<>() : headers;
             headers.put(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
         }
-        RequestBuilder rb = prepareRequest(RequestBuilder.post(getBaseURI(path)), queryParams, headers, timeout);
+        ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.post(getBaseURI(path)), queryParams, headers);
 
         try {
             rb.setEntity(new ByteArrayEntity(requestEntity, progressCallback));
-            CloseableHttpResponse r = client.execute(rb.build());
+            CloseableHttpResponse r = client.execute(rb.build(), createContext(timeout));
             return r;
         } catch (IOException ex) {
             return null;
@@ -375,11 +372,11 @@ public class RestClient {
                 headers = headers == null ? new HashMap<>() : headers;
                 headers.put(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
             }
-            RequestBuilder rb = prepareRequest(RequestBuilder.post(getBaseURI(path)), queryParams, headers, timeout);
+            ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.post(getBaseURI(path)), queryParams, headers);
 
             try {
                 rb.setEntity(new ByteArrayEntity(requestEntity, progressCallback));
-                CloseableHttpResponse r = client.execute(rb.build());
+                CloseableHttpResponse r = client.execute(rb.build(), createContext(timeout));
                 return r;
             } catch (IOException ex) {
                 return null;
@@ -393,17 +390,17 @@ public class RestClient {
 
         File file = new File(fileName);
 
-        HttpEntity data = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+        HttpEntity data = MultipartEntityBuilder.create().setMode(HttpMultipartMode.LEGACY)
                 .addBinaryBody("firmware", file, ContentType.MULTIPART_FORM_DATA, file.getName()).build();
 
         if (headers == null || !headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
             headers = headers == null ? new HashMap<>() : headers;
         }
-        RequestBuilder rb = prepareRequest(RequestBuilder.post(getBaseURI(path)), queryParams, headers, timeout);
+        ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.post(getBaseURI(path)), queryParams, headers);
 
         try {
             rb.setEntity(data);
-            CloseableHttpResponse r = client.execute(rb.build());
+            CloseableHttpResponse r = client.execute(rb.build(), createContext(timeout));
             return r;
         } catch (IOException ex) {
             return null;
@@ -417,17 +414,17 @@ public class RestClient {
 
         if (certClient != null) {
             File file = new File(fileName);
-            HttpEntity data = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+            HttpEntity data = MultipartEntityBuilder.create().setMode(HttpMultipartMode.LEGACY)
                     .addBinaryBody("firmware", file, ContentType.MULTIPART_FORM_DATA, file.getName()).build();
 
             if (headers == null || !headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
                 headers = headers == null ? new HashMap<>() : headers;
             }
-            RequestBuilder rb = prepareRequest(RequestBuilder.post(getBaseURI(path)), queryParams, headers, timeout);
+            ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.post(getBaseURI(path)), queryParams, headers);
 
             try {
                 rb.setEntity(data);
-                CloseableHttpResponse r = client.execute(rb.build());
+                CloseableHttpResponse r = client.execute(rb.build(), createContext(timeout));
                 return r;
             } catch (IOException ex) {
                 return null;
@@ -438,10 +435,10 @@ public class RestClient {
 
     public CloseableHttpResponse execDELETE(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout) {
 
-        RequestBuilder rb = prepareRequest(RequestBuilder.delete(getBaseURI(path)), queryParams, headers, timeout);
+        ClassicRequestBuilder rb = prepareRequest(ClassicRequestBuilder.delete(getBaseURI(path)), queryParams, headers);
 
         try {
-            CloseableHttpResponse r = client.execute(rb.build());
+            CloseableHttpResponse r = client.execute(rb.build(), createContext(timeout));
             return r;
         } catch (Exception ex) {
             return null;
@@ -495,13 +492,13 @@ public class RestClient {
             }
             Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("https", sslsf).build();
             BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
-            certClient = HttpClients.custom().setSSLSocketFactory(sslsf).setConnectionManager(connectionManager).build();
+            certClient = HttpClients.custom().setConnectionManager(connectionManager).build();
         }
 
         return certClient;
     }
 
-    private RequestBuilder prepareRequest(RequestBuilder rb, Map<String, String> queryParams, Map<String, String> headers, Integer timeout) {
+    private ClassicRequestBuilder prepareRequest(ClassicRequestBuilder rb, Map<String, String> queryParams, Map<String, String> headers) {
 
         if (headers == null || !headers.containsKey(HttpHeaders.ACCEPT))
             rb.addHeader(HttpHeaders.ACCEPT, "application/json");
@@ -518,14 +515,19 @@ public class RestClient {
                 rb.addParameter(entry.getKey(), entry.getValue());
             });
         }
+        return rb;
+    }
+
+    private HttpClientContext createContext(Integer timeout) {
+        HttpClientContext context = HttpClientContext.create();
         if (timeout != null) {
             RequestConfig rconfig = RequestConfig.custom()
-                .setConnectTimeout(timeout)
-                .setConnectionRequestTimeout(timeout)
-                .setSocketTimeout(timeout).build();
-            rb.setConfig(rconfig);
+                .setConnectTimeout(Timeout.ofMilliseconds(timeout))
+                .setConnectionRequestTimeout(Timeout.ofMilliseconds(timeout))
+                .setResponseTimeout(Timeout.ofMilliseconds(timeout)).build();
+            context.setRequestConfig(rconfig);
         }
-        return rb;
+        return context;
     }
 
     private SSLContext getSSLContext(KeyStore keyStorePath, char[] keyStorePassword, String alias, CertificateContext certificateContext) {

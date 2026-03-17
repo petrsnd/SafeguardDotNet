@@ -7,7 +7,7 @@ import com.oneidentity.safeguard.safeguardjava.exceptions.ObjectDisposedExceptio
 import com.oneidentity.safeguard.safeguardjava.exceptions.SafeguardForJavaException;
 import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 public class CertificateAuthenticator extends AuthenticatorBase
 {
@@ -117,12 +117,12 @@ public class CertificateAuthenticator extends AuthenticatorBase
             throw new SafeguardForJavaException(String.format("Unable to connect to RSTS service %s", rstsClient.getBaseURL()));
 
         String content = Utils.getResponse(response);
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             String msg = Utils.isNullOrEmpty(clientCertificate.getCertificateAlias()) ?
                     String.format("file=%s", clientCertificate.getCertificatePath()) : String.format("alias=%s", clientCertificate.getCertificateAlias());
 
             throw new SafeguardForJavaException("Error using client_credentials grant_type with " + clientCertificate.toString() +
-                    String.format(", Error: %d %s", response.getStatusLine().getStatusCode(), content));
+                    String.format(", Error: %d %s", response.getCode(), content));
         }
 
         Map<String,String> map = Utils.parseResponse(content);

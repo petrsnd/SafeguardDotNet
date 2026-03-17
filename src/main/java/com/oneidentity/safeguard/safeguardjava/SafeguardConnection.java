@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 class SafeguardConnection implements ISafeguardConnection {
 
@@ -128,12 +128,12 @@ class SafeguardConnection implements ISafeguardConnection {
 
         String reply = Utils.getResponse(response);
 
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from Safeguard API, Error: "
-                    + String.format("%d %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%d %s", response.getCode(), reply));
         }
 
-        FullResponse fullResponse = new FullResponse(response.getStatusLine().getStatusCode(), response.getAllHeaders(), reply);
+        FullResponse fullResponse = new FullResponse(response.getCode(), response.getHeaders(), reply);
 
         logResponseDetails(fullResponse);
 

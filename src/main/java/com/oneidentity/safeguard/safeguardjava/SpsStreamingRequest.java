@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 class SpsStreamingRequest implements ISpsStreamingRequest {
 
@@ -46,12 +46,12 @@ class SpsStreamingRequest implements ISpsStreamingRequest {
 
         String reply = Utils.getResponse(response);
 
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from SPS API, Error: "
-                    + String.format("%d %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%d %s", response.getCode(), reply));
         }
 
-        FullResponse fullResponse = new FullResponse(response.getStatusLine().getStatusCode(), response.getAllHeaders(), reply);
+        FullResponse fullResponse = new FullResponse(response.getCode(), response.getHeaders(), reply);
 
         SafeguardConnection.logResponseDetails(fullResponse);
 
@@ -82,12 +82,12 @@ class SpsStreamingRequest implements ISpsStreamingRequest {
 
         String reply = Utils.getResponse(response);
 
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from SPS API, Error: "
-                    + String.format("%d %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%d %s", response.getCode(), reply));
         }
 
-        FullResponse fullResponse = new FullResponse(response.getStatusLine().getStatusCode(), response.getAllHeaders(), reply);
+        FullResponse fullResponse = new FullResponse(response.getCode(), response.getHeaders(), reply);
 
         SafeguardConnection.logResponseDetails(fullResponse);
 
@@ -116,13 +116,13 @@ class SpsStreamingRequest implements ISpsStreamingRequest {
             throw new SafeguardForJavaException(String.format("Unable to connect to SPS service %s", client.getBaseURL()));
         }
 
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             String reply = Utils.getResponse(response);
             throw new SafeguardForJavaException("Error returned from SPS API, Error: "
-                    + String.format("%d %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%d %s", response.getCode(), reply));
         }
 
-        FullResponse fullResponse = new FullResponse(response.getStatusLine().getStatusCode(), response.getAllHeaders(), null);
+        FullResponse fullResponse = new FullResponse(response.getCode(), response.getHeaders(), null);
         SafeguardConnection.logResponseDetails(fullResponse);
 
         return new StreamResponse(response);

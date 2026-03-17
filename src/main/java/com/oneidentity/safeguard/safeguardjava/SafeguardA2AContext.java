@@ -1,7 +1,6 @@
 package com.oneidentity.safeguard.safeguardjava;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.oneidentity.safeguard.safeguardjava.data.A2ARegistration;
 import com.oneidentity.safeguard.safeguardjava.data.A2ARetrievableAccount;
 import com.oneidentity.safeguard.safeguardjava.data.A2ARetrievableAccountInternal;
@@ -29,8 +28,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.net.ssl.HostnameVerifier;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 public class SafeguardA2AContext implements ISafeguardA2AContext {
 
@@ -104,8 +103,8 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
         }
 
         String reply = Utils.getResponse(response);
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode()))
-            throw new SafeguardForJavaException(String.format("Error returned from Safeguard API, Error: %s %s", response.getStatusLine().getStatusCode(), reply));
+        if (!Utils.isSuccessful(response.getCode()))
+            throw new SafeguardForJavaException(String.format("Error returned from Safeguard API, Error: %s %s", response.getCode(), reply));
 
 
         List<A2ARegistration> registrations = parseA2ARegistationResponse(reply);
@@ -122,8 +121,8 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
             }
 
             reply = Utils.getResponse(response);
-            if (!Utils.isSuccessful(response.getStatusLine().getStatusCode()))
-                throw new SafeguardForJavaException(String.format("Error returned from Safeguard API, Error: %s %s", response.getStatusLine().getStatusCode(), reply));
+            if (!Utils.isSuccessful(response.getCode()))
+                throw new SafeguardForJavaException(String.format("Error returned from Safeguard API, Error: %s %s", response.getCode(), reply));
 
             List<A2ARetrievableAccountInternal> retrievals = parseA2ARetrievableAccountResponse(reply);
 
@@ -175,12 +174,12 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
         }
 
         String reply = Utils.getResponse(response);
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from Safeguard API, Error: "
-                    + String.format("%s %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%s %s", response.getCode(), reply));
         }
 
-        char[] password = (new Gson().fromJson(reply, String.class)).toCharArray();
+        char[] password = parseJsonString(reply).toCharArray();
 
         Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Successfully retrieved A2A password.");
         return password;
@@ -213,9 +212,9 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
         }
 
         String reply = Utils.getResponse(response);
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from Safeguard API, Error: "
-                    + String.format("%s %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%s %s", response.getCode(), reply));
         }
 
         Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Successfully set A2A password.");
@@ -247,12 +246,12 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
         }
 
         String reply = Utils.getResponse(response);
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from Safeguard API, Error: "
-                    + String.format("%s %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%s %s", response.getCode(), reply));
         }
 
-        char[] privateKey = (new Gson().fromJson(reply, String.class)).toCharArray();
+        char[] privateKey = parseJsonString(reply).toCharArray();
 
         Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Successfully retrieved A2A private key.");
         return privateKey;
@@ -282,7 +281,7 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
         sshKey.setPassphrase(new String(password));
         sshKey.setPrivateKey(new String(privateKey));
 
-        String body = new Gson().toJson(sshKey);
+        String body = serializeToJson(sshKey);
 
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaders.AUTHORIZATION, String.format("A2A %s", new String(apiKey)));
@@ -297,9 +296,9 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
         }
 
         String reply = Utils.getResponse(response);
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from Safeguard API, Error: "
-                    + String.format("%s %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%s %s", response.getCode(), reply));
         }
 
         Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Successfully set A2A private key.");
@@ -330,9 +329,9 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
         }
 
         String reply = Utils.getResponse(response);
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from Safeguard API, Error: "
-                    + String.format("%s %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%s %s", response.getCode(), reply));
         }
 
         List<ApiKeySecretInternal> apiKeySecretsInternal = parseApiKeySecretResponse(reply);
@@ -454,9 +453,9 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
         }
 
         String reply = Utils.getResponse(response);
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from Safeguard API, Error: "
-                    + String.format("%s %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%s %s", response.getCode(), reply));
         }
 
         Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Successfully created A2A access request.");
@@ -524,5 +523,21 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
         }
 
         return null;
+    }
+
+    private String parseJsonString(String json) throws SafeguardForJavaException {
+        try {
+            return new ObjectMapper().readValue(json, String.class);
+        } catch (IOException e) {
+            throw new SafeguardForJavaException("Error parsing JSON response", e);
+        }
+    }
+
+    private String serializeToJson(Object obj) throws SafeguardForJavaException {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (IOException e) {
+            throw new SafeguardForJavaException("Error serializing object to JSON", e);
+        }
     }
 }

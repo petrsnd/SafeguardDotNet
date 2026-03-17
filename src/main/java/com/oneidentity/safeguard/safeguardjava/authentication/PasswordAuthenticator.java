@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.net.ssl.HostnameVerifier;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 public class PasswordAuthenticator extends AuthenticatorBase
 {
@@ -57,9 +57,9 @@ public class PasswordAuthenticator extends AuthenticatorBase
             throw new SafeguardForJavaException(String.format("Unable to connect to RSTS service %s", rstsClient.getBaseURL()));
 
         String reply = Utils.getResponse(response);
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode()))
+        if (!Utils.isSuccessful(response.getCode()))
             throw new SafeguardForJavaException(String.format("Error using password grant_type with scope %s, Error: ", providerScope) +
-                    String.format("%s %s", response.getStatusLine().getStatusCode(), reply));
+                    String.format("%s %s", response.getCode(), reply));
 
         Map<String,String> map = Utils.parseResponse(reply);
 

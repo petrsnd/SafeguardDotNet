@@ -6,8 +6,8 @@ import com.oneidentity.safeguard.safeguardjava.restclient.RestClient;
 import java.util.HashMap;
 import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 public class AnonymousAuthenticator extends AuthenticatorBase {
 
@@ -30,9 +30,9 @@ public class AnonymousAuthenticator extends AuthenticatorBase {
 
         String reply = Utils.getResponse(response);
 
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Unable to anonymously connect to {networkAddress}, Error: "
-                    + String.format("%d %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%d %s", response.getCode(), reply));
         }
     }
 

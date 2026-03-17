@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 class StreamingRequest implements IStreamingRequest {
 
@@ -55,12 +55,12 @@ class StreamingRequest implements IStreamingRequest {
 
         String reply = Utils.getResponse(response);
 
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from Safeguard API, Error: "
-                    + String.format("%d %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%d %s", response.getCode(), reply));
         }
 
-        FullResponse fullResponse = new FullResponse(response.getStatusLine().getStatusCode(), response.getAllHeaders(), reply);
+        FullResponse fullResponse = new FullResponse(response.getCode(), response.getHeaders(), reply);
 
         SafeguardConnection.logResponseDetails(fullResponse);
 
@@ -91,10 +91,10 @@ class StreamingRequest implements IStreamingRequest {
             throw new SafeguardForJavaException(String.format("Unable to connect to web service %s", client.getBaseURL()));
         }
 
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             String reply = Utils.getResponse(response);
             throw new SafeguardForJavaException("Error returned from Safeguard API, Error: "
-                    + String.format("%d %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%d %s", response.getCode(), reply));
         }
 
         InputStream input = null;
@@ -115,7 +115,7 @@ class StreamingRequest implements IStreamingRequest {
             if (input != null) try { input.close(); } catch (IOException logOrIgnore) {}
         }
 
-        FullResponse fullResponse = new FullResponse(response.getStatusLine().getStatusCode(), response.getAllHeaders(), null);
+        FullResponse fullResponse = new FullResponse(response.getCode(), response.getHeaders(), null);
 
         SafeguardConnection.logResponseDetails(fullResponse);
     }

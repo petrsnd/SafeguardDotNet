@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.net.ssl.HostnameVerifier;
-import org.apache.http.Header;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 /**
  * This is the reusable connection interface that can be used to call SPS API.
@@ -46,9 +46,9 @@ class SafeguardSessionsConnection implements ISafeguardSessionsConnection {
 
         String reply = Utils.getResponse(response);
 
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from Safeguard API, Error: "
-                    + String.format("%d %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%d %s", response.getCode(), reply));
         }
 
         Header authCookie = response.getFirstHeader("Set-Cookie");
@@ -118,14 +118,14 @@ class SafeguardSessionsConnection implements ISafeguardSessionsConnection {
 
         String reply = Utils.getResponse(response);
 
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) {
+        if (!Utils.isSuccessful(response.getCode())) {
             throw new SafeguardForJavaException("Error returned from Safeguard API, Error: "
-                    + String.format("%d %s", response.getStatusLine().getStatusCode(), reply));
+                    + String.format("%d %s", response.getCode(), reply));
         }
 
         Logger.getLogger(SafeguardSessionsConnection.class.getName()).log(Level.FINEST, String.format("Invoking method finished: $s", reply));
 
-        FullResponse fullResponse = new FullResponse(response.getStatusLine().getStatusCode(), response.getAllHeaders(), reply);
+        FullResponse fullResponse = new FullResponse(response.getCode(), response.getHeaders(), reply);
 
         logResponseDetails(fullResponse);
 

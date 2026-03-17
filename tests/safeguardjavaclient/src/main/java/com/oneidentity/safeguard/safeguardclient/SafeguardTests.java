@@ -3,7 +3,7 @@ package com.oneidentity.safeguard.safeguardclient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.oneidentity.safeguard.safeguardclient.SafeguardJavaClient.readLine;
 import com.oneidentity.safeguard.safeguardclient.data.SafeguardAppliance;
 import com.oneidentity.safeguard.safeguardclient.data.SafeguardApplianceStatus;
@@ -783,13 +783,13 @@ public class SafeguardTests {
         try {
             String response = connection.invokeMethod(Service.Appliance, Method.Get, "Backups", null, null, null, null);
 
-            SafeguardBackup[] backups = new Gson().fromJson(response, SafeguardBackup[].class);
+            SafeguardBackup[] backups = new ObjectMapper().readValue(response, SafeguardBackup[].class);
 
             System.out.println(String.format("\t\\Backups response:"));
             for (SafeguardBackup backup : backups) {
                 System.out.println(String.format("Id: %s - File Name: %s", backup.getId(), backup.getFilename()));
             }
-        } catch (ArgumentException | ObjectDisposedException | SafeguardForJavaException ex) {
+        } catch (ArgumentException | ObjectDisposedException | SafeguardForJavaException | java.io.IOException ex) {
             System.out.println("\t[ERROR]Test connection failed: " + ex.getMessage());
         }
     }

@@ -1,6 +1,5 @@
 package com.oneidentity.safeguard.safeguardjava.event;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
