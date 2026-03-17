@@ -104,6 +104,7 @@ function New-SgDnTestContext {
         AccessRequestBrokerToolDir = (Join-Path $testRoot "SafeguardDotNetAccessRequestBrokerTool")
         EventToolDir    = (Join-Path $testRoot "SafeguardDotNetEventTool")
         SessionsToolDir = (Join-Path $testRoot "SafeguardSessionsDotNetTool")
+        PkceToolDir     = (Join-Path $testRoot "SafeguardDotNetPkceNoninteractiveLoginTester")
         CertDir         = (Join-Path $testRoot "TestData" "CERTS")
 
         # Per-suite transient data (reset each suite)
@@ -951,6 +952,7 @@ function Build-SgDnTestProjects {
         $Context.A2aToolDir
         $Context.AccessRequestBrokerToolDir
         $Context.EventToolDir
+        $Context.PkceToolDir
     )
 
     $toBuild = if ($Projects) { $Projects } else { $defaultProjects }

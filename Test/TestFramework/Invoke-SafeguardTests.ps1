@@ -208,6 +208,46 @@ if (-not $SkipBuild) {
     }
 }
 
+# --- Ensure resource owner password grant is enabled ---
+Write-Host ""
+Write-Host "Preflight: checking resource owner password grant..." -ForegroundColor Yellow
+$rogEnabled = $false
+try {
+    $rstsResponse = Invoke-WebRequest -Uri "https://$Appliance/RSTS/oauth2/token" `
+        -Method Post -ContentType "application/x-www-form-urlencoded" `
+        -Body "grant_type=password&username=$AdminUserName&password=$AdminPassword&scope=rsts:sts:primaryproviderid:local" `
+        -SkipCertificateCheck -SkipHttpErrorCheck -ErrorAction Stop
+    $rstsBody = $rstsResponse.Content | ConvertFrom-Json
+    if ($rstsResponse.StatusCode -eq 200 -and $rstsBody.access_token) {
+        Write-Host "  Resource owner grant is enabled." -ForegroundColor Green
+        $rogEnabled = $true
+    } elseif ($rstsBody.error_description -match "not allowed") {
+        Write-Host "  Resource owner grant is disabled. Enabling via PKCE..." -ForegroundColor Yellow
+    } else {
+        Write-Host "  Unexpected RSTS response ($($rstsResponse.StatusCode)): $($rstsResponse.Content)" -ForegroundColor Red
+        exit 1
+    }
+} catch {
+    Write-Host "  Failed to reach RSTS: $($_.Exception.Message)" -ForegroundColor Red
+    exit 1
+}
+
+$resourceOwnerWasDisabled = $false
+if (-not $rogEnabled) {
+    try {
+        $pkceResult = Invoke-SgDnSafeguardTool `
+            -ProjectDir $context.PkceToolDir `
+            -Arguments "-a $Appliance -x -u $AdminUserName -p -R true" `
+            -StdinLine $AdminPassword `
+            -ParseJson $true
+        Write-Host "  Enabled resource owner grant (was: '$($pkceResult.PreviousValue)')." -ForegroundColor Green
+        $resourceOwnerWasDisabled = $true
+    } catch {
+        Write-Host "  Failed to enable resource owner grant: $($_.Exception.Message)" -ForegroundColor Red
+        exit 1
+    }
+}
+
 # --- Global pre-cleanup ---
 Write-Host ""
 Write-Host "Pre-cleanup: removing stale objects from previous runs..." -ForegroundColor Yellow
@@ -223,6 +263,22 @@ $failCount = Write-SgDnTestReport -Context $context
 
 if ($ReportPath) {
     Export-SgDnTestReport -OutputPath $ReportPath -Context $context
+}
+
+# --- Restore resource owner grant setting if we changed it ---
+if ($resourceOwnerWasDisabled) {
+    Write-Host ""
+    Write-Host "Restoring: disabling resource owner grant (was disabled before tests)..." -ForegroundColor Yellow
+    try {
+        $null = Invoke-SgDnSafeguardTool `
+            -ProjectDir $context.PkceToolDir `
+            -Arguments "-a $Appliance -x -u $AdminUserName -p -R false" `
+            -StdinLine $AdminPassword `
+            -ParseJson $true
+        Write-Host "  Resource owner grant restored to disabled." -ForegroundColor Green
+    } catch {
+        Write-Host "  Warning: failed to restore resource owner grant: $($_.Exception.Message)" -ForegroundColor DarkYellow
+    }
 }
 
 # Exit with appropriate code for CI
