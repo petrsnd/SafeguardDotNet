@@ -84,6 +84,12 @@ internal static class Program
                 throw new ArgumentException("--Service, --Method, and --RelativeUrl are required for API invocation");
             }
 
+            // Resolve BodyFile: read the file contents into Body
+            if (!string.IsNullOrEmpty(opts.BodyFile))
+            {
+                opts.Body = File.ReadAllText(opts.BodyFile);
+            }
+
             ISafeguardConnection connection;
             if (!string.IsNullOrEmpty(opts.Username))
             {

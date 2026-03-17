@@ -136,6 +136,14 @@ internal class ToolOptions
     public string Body { get; set; }
 
     [Option(
+        'B',
+        "BodyFile",
+        Required = false,
+        Default = null,
+        HelpText = "Path to a file containing the JSON body")]
+    public string BodyFile { get; set; }
+
+    [Option(
         'C',
         "Csv",
         Required = false,
