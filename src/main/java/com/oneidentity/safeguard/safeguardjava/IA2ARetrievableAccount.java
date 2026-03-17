@@ -42,7 +42,7 @@ public interface IA2ARetrievableAccount {
     String getAssetName();
 
     /**
-     * Get the asset network address 
+     * Get the asset network address
      * @return String
      */
     String getAssetNetworkAddress();

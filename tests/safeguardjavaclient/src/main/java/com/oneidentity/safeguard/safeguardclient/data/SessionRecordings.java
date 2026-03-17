@@ -11,10 +11,10 @@ class SessionRecording {
 }
 
 public class SessionRecordings {
-    
+
     @JsonProperty("items")
     public SessionRecording[] items;
-    
+
     public String[] toArray() {
         List<String> sessionIds = new ArrayList<>();
         for(SessionRecording sr : items) {
@@ -22,5 +22,5 @@ public class SessionRecordings {
         }
         return sessionIds.toArray(new String[sessionIds.size()]);
     }
-    
+
 }

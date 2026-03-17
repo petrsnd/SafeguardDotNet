@@ -12,9 +12,9 @@ import java.util.Map;
 public interface IStreamingRequest {
 
     /**
-     * Call a Safeguard POST API providing a stream as request content. If there is a 
+     * Call a Safeguard POST API providing a stream as request content. If there is a
      * failure a SafeguardDotNetException will be thrown.
-     * 
+     *
      * @param service           Safeguard service to call.
      * @param relativeUrl       Relative URL of the service to use.
      * @param stream            Stream to upload as request content.
@@ -25,15 +25,15 @@ public interface IStreamingRequest {
      * @throws ObjectDisposedException Object has already been disposed.
      * @throws SafeguardForJavaException General Safeguard for Java exception.
      * @throws ArgumentException Invalid argument.
-     */ 
-    String uploadStream(Service service, String relativeUrl, byte[] stream, IProgressCallback progressCallback, 
-            Map<String, String> parameters, Map<String, String> additionalHeaders) 
+     */
+    String uploadStream(Service service, String relativeUrl, byte[] stream, IProgressCallback progressCallback,
+            Map<String, String> parameters, Map<String, String> additionalHeaders)
             throws SafeguardForJavaException, ArgumentException, ObjectDisposedException;
 
     /**
      * Call a Safeguard GET API providing an output file path to which streaming download data will
      * be written. If there is a failure a SafeguardDotNetException will be thrown.
-     * 
+     *
      * @param service           Safeguard service to call.
      * @param relativeUrl       Relative URL of the service to use.
      * @param outputFilePath    Full path to the file where download will be written.
@@ -43,8 +43,8 @@ public interface IStreamingRequest {
      * @throws ObjectDisposedException Object has already been disposed.
      * @throws SafeguardForJavaException General Safeguard for Java exception.
      * @throws ArgumentException Invalid argument.
-     */ 
-    void downloadStream(Service service, String relativeUrl, String outputFilePath, IProgressCallback progressCallback, 
-            Map<String, String> parameters, Map<String, String> additionalHeaders) 
+     */
+    void downloadStream(Service service, String relativeUrl, String outputFilePath, IProgressCallback progressCallback,
+            Map<String, String> parameters, Map<String, String> additionalHeaders)
             throws SafeguardForJavaException, ArgumentException, ObjectDisposedException;
 }

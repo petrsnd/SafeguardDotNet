@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ApiKeySecretBase {
-    
+
     @JsonProperty("Id")
     private Integer id;
     @JsonProperty("Name")

@@ -5,7 +5,7 @@ public class SafeguardForJavaException extends Exception {
     public SafeguardForJavaException(String msg) {
         super(msg);
     }
-    
+
     public SafeguardForJavaException(String msg, Throwable cause) {
         super(msg, cause);
     }

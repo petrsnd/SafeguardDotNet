@@ -62,7 +62,7 @@ public class A2ARetrievableAccountInternal {
     public void setSystemId(int systemId) {
         this.assetId = systemId;
     }
-    
+
     public void setAssetId(int assetId) {
         this.assetId = assetId;
     }
@@ -74,7 +74,7 @@ public class A2ARetrievableAccountInternal {
     public void setSystemName(String systemName) {
         this.assetName = systemName;
     }
-    
+
     public void setAssetName(String assetName) {
         this.assetName = assetName;
     }
@@ -118,7 +118,7 @@ public class A2ARetrievableAccountInternal {
     public void setSystemDescription(String systemDescription) {
         this.assetDescription = systemDescription;
     }
-    
+
     public void setAssetDescription(String assetDescription) {
         this.assetDescription = assetDescription;
     }
@@ -130,7 +130,7 @@ public class A2ARetrievableAccountInternal {
     public void setAccountDescription(String accountDescription) {
         this.accountDescription = accountDescription;
     }
-    
+
     public String getAssetNetworkAddress() {
         return assetNetworkAddress;
     }

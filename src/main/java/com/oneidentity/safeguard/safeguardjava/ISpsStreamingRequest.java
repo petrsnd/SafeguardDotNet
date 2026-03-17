@@ -27,7 +27,7 @@ public interface ISpsStreamingRequest {
     String uploadStream(String relativeUrl, byte[] stream, IProgressCallback progressCallback,
             Map<String, String> parameters, Map<String, String> additionalHeaders)
             throws SafeguardForJavaException, ArgumentException;
-    
+
     /**
      * Call a Safeguard Sps POST API providing a file as request content. If
      * there is a failure a SafeguardDotNetException will be thrown.
@@ -40,15 +40,15 @@ public interface ISpsStreamingRequest {
      * @throws SafeguardForJavaException General Safeguard for Java exception.
      * @throws ArgumentException Invalid argument.
      */
-    String uploadStream(String relativeUrl, String fileName, 
+    String uploadStream(String relativeUrl, String fileName,
             Map<String, String> parameters, Map<String, String> additionalHeaders)
             throws SafeguardForJavaException, ArgumentException;
- 
+
     /**
      * Call a Safeguard Sps GET API returning output as a stream. The caller takes ownership of the
-     * StreamResponse and should dispose it when finished. 
+     * StreamResponse and should dispose it when finished.
      * If there is a failure a SafeguardDotNetException will be thrown.
-     * 
+     *
      * @param relativeUrl Relative URL of the service to use.
      * @param parameters Additional parameters to add to the URL.
      * @param additionalHeaders Additional headers to add to the request.
@@ -62,7 +62,7 @@ public interface ISpsStreamingRequest {
     /**
      * Call a Safeguard GET API providing an output file path to which streaming download data will
      * be written. If there is a failure a SafeguardDotNetException will be thrown.
-     * 
+     *
      * @param relativeUrl       Relative URL of the service to use.
      * @param outputFilePath    Full path to the file where download will be written.
      * @param progressCallback  Optionally report upload progress.
@@ -71,8 +71,8 @@ public interface ISpsStreamingRequest {
      * @throws SafeguardForJavaException General Safeguard for Java exception.
      * @throws ArgumentException Invalid argument.
      */
-    void downloadStream(String relativeUrl, String outputFilePath, IProgressCallback progressCallback, 
+    void downloadStream(String relativeUrl, String outputFilePath, IProgressCallback progressCallback,
             Map<String, String> parameters, Map<String, String> additionalHeaders)
             throws SafeguardForJavaException, ArgumentException;
-    
+
 }

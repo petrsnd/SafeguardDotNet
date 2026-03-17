@@ -13,32 +13,32 @@ import java.util.Map;
 /**
  *  This is the reusable connection interface that can be used to call Safeguard API after
  *  connecting using the API access token obtained during authentication.
- */  
+ */
 public interface ISafeguardConnection {
 
     /**
      *  Number of minutes remaining in the lifetime of the Safeguard API access token.
-     *  
+     *
      *  @return Remaining token life time
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
-     */  
+     */
     int getAccessTokenLifetimeRemaining() throws ObjectDisposedException, SafeguardForJavaException;
 
     /**
-     *  Request a new Safeguard API access token with the underlying credentials used to 
+     *  Request a new Safeguard API access token with the underlying credentials used to
      *  initial create the connection.
-     *  
+     *
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
-     */  
+     */
     void refreshAccessToken() throws ObjectDisposedException, SafeguardForJavaException;
 
     /**
      *  Call a Safeguard API method and get any response as a string. Some Safeguard API
      *  methods will return an empty body. If there is a failure a SafeguardDotNetException
      *  will be thrown.
-     *  
+     *
      *  @param service              Safeguard service to call.
      *  @param method               Safeguard method type to use.
      *  @param relativeUrl          Relative URL of the service to use.
@@ -50,7 +50,7 @@ public interface ISafeguardConnection {
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      *  @throws ArgumentException Invalid argument.
-     */  
+     */
     String invokeMethod(Service service, Method method, String relativeUrl,
             String body, Map<String, String> parameters,
             Map<String, String> additionalHeaders, Integer timeout)
@@ -59,7 +59,7 @@ public interface ISafeguardConnection {
     /**
      *  Call a Safeguard API method and get a detailed response with status code, headers,
      *  and body. If there is a failure a SafeguardDotNetException will be thrown.
-     *  
+     *
      *  @param service              Safeguard service to call.
      *  @param method               Safeguard method type to use.
      *  @param relativeUrl          Relative URL of the service to use.
@@ -71,7 +71,7 @@ public interface ISafeguardConnection {
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      *  @throws ArgumentException Invalid argument.
-     */  
+     */
     FullResponse invokeMethodFull(Service service, Method method, String relativeUrl,
             String body, Map<String, String> parameters,
             Map<String, String> additionalHeaders, Integer timeout)
@@ -81,7 +81,7 @@ public interface ISafeguardConnection {
      *  Call a Safeguard API method and get any response as a CSV string. Some Safeguard API
      *  methods will return an empty body. If there is a failure a SafeguardDotNetException
      *  will be thrown.
-     * 
+     *
      *  @param service              Safeguard service to call.
      *  @param method               Safeguard method type to use.
      *  @param relativeUrl          Relative URL of the service to use.
@@ -98,7 +98,7 @@ public interface ISafeguardConnection {
         String body, Map<String, String> parameters,
         Map<String, String> additionalHeaders, Integer timeout)
         throws ObjectDisposedException, SafeguardForJavaException, ArgumentException;
-        
+
     /**
      *  Join a Safeguard for Privileged Sessions and a Safeguard appliance. The Safeguard for
      *  Privileged Sessions appliance needs to enable clustering and be a central search node.
@@ -113,7 +113,7 @@ public interface ISafeguardConnection {
      */
     FullResponse JoinSps(ISafeguardSessionsConnection spsConnection, String certificateChain, String sppAddress)
             throws ObjectDisposedException, SafeguardForJavaException, ArgumentException;
-        
+
     /**
      * Provides support for HTTP streaming requests
      * @return IStreamingRequest
@@ -128,13 +128,13 @@ public interface ISafeguardConnection {
      *  second outage. To get an event listener that supports recovering from longer term
      *  outages, please use GetPersistentEventListener() to request a persistent event
      *  listener.
-     *  
+     *
      *  @return The event listener.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws ArgumentException Invalid argument.
-     */  
+     */
     SafeguardEventListener getEventListener() throws ObjectDisposedException, ArgumentException;
-    
+
     /**
      *  Gets a persistent Safeguard event listener. You will need to call the
      *  RegisterEventHandler() method to establish callbacks. Then, you just have to
@@ -157,29 +157,29 @@ public interface ISafeguardConnection {
      *  @param networkAddress   Network address.
      *  @return Reusable Safeguard API connection.
      */
-    ISafeguardConnection GetManagementServiceConnection(String networkAddress);    
-        
+    ISafeguardConnection GetManagementServiceConnection(String networkAddress);
+
     /**
      *  Call Safeguard API to invalidate current access token and clear its value from
      *  the connection.  In order to continue using the connection you will need to call
      *  RefreshAccessToken().
-     * 
+     *
      *  @throws ObjectDisposedException Object has already been disposed.
      */
     void logOut() throws ObjectDisposedException;
-    
+
     /**
      *  Returns a character array of the current access token which the caller can pass to other Safeguard
-     *  methods, such as adding cluster members. 
+     *  methods, such as adding cluster members.
      *
      *  @return The current access token.
      *  @throws ObjectDisposedException Object has already been disposed.
-     */ 
+     */
     char[] getAccessToken() throws ObjectDisposedException;
-        
+
     /**
      *  Disposes of the connection.
-     *  
-     */  
+     *
+     */
     void dispose();
 }

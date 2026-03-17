@@ -27,7 +27,7 @@ public class OutputStreamProgress extends OutputStream {
             progressCallback.checkProgress(transferProgress);
         }
     }
-    
+
     @Override
     public void write(int b) throws IOException {
         outstream.write(b);
@@ -59,7 +59,7 @@ public class OutputStreamProgress extends OutputStream {
     public void flush() throws IOException {
         outstream.flush();
     }
-    
+
     @Override
     public void close() throws IOException {
         outstream.close();
@@ -68,4 +68,4 @@ public class OutputStreamProgress extends OutputStream {
     public long getWrittenLength() {
         return bytesWritten;
     }
-}    
+}

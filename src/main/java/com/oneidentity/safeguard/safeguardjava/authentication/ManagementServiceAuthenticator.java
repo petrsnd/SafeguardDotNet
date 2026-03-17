@@ -7,7 +7,7 @@ import javax.net.ssl.HostnameVerifier;
 public class ManagementServiceAuthenticator implements IAuthenticationMechanism {
 
     private boolean disposed;
-    
+
     private final String networkAddress;
     private final int apiVersion;
     private final boolean ignoreSsl;
@@ -25,12 +25,12 @@ public class ManagementServiceAuthenticator implements IAuthenticationMechanism 
     public String getId() {
         return "Management";
     }
-    
+
     @Override
     public String getNetworkAddress() {
         return networkAddress;
     }
-    
+
     @Override
     public int getApiVersion() {
         return apiVersion;
@@ -50,12 +50,12 @@ public class ManagementServiceAuthenticator implements IAuthenticationMechanism 
     public boolean isAnonymous() {
         return true;
     }
-    
+
     @Override
     public boolean hasAccessToken() {
         return false;
     }
-    
+
     @Override
     public void clearAccessToken() {
         // There is no access token for anonymous auth
@@ -70,22 +70,22 @@ public class ManagementServiceAuthenticator implements IAuthenticationMechanism 
     public int getAccessTokenLifetimeRemaining() throws ObjectDisposedException, SafeguardForJavaException {
         return 0;
     }
-    
+
     @Override
     public void refreshAccessToken() throws ObjectDisposedException, SafeguardForJavaException {
         throw new SafeguardForJavaException("Anonymous connection cannot be used to get an API access token, Error: Unsupported operation");
     }
-    
+
     @Override
     public String resolveProviderToScope(String provider) throws SafeguardForJavaException {
         throw new SafeguardForJavaException("Anonymous connection does not require a provider, Error: Unsupported operation");
     }
-    
+
     @Override
     public Object cloneObject() throws SafeguardForJavaException {
         throw new SafeguardForJavaException("Anonymous authenticators are not cloneable");
     }
-    
+
     @Override
     public void dispose() {
         disposed = true;

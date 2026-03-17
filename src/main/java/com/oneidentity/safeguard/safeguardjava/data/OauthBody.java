@@ -3,7 +3,7 @@ package com.oneidentity.safeguard.safeguardjava.data;
 import com.oneidentity.safeguard.safeguardjava.Utils;
 
 public class OauthBody implements JsonObject {
-    
+
     private String grantType;
     private String username;
     private char[] password;
@@ -17,7 +17,7 @@ public class OauthBody implements JsonObject {
         this.scope = scope;
         this.isPassword = true;
     }
-    
+
     public OauthBody(String grantType, String scope ) {
         this.grantType = grantType;
         this.username = null;
@@ -26,7 +26,7 @@ public class OauthBody implements JsonObject {
         this.isPassword = false;
     }
 
-    
+
     public String getGrantType() {
         return grantType;
     }
@@ -58,7 +58,7 @@ public class OauthBody implements JsonObject {
     public void setScope(String scope) {
         this.scope = scope;
     }
-    
+
     @Override
     public String toJson() {
         if (isPassword) {
@@ -75,5 +75,5 @@ public class OauthBody implements JsonObject {
                     .append(Utils.toJsonString("scope", this.scope, true))
                     .append("}").toString();
         }
-    }   
+    }
 }

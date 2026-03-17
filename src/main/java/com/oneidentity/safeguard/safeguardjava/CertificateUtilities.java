@@ -19,13 +19,13 @@ public class CertificateUtilities {
     }
 
     public static String WINDOWSKEYSTORE = "Windows-MY";
-    
+
     public static String getClientCertificateAliasFromStore(String thumbprint) throws SafeguardForJavaException {
-        
+
         try {
             KeyStore keyStore = KeyStore.getInstance(WINDOWSKEYSTORE);
             keyStore.load(null, null);
-            
+
             Enumeration<String> enumeration = keyStore.aliases();
             while (enumeration.hasMoreElements()) {
                 String alias = enumeration.nextElement();
@@ -40,14 +40,14 @@ public class CertificateUtilities {
         {
             throw new SafeguardForJavaException(String.format("Failure to get certificate from thumbprint=%s : %s", thumbprint, ex.getMessage()));
         }
-        
+
         throw new SafeguardForJavaException(String.format("Unable to find certificate matching thumbprint=%s in the User store", thumbprint));
     }
-    
+
     public static boolean isWindowsKeyStore(String path) {
         return path != null ? path.equalsIgnoreCase(WINDOWSKEYSTORE) : false;
     }
-    
+
     private static String getThumbprint(X509Certificate cert)
             throws NoSuchAlgorithmException, CertificateEncodingException {
         MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -56,5 +56,5 @@ public class CertificateUtilities {
         byte[] digest = md.digest();
         String digestHex = DatatypeConverter.printHexBinary(digest);
         return digestHex.toLowerCase();
-    }    
+    }
 }

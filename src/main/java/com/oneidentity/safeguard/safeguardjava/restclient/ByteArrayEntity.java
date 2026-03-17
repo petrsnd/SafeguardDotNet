@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class ByteArrayEntity extends org.apache.http.entity.ByteArrayEntity {
-    
+
     private OutputStreamProgress outstream;
     private final IProgressCallback progressCallback;
     private final long totalBytes;
@@ -32,5 +32,5 @@ public class ByteArrayEntity extends org.apache.http.entity.ByteArrayEntity {
         }
         long writtenLength = outstream.getWrittenLength();
         return (int) (100*writtenLength/contentLength);
-    }    
+    }
 }

@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import javax.net.ssl.HostnameVerifier;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
-public class PasswordAuthenticator extends AuthenticatorBase 
+public class PasswordAuthenticator extends AuthenticatorBase
 {
     private boolean disposed;
 
@@ -22,15 +22,15 @@ public class PasswordAuthenticator extends AuthenticatorBase
     private final char[] password;
 
     public PasswordAuthenticator(String networkAddress, String provider, String username,
-            char[] password, int apiVersion, boolean ignoreSsl, HostnameVerifier validationCallback) 
+            char[] password, int apiVersion, boolean ignoreSsl, HostnameVerifier validationCallback)
             throws ArgumentException
     {
         super(networkAddress, apiVersion, ignoreSsl, validationCallback);
         this.provider = provider;
-        
+
         if (Utils.isNullOrEmpty(this.provider) || this.provider.equalsIgnoreCase("local"))
             providerScope = "rsts:sts:primaryproviderid:local";
-        
+
         this.username = username;
         if (password == null)
             throw new ArgumentException("The password parameter can not be null");
@@ -55,9 +55,9 @@ public class PasswordAuthenticator extends AuthenticatorBase
 
         if (response == null)
             throw new SafeguardForJavaException(String.format("Unable to connect to RSTS service %s", rstsClient.getBaseURL()));
-        
+
         String reply = Utils.getResponse(response);
-        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode())) 
+        if (!Utils.isSuccessful(response.getStatusLine().getStatusCode()))
             throw new SafeguardForJavaException(String.format("Error using password grant_type with scope %s, Error: ", providerScope) +
                     String.format("%s %s", response.getStatusLine().getStatusCode(), reply));
 
@@ -65,7 +65,7 @@ public class PasswordAuthenticator extends AuthenticatorBase
 
         if (!map.containsKey("access_token"))
             throw new SafeguardForJavaException(String.format("Error retrieving the access key for scope: %s", providerScope));
-        
+
         return map.get("access_token").toCharArray();
     }
 
@@ -73,7 +73,7 @@ public class PasswordAuthenticator extends AuthenticatorBase
     public Object cloneObject() throws SafeguardForJavaException
     {
         try {
-            PasswordAuthenticator auth = new PasswordAuthenticator(getNetworkAddress(), provider, username, password, 
+            PasswordAuthenticator auth = new PasswordAuthenticator(getNetworkAddress(), provider, username, password,
                     getApiVersion(), isIgnoreSsl(), getValidationCallback());
             auth.accessToken = this.accessToken == null ? null : this.accessToken.clone();
             return auth;
@@ -82,7 +82,7 @@ public class PasswordAuthenticator extends AuthenticatorBase
         }
         return null;
     }
-    
+
     @Override
     public void dispose()
     {
@@ -91,7 +91,7 @@ public class PasswordAuthenticator extends AuthenticatorBase
             Arrays.fill(password, '0');
         disposed = true;
     }
-    
+
     @Override
     protected void finalize() throws Throwable {
         try {
@@ -102,5 +102,5 @@ public class PasswordAuthenticator extends AuthenticatorBase
             super.finalize();
         }
     }
-    
+
 }

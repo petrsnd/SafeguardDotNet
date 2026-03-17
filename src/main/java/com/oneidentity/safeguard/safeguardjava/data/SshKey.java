@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SshKey {
-    
+
     @JsonProperty("Passphrase")
     private String passphrase;
     @JsonProperty("PrivateKey")

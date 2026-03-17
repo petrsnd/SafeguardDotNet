@@ -10,11 +10,11 @@ import com.oneidentity.safeguard.safeguardjava.exceptions.SafeguardForJavaExcept
  * This is the reusable connection interface that can be used to call SPS API.
  */
 public interface ISafeguardSessionsConnection {
-    
+
     /**
      *  Call a Safeguard for Privileged Sessions API method and get any response as a string.
      *  If there is a failure a SafeguardDotNetException will be thrown.
-     * 
+     *
      *  @param method               Safeguard method type to use.
      *  @param relativeUrl          Relative URL of the service to use.
      *  @param body                 Request body to pass to the method.
@@ -22,7 +22,7 @@ public interface ISafeguardSessionsConnection {
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      *  @throws ArgumentException Invalid argument.
-     */  
+     */
     String invokeMethod(Method method, String relativeUrl, String body)
             throws ObjectDisposedException, SafeguardForJavaException, ArgumentException;
 
@@ -38,13 +38,13 @@ public interface ISafeguardSessionsConnection {
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      *  @throws ArgumentException Invalid argument.
-     */  
+     */
     FullResponse invokeMethodFull(Method method, String relativeUrl, String body)
             throws ObjectDisposedException, SafeguardForJavaException, ArgumentException;
-    
+
     /**
      *  Provides support for HTTP streaming requests
-     * 
+     *
      *  @return returns ISpsStreamingRequest
      *  @throws ObjectDisposedException Object has already been disposed.
      */

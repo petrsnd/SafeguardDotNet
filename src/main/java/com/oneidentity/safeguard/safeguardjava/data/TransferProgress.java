@@ -19,7 +19,7 @@ public class TransferProgress {
     public void setBytesTotal(long BytesTotal) {
         this.BytesTotal = BytesTotal;
     }
-    
+
     public int getPercentComplete() {
         return BytesTotal == 0 ? 0 : (int)((double)BytesTransferred / BytesTotal * 100);
     }

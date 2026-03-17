@@ -14,7 +14,7 @@ public class AccessTokenAuthenticator extends AuthenticatorBase
         super(networkAddress, apiVersion, ignoreSsl, validationCallback);
         if (accessToken == null)
             throw new ArgumentException("The accessToken parameter can not be null");
-        
+
         this.accessToken = accessToken.clone();
     }
 
@@ -22,7 +22,7 @@ public class AccessTokenAuthenticator extends AuthenticatorBase
     public String getId() {
         return "AccessToken";
     }
-    
+
     @Override
     protected  char[] getRstsTokenInternal() throws SafeguardForJavaException
     {
@@ -33,14 +33,14 @@ public class AccessTokenAuthenticator extends AuthenticatorBase
     public Object cloneObject() throws SafeguardForJavaException {
         throw new SafeguardForJavaException("Access token authenticators are not cloneable");
     }
-    
+
     @Override
     public void dispose()
     {
         super.dispose();
         disposed = true;
     }
-    
+
     @Override
     protected void finalize() throws Throwable {
         try {
@@ -49,5 +49,5 @@ public class AccessTokenAuthenticator extends AuthenticatorBase
             super.finalize();
         }
     }
-    
+
 }

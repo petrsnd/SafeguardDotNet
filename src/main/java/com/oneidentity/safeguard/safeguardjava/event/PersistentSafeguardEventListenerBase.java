@@ -34,7 +34,7 @@ public abstract class PersistentSafeguardEventListenerBase implements ISafeguard
     {
         this.eventListenerStateCallback = eventListenerStateCallback;
     }
-    
+
     protected abstract SafeguardEventListener reconnectEventListener() throws ObjectDisposedException, SafeguardForJavaException, ArgumentException;
 
     class PersistentReconnectAndStartHandler implements IDisconnectHandler {
@@ -81,15 +81,15 @@ public abstract class PersistentSafeguardEventListenerBase implements ISafeguard
                 }
             }
         };
-        
-        
+
+
         try {
             this.reconnectThread.start();
             this.reconnectThread.join();
         } catch (InterruptedException ex1) {
             isCancellationRequested = true;
         }
-        
+
         this.reconnectThread = null;
     }
 
@@ -118,7 +118,7 @@ public abstract class PersistentSafeguardEventListenerBase implements ISafeguard
     public boolean isStarted() {
         return this.eventListener == null ? false : this.eventListener.isStarted();
     }
-    
+
     @Override
     public void dispose() {
         if (this.eventListener != null) {

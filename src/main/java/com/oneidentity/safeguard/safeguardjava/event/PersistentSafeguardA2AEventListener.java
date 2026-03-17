@@ -39,7 +39,7 @@ public class PersistentSafeguardA2AEventListener extends PersistentSafeguardEven
         Logger.getLogger(PersistentSafeguardA2AEventListener.class.getName()).log(Level.FINEST, "Persistent A2A event listener successfully created.");
     }
 
-    public PersistentSafeguardA2AEventListener(ISafeguardA2AContext a2AContext, List<char[]> apiKeys, ISafeguardEventHandler handler) 
+    public PersistentSafeguardA2AEventListener(ISafeguardA2AContext a2AContext, List<char[]> apiKeys, ISafeguardEventHandler handler)
             throws ArgumentException, ObjectDisposedException {
         this.a2AContext = a2AContext;
         if (apiKeys == null) {
@@ -58,7 +58,7 @@ public class PersistentSafeguardA2AEventListener extends PersistentSafeguardEven
         registerEventHandler("AccountApiKeySecretUpdated", handler);
         Logger.getLogger(PersistentSafeguardA2AEventListener.class.getName()).log(Level.FINEST, "Persistent A2A event listener successfully created.");
     }
-    
+
     @Override
     public SafeguardEventListener reconnectEventListener() throws ObjectDisposedException, ArgumentException
     {
@@ -81,7 +81,7 @@ public class PersistentSafeguardA2AEventListener extends PersistentSafeguardEven
             a2AContext.dispose();
         disposed = true;
     }
-    
+
     @Override
     protected void finalize() throws Throwable {
         try {
@@ -97,5 +97,5 @@ public class PersistentSafeguardA2AEventListener extends PersistentSafeguardEven
             super.finalize();
         }
     }
-    
+
 }

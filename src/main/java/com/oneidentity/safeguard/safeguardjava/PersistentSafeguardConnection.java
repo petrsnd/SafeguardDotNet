@@ -11,7 +11,7 @@ import com.oneidentity.safeguard.safeguardjava.exceptions.SafeguardForJavaExcept
 import java.util.Map;
 
 class PersistentSafeguardConnection implements ISafeguardConnection {
-    
+
     private final ISafeguardConnection _connection;
     private boolean disposed;
 
@@ -30,7 +30,7 @@ class PersistentSafeguardConnection implements ISafeguardConnection {
     }
 
     @Override
-    public FullResponse JoinSps(ISafeguardSessionsConnection spsConnection, String certificateChain, String sppAddress) 
+    public FullResponse JoinSps(ISafeguardSessionsConnection spsConnection, String certificateChain, String sppAddress)
             throws ObjectDisposedException, SafeguardForJavaException, ArgumentException {
         if (_connection.getAccessTokenLifetimeRemaining() <= 0)
             _connection.refreshAccessToken();
@@ -72,11 +72,11 @@ class PersistentSafeguardConnection implements ISafeguardConnection {
     public SafeguardEventListener getEventListener() throws ObjectDisposedException, ArgumentException {
         return _connection.getEventListener();
     }
-    
+
     @Override
     public ISafeguardConnection GetManagementServiceConnection(String networkAddress) {
         return _connection.GetManagementServiceConnection(networkAddress);
-    }    
+    }
 
     @Override
     public ISafeguardEventListener getPersistentEventListener() throws ObjectDisposedException, SafeguardForJavaException {

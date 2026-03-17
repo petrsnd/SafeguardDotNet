@@ -21,11 +21,11 @@ public class PersistentSafeguardEventListener extends PersistentSafeguardEventLi
     @Override
     public SafeguardEventListener reconnectEventListener()
             throws ObjectDisposedException, SafeguardForJavaException, ArgumentException {
-        
+
         if (disposed) {
             throw new ObjectDisposedException("SafeguardEventListener");
         }
-        
+
         if (connection.getAccessTokenLifetimeRemaining() == 0) {
             connection.refreshAccessToken();
         }

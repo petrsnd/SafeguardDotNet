@@ -31,7 +31,7 @@ class StreamingRequest implements IStreamingRequest {
     @Override
     public String uploadStream(Service service, String relativeUrl, byte[] stream, IProgressCallback progressCallback, Map<String, String> parameters, Map<String, String> additionalHeaders)
             throws SafeguardForJavaException, ArgumentException, ObjectDisposedException {
-        
+
         if (safeguardConnection.isDisposed())
             throw new ObjectDisposedException("SafeguardConnection");
         if (Utils.isNullOrEmpty(relativeUrl))
@@ -41,10 +41,10 @@ class StreamingRequest implements IStreamingRequest {
         if (!authenticationMechanism.isAnonymous() && !authenticationMechanism.hasAccessToken()) {
             throw new SafeguardForJavaException("Access token is missing due to log out, you must refresh the access token to invoke a method");
         }
-        
+
         Map<String,String> headers = safeguardConnection.prepareHeaders(additionalHeaders, service);
         CloseableHttpResponse response = null;
-        
+
         SafeguardConnection.logRequestDetails(Method.Post, client.getBaseURL() + "/" + relativeUrl, parameters, additionalHeaders);
 
         response = client.execPOSTBytes(relativeUrl, parameters, headers, null, stream, progressCallback);
@@ -70,7 +70,7 @@ class StreamingRequest implements IStreamingRequest {
     @Override
     public void downloadStream(Service service, String relativeUrl, String outputFilePath, IProgressCallback progressCallback, Map<String, String> parameters, Map<String, String> additionalHeaders)
             throws SafeguardForJavaException, ArgumentException, ObjectDisposedException {
-        
+
         if (safeguardConnection.isDisposed())
             throw new ObjectDisposedException("SafeguardConnection");
         if (Utils.isNullOrEmpty(relativeUrl))
@@ -80,9 +80,9 @@ class StreamingRequest implements IStreamingRequest {
         if (!authenticationMechanism.isAnonymous() && !authenticationMechanism.hasAccessToken()) {
             throw new SafeguardForJavaException("Access token is missing due to log out, you must refresh the access token to invoke a method");
         }
-        
+
         Map<String,String> headers = safeguardConnection.prepareHeaders(additionalHeaders, service);
-        
+
         SafeguardConnection.logRequestDetails(Method.Get, client.getBaseURL() + "/" + relativeUrl, parameters, additionalHeaders);
 
         CloseableHttpResponse response = client.execGETBytes(relativeUrl, parameters, headers, null, progressCallback);
@@ -114,7 +114,7 @@ class StreamingRequest implements IStreamingRequest {
             if (output != null) try { output.close(); } catch (IOException logOrIgnore) {}
             if (input != null) try { input.close(); } catch (IOException logOrIgnore) {}
         }
-        
+
         FullResponse fullResponse = new FullResponse(response.getStatusLine().getStatusCode(), response.getAllHeaders(), null);
 
         SafeguardConnection.logResponseDetails(fullResponse);

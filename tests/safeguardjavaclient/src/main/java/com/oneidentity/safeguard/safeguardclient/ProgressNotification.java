@@ -9,5 +9,5 @@ public class ProgressNotification implements IProgressCallback {
     public void checkProgress(TransferProgress transferProgress) {
         System.out.println(String.format("\tBytes transfered %d done", transferProgress.getPercentComplete()));
     }
-    
+
 }

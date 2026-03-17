@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class A2ARegistration {
-    
+
     @JsonProperty("Id")
     private Integer id;
     @JsonProperty("AppName")

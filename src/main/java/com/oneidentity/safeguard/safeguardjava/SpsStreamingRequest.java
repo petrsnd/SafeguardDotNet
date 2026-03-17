@@ -57,9 +57,9 @@ class SpsStreamingRequest implements ISpsStreamingRequest {
 
         return fullResponse.getBody();
     }
-    
+
     @Override
-    public String uploadStream(String relativeUrl, String fileName, 
+    public String uploadStream(String relativeUrl, String fileName,
             Map<String, String> parameters, Map<String, String> additionalHeaders)
             throws SafeguardForJavaException, ArgumentException {
 
@@ -93,12 +93,12 @@ class SpsStreamingRequest implements ISpsStreamingRequest {
 
         return fullResponse.getBody();
     }
-    
-    
+
+
     @Override
-    public StreamResponse downloadStream(String relativeUrl, Map<String, String> parameters, Map<String, String> additionalHeaders) 
+    public StreamResponse downloadStream(String relativeUrl, Map<String, String> parameters, Map<String, String> additionalHeaders)
             throws SafeguardForJavaException, ArgumentException {
-        
+
         if (Utils.isNullOrEmpty(relativeUrl)) {
             throw new ArgumentException("Parameter relativeUrl cannot be null or empty");
         }
@@ -127,12 +127,12 @@ class SpsStreamingRequest implements ISpsStreamingRequest {
 
         return new StreamResponse(response);
     }
-    
+
     @Override
-    public void downloadStream(String relativeUrl, String outputFilePath, IProgressCallback progressCallback, 
+    public void downloadStream(String relativeUrl, String outputFilePath, IProgressCallback progressCallback,
             Map<String, String> parameters, Map<String, String> additionalHeaders)
             throws SafeguardForJavaException, ArgumentException {
-        
+
         StreamResponse streamResponse = null;
         InputStream input = null;
         OutputStream output = null;

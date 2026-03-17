@@ -15,7 +15,7 @@ public class JoinRequest implements JsonObject {
 
     public JoinRequest() {
     }
-      
+
     public String getSpp() {
         return spp;
     }
@@ -39,7 +39,7 @@ public class JoinRequest implements JsonObject {
     public void setSpp_cert_chain(String spp_cert_chain) {
         this.spp_cert_chain = spp_cert_chain;
     }
-    
+
     @Override
     public String toJson() throws SafeguardForJavaException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -50,5 +50,5 @@ public class JoinRequest implements JsonObject {
             throw new SafeguardForJavaException("Failed to convert request to json", ex);
         }
     }
-    
+
 }

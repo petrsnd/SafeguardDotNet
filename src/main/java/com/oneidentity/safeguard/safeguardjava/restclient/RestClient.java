@@ -88,14 +88,14 @@ public class RestClient {
     }
 
     public RestClient(String connectionAddr, String userName, char[] password, boolean ignoreSsl, HostnameVerifier validationCallback) {
-        
+
 
         HttpClientBuilder builder = createClientBuilder(connectionAddr, ignoreSsl, validationCallback);
         CredentialsProvider provider = new BasicCredentialsProvider();
         provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userName, new String(password)));
-        
+
         RequestConfig customizedRequestConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
-        
+
         client = builder.setDefaultCredentialsProvider(provider)
                 .setDefaultRequestConfig(customizedRequestConfig)
                 .setDefaultCookieStore(cookieStore)
@@ -115,7 +115,7 @@ public class RestClient {
 
         this.ignoreSsl = ignoreSsl;
         this.serverUrl = connectionAddr;
-        
+
         try {
             URL aUrl = new URL(connectionAddr);
             this.hostDomain = aUrl.getHost();
@@ -123,22 +123,22 @@ public class RestClient {
             Logger.getLogger(RestClient.class.getName()).log(Level.SEVERE, "Invalid URL", ex);
         }
 
-        SSLConnectionSocketFactory sslsf = null; 
+        SSLConnectionSocketFactory sslsf = null;
         if (ignoreSsl) {
             this.validationCallback = null;
             sslsf = new SSLConnectionSocketFactory(getSSLContext(null, null, null, null), NoopHostnameVerifier.INSTANCE);
         } else if (validationCallback != null) {
             this.validationCallback = validationCallback;
-            sslsf = new SSLConnectionSocketFactory(getSSLContext(null, null, null, null), validationCallback); 
+            sslsf = new SSLConnectionSocketFactory(getSSLContext(null, null, null, null), validationCallback);
         } else {
             sslsf = new SSLConnectionSocketFactory(getSSLContext(null, null, null, null));
         }
         Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("https", sslsf).build();
         BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
-        
+
         return HttpClients.custom().setSSLSocketFactory(sslsf).setConnectionManager(connectionManager);
     }
-    
+
     private URI getBaseURI(String segments) {
         try {
             return new URI(serverUrl+"/"+segments);
@@ -153,7 +153,7 @@ public class RestClient {
     }
 
     private Map<String,String> parseKeyValue(String value) {
-        
+
         HashMap<String,String> keyValues = new HashMap<>();
         String[] parts = value.split(";");
         for (String p : parts) {
@@ -165,16 +165,16 @@ public class RestClient {
                 keyValues.put(kv[0].trim(), kv[1].trim());
             }
         }
-        
+
         return keyValues;
     }
-    
+
     public void addSessionId(String cookieValue) {
         if (cookieValue == null) {
             Logger.getLogger(RestClient.class.getName()).log(Level.SEVERE, "Session cookie cannot be null");
             return;
         }
-        
+
         try {
             Map<String,String> keyValues = parseKeyValue(cookieValue);
 
@@ -197,7 +197,7 @@ public class RestClient {
                 if (this.hostDomain != null) {
                     cookie.setDomain(this.hostDomain);
                 }
-                
+
                 String secure = keyValues.get("Secure");
                 if (secure != null) {
                     cookie.setSecure(true);
@@ -210,7 +210,7 @@ public class RestClient {
             Logger.getLogger(RestClient.class.getName()).log(Level.SEVERE, "Failed to set session cookie.", ex);
         }
     }
-    
+
     public CloseableHttpResponse execGET(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout) {
 
         RequestBuilder rb = prepareRequest (RequestBuilder.get(getBaseURI(path)), queryParams, headers, timeout);
@@ -239,8 +239,8 @@ public class RestClient {
         }
         return null;
     }
-    
-    public CloseableHttpResponse execGETBytes(String path, Map<String, String> queryParams, Map<String, String> headers, 
+
+    public CloseableHttpResponse execGETBytes(String path, Map<String, String> queryParams, Map<String, String> headers,
             Integer timeout, IProgressCallback progressCallback) {
 
         if (headers == null || !headers.containsKey(HttpHeaders.ACCEPT)) {
@@ -256,12 +256,12 @@ public class RestClient {
             return null;
         }
     }
-    
-    public CloseableHttpResponse execGETBytes(String path, Map<String, String> queryParams, Map<String, String> headers, 
+
+    public CloseableHttpResponse execGETBytes(String path, Map<String, String> queryParams, Map<String, String> headers,
             Integer timeout, CertificateContext certificateContext, IProgressCallback progressCallback) {
 
         CloseableHttpClient certClient = getClientWithCertificate(certificateContext);
-        
+
         if (certClient != null) {
             if (headers == null || !headers.containsKey(HttpHeaders.ACCEPT)) {
                 headers = headers == null ? new HashMap<>() : headers;
@@ -293,7 +293,7 @@ public class RestClient {
         }
     }
 
-    public CloseableHttpResponse execPUT(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout, 
+    public CloseableHttpResponse execPUT(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout,
             JsonObject requestEntity, CertificateContext certificateContext) {
         CloseableHttpClient certClient = getClientWithCertificate(certificateContext);
 
@@ -311,7 +311,7 @@ public class RestClient {
         }
         return null;
     }
-    
+
     public CloseableHttpResponse execPOST(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout, JsonObject requestEntity) {
 
         RequestBuilder rb = prepareRequest(RequestBuilder.post(getBaseURI(path)), queryParams, headers, timeout);
@@ -346,8 +346,8 @@ public class RestClient {
 
         return null;
     }
-    
-    public CloseableHttpResponse execPOSTBytes(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout, 
+
+    public CloseableHttpResponse execPOSTBytes(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout,
             byte[] requestEntity, IProgressCallback progressCallback) {
 
         if (headers == null || !headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
@@ -364,7 +364,7 @@ public class RestClient {
             return null;
         }
     }
-    
+
     public CloseableHttpResponse execPOSTBytes(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout,
             byte[] requestEntity, CertificateContext certificateContext, IProgressCallback progressCallback) {
 
@@ -388,11 +388,11 @@ public class RestClient {
         return null;
     }
 
-    public CloseableHttpResponse execPOSTFile(String path, Map<String, String> queryParams, Map<String, 
+    public CloseableHttpResponse execPOSTFile(String path, Map<String, String> queryParams, Map<String,
             String> headers, Integer timeout, String fileName) {
 
         File file = new File(fileName);
-        
+
         HttpEntity data = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
                 .addBinaryBody("firmware", file, ContentType.MULTIPART_FORM_DATA, file.getName()).build();
 
@@ -409,7 +409,7 @@ public class RestClient {
             return null;
         }
     }
-    
+
     public CloseableHttpResponse execPOSTFile(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout,
             String fileName, CertificateContext certificateContext) {
 
@@ -419,7 +419,7 @@ public class RestClient {
             File file = new File(fileName);
             HttpEntity data = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
                     .addBinaryBody("firmware", file, ContentType.MULTIPART_FORM_DATA, file.getName()).build();
-            
+
             if (headers == null || !headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
                 headers = headers == null ? new HashMap<>() : headers;
             }
@@ -435,7 +435,7 @@ public class RestClient {
         }
         return null;
     }
-    
+
     public CloseableHttpResponse execDELETE(String path, Map<String, String> queryParams, Map<String, String> headers, Integer timeout) {
 
         RequestBuilder rb = prepareRequest(RequestBuilder.delete(getBaseURI(path)), queryParams, headers, timeout);
@@ -451,8 +451,8 @@ public class RestClient {
     private CloseableHttpClient getClientWithCertificate(CertificateContext certificateContext) {
 
         CloseableHttpClient certClient = null;
-        if (certificateContext.getCertificatePath() != null 
-                || certificateContext.getCertificateData() != null 
+        if (certificateContext.getCertificatePath() != null
+                || certificateContext.getCertificateData() != null
                 || certificateContext.getCertificateThumbprint() != null) {
 
             InputStream in;
@@ -467,7 +467,7 @@ public class RestClient {
                     aliases = new ArrayList<>();
                     aliases = Collections.list(clientKs.aliases());
                 } else {
-                    in = certificateContext.getCertificatePath() != null ? new FileInputStream(certificateContext.getCertificatePath()) 
+                    in = certificateContext.getCertificatePath() != null ? new FileInputStream(certificateContext.getCertificatePath())
                             : new ByteArrayInputStream(certificateContext.getCertificateData());
                     try {
                         clientKs = KeyStore.getInstance("JKS");
@@ -485,11 +485,11 @@ public class RestClient {
                 Logger.getLogger(RestClient.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            SSLConnectionSocketFactory sslsf = null; 
+            SSLConnectionSocketFactory sslsf = null;
             if (ignoreSsl) {
                 sslsf = new SSLConnectionSocketFactory(getSSLContext(clientKs, keyPass, certificateAlias == null ? aliases.get(0) : certificateAlias, certificateContext), NoopHostnameVerifier.INSTANCE);
             } else if (validationCallback != null) {
-                sslsf = new SSLConnectionSocketFactory(getSSLContext(clientKs, keyPass, certificateAlias == null ? aliases.get(0) : certificateAlias, certificateContext), validationCallback); 
+                sslsf = new SSLConnectionSocketFactory(getSSLContext(clientKs, keyPass, certificateAlias == null ? aliases.get(0) : certificateAlias, certificateContext), validationCallback);
             } else {
                 sslsf = new SSLConnectionSocketFactory(getSSLContext(clientKs, keyPass, certificateAlias == null ? aliases.get(0) : certificateAlias, certificateContext));
             }
@@ -502,12 +502,12 @@ public class RestClient {
     }
 
     private RequestBuilder prepareRequest(RequestBuilder rb, Map<String, String> queryParams, Map<String, String> headers, Integer timeout) {
-        
+
         if (headers == null || !headers.containsKey(HttpHeaders.ACCEPT))
             rb.addHeader(HttpHeaders.ACCEPT, "application/json");
         if (headers == null || !headers.containsKey(HttpHeaders.CONTENT_TYPE))
             rb.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-        
+
         if (headers != null) {
             headers.entrySet().forEach((entry) -> {
                 rb.addHeader(entry.getKey(), entry.getValue());
@@ -615,5 +615,5 @@ public class RestClient {
             return defaultKeyManager.getPrivateKey(string);
         }
     }
-    
+
 }

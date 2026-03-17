@@ -52,7 +52,7 @@ public class Utils {
         if (entity != null) {
             try {
                 return EntityUtils.toString(response.getEntity());
-                
+
             } catch (IOException | ParseException ex) {}
         }
         return "";
@@ -69,7 +69,7 @@ public class Utils {
                 return false;
         }
     }
-    
+
     public static String getOsName() {
         if (OS == null) {
             OS = System.getProperty("os.name");
@@ -80,10 +80,10 @@ public class Utils {
     public static boolean isWindows() {
         return getOsName().startsWith("Windows");
     }
-    
+
     public static boolean isSunMSCAPILoaded() {
         Provider provider = Security.getProvider("SunMSCAPI");
         return provider != null;
     }
-    
+
 }

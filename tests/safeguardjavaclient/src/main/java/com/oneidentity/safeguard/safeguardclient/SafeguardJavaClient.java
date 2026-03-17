@@ -24,14 +24,14 @@ public class SafeguardJavaClient {
         ISafeguardA2AContext a2aContext = null;
         ISafeguardEventListener eventListener = null;
         ISafeguardEventListener a2aEventListener = null;
-        
+
         boolean done = false;
         SafeguardTests tests = new SafeguardTests();
-        
+
         // Uncomment the lines below to enable console debug logging of the http requests
         //System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.SimpleLog");
         //System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-        //System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.wire", "DEBUG");        
+        //System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.wire", "DEBUG");
 
         //System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.impl.conn", "DEBUG");
         //System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.impl.client", "DEBUG");
@@ -160,12 +160,12 @@ public class SafeguardJavaClient {
             System.out.println("/tException Stack: ");
             ex.printStackTrace();
         }
-        
+
         System.out.println("All done.");
     }
 
     private static Integer displayMenu() {
-        
+
         System.out.println("Select an option:");
         System.out.println ("\t1. Connect by user/password");
         System.out.println ("\t2. Connect by thumbprint");
@@ -200,16 +200,16 @@ public class SafeguardJavaClient {
         System.out.println ("\t31. Test Join SPS");
         System.out.println ("\t32. Test Management Interface API");
         System.out.println ("\t33. Test Anonymous Connection");
-        
+
         System.out.println ("\t99. Exit");
-        
+
         System.out.print ("Selection: ");
         Scanner in = new Scanner(System.in);
         int selection = in.nextInt();
-        
+
         return selection;
     }
-    
+
     private static CommandLine parseArguments(String[] args) {
 
         Options options = getOptions();
@@ -256,7 +256,7 @@ public class SafeguardJavaClient {
     }
 
     public static String readLine(String format, String defaultStr, Object... args) {
-        
+
         String value = defaultStr;
         format += "["+defaultStr+"] ";
         try {
@@ -271,17 +271,17 @@ public class SafeguardJavaClient {
             System.out.println(ex.getMessage());
             return defaultStr;
         }
-        
+
         if (value.trim().length() == 0)
             return defaultStr;
         return value.trim();
     }
 
-    
-    
-    
-    
-    
+
+
+
+
+
 }
 
 //class EventHandler implements ISafeguardEventHandler {

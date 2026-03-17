@@ -99,7 +99,7 @@ public class A2ARetrievableAccount implements IA2ARetrievableAccount {
     public void setAssetNetworkAddress(String assetNetworkAddress) {
         this.assetNetworkAddress = assetNetworkAddress;
     }
-    
+
     @Override
     public int getAccountId() {
         return accountId;
@@ -135,7 +135,7 @@ public class A2ARetrievableAccount implements IA2ARetrievableAccount {
     public void setAccountType(String accountType) {
         this.accountType = accountType;
     }
-    
+
     @Override
     public String getAssetDescription() {
         return assetDescription;
@@ -162,7 +162,7 @@ public class A2ARetrievableAccount implements IA2ARetrievableAccount {
         disposed = true;
         apiKey = null;
     }
-    
+
     @Override
     protected void finalize() throws Throwable {
         try {

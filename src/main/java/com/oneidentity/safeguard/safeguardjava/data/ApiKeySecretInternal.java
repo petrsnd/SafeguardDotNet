@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ApiKeySecretInternal extends ApiKeySecretBase {
-    
+
     @JsonProperty("ClientSecret")
     private String clientSecret;
 

@@ -10,7 +10,7 @@ import java.time.Instant;
 public class BrokeredAccessRequest implements JsonObject, IBrokeredAccessRequest
 {
     private int version;
-    
+
     private BrokeredAccessRequestType AccessType;   // converted by AccessRequestTypeConverter
     private String ForUserName;
     private String ForUserIdentityProvider;         // renamed from ForProvider
@@ -35,7 +35,7 @@ public class BrokeredAccessRequest implements JsonObject, IBrokeredAccessRequest
     public void setVersion(int apiVersion) {
         version = apiVersion;
     }
-    
+
     /**
      * Get the type of access request to create.
      * @return BrokeredAccessRequestType
@@ -353,7 +353,7 @@ public class BrokeredAccessRequest implements JsonObject, IBrokeredAccessRequest
     public void setRequestedDurationMinutes(Long RequestedDurationMinutes) {
         this.RequestedDurationMinutes = RequestedDurationMinutes;
     }
-    
+
     @Override
     public String toJson() {
         return new StringBuffer("{")

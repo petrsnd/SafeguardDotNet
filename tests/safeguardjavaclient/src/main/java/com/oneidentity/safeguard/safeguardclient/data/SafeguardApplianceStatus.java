@@ -23,5 +23,5 @@ public class SafeguardApplianceStatus {
     public void setName(String Name) {
         this.Name = Name;
     }
-    
+
 }

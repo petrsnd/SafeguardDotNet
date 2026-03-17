@@ -10,7 +10,7 @@ import com.oneidentity.safeguard.safeguardjava.IApiKeySecret;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ApiKeySecret extends ApiKeySecretBase implements IApiKeySecret {
-    
+
     @JsonProperty("ClientSecret")
     private char[] clientSecret;
 

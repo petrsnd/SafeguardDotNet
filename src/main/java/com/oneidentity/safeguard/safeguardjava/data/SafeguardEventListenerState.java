@@ -2,7 +2,7 @@ package com.oneidentity.safeguard.safeguardjava.data;
 
     /**
      * Connection state of the Safeguard event listener.
-     */ 
+     */
     public enum SafeguardEventListenerState
     {
         /**

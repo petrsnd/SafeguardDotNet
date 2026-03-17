@@ -38,7 +38,7 @@ public final class Safeguard {
      *  @param accessToken Existing API access token.
      *  @param apiVersion Target API version to use.
      *  @param ignoreSsl Ignore server certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ArgumentException Invalid argument.
      */
@@ -66,7 +66,7 @@ public final class Safeguard {
      *  @param accessToken Existing API access token.
      *  @param apiVersion Target API version to use.
      *  @param validationCallback Callback function to be executed during SSL certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ArgumentException Invalid argument.
      */
@@ -81,7 +81,7 @@ public final class Safeguard {
         // So, don't use GetConnection() function above
         return new SafeguardConnection(new AccessTokenAuthenticator(networkAddress, accessToken, version, false, validationCallback));
     }
-    
+
     /**
      *  Connect to Safeguard API using a user name and password.
      *
@@ -97,7 +97,7 @@ public final class Safeguard {
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
     public static ISafeguardConnection connect(String networkAddress, String provider, String username,
-            char[] password, Integer apiVersion, Boolean ignoreSsl) 
+            char[] password, Integer apiVersion, Boolean ignoreSsl)
             throws ObjectDisposedException, ArgumentException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -128,7 +128,7 @@ public final class Safeguard {
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
     public static ISafeguardConnection connect(String networkAddress, String provider, String username,
-            char[] password, HostnameVerifier validationCallback, Integer apiVersion) 
+            char[] password, HostnameVerifier validationCallback, Integer apiVersion)
             throws ObjectDisposedException, ArgumentException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -149,14 +149,14 @@ public final class Safeguard {
      *  @param certificateAlias Alias identifying a client certificate in the keystore.
      *  @param apiVersion Target API version to use.
      *  @param ignoreSsl Ignore server certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
-    public static ISafeguardConnection connect(String networkAddress, String keystorePath, 
+    public static ISafeguardConnection connect(String networkAddress, String keystorePath,
             char[] keystorePassword, String certificateAlias,
-            Integer apiVersion, Boolean ignoreSsl) 
+            Integer apiVersion, Boolean ignoreSsl)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -168,7 +168,7 @@ public final class Safeguard {
             sslIgnore = ignoreSsl;
         }
 
-        return getConnection(new CertificateAuthenticator(networkAddress, keystorePath, 
+        return getConnection(new CertificateAuthenticator(networkAddress, keystorePath,
                 keystorePassword, certificateAlias, version, sslIgnore, null));
     }
 
@@ -182,26 +182,26 @@ public final class Safeguard {
      *  @param certificateAlias Alias identifying a client certificate in the keystore.
      *  @param apiVersion Target API version to use.
      *  @param validationCallback Callback function to be executed during SSL certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
-    public static ISafeguardConnection connect(String networkAddress, String keystorePath, 
+    public static ISafeguardConnection connect(String networkAddress, String keystorePath,
             char[] keystorePassword, String certificateAlias,
-            HostnameVerifier validationCallback, Integer apiVersion) 
+            HostnameVerifier validationCallback, Integer apiVersion)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
             version = apiVersion;
         }
 
-        return getConnection(new CertificateAuthenticator(networkAddress, keystorePath, 
+        return getConnection(new CertificateAuthenticator(networkAddress, keystorePath,
                 keystorePassword, certificateAlias, version, false, validationCallback));
     }
 
     /**
-     *  Connect to Safeguard API using a certificate from the Windows 
+     *  Connect to Safeguard API using a certificate from the Windows
      *  certificate store. This is a Windows only API and requires that the
      *  SunMSCAPI security provider is available in the Java environment.
      *
@@ -209,13 +209,13 @@ public final class Safeguard {
      *  @param thumbprint Thumbprint of the client certificate.
      *  @param apiVersion Target API version to use.
      *  @param ignoreSsl Ignore server certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
-    public static ISafeguardConnection connect(String networkAddress, String thumbprint, 
-            Integer apiVersion, Boolean ignoreSsl) 
+    public static ISafeguardConnection connect(String networkAddress, String thumbprint,
+            Integer apiVersion, Boolean ignoreSsl)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -235,13 +235,13 @@ public final class Safeguard {
         else {
             throw new SafeguardForJavaException("Not implemented. This function is only available on the Windows platform.");
         }
-        
-        return getConnection(new CertificateAuthenticator(networkAddress, thumbprint, 
+
+        return getConnection(new CertificateAuthenticator(networkAddress, thumbprint,
                 version, sslIgnore, null));
     }
 
     /**
-     *  Connect to Safeguard API using a certificate from the Windows 
+     *  Connect to Safeguard API using a certificate from the Windows
      *  certificate store. This is a Windows only API and requires that the
      *  SunMSCAPI security provider is available in the Java environment.
      *
@@ -249,13 +249,13 @@ public final class Safeguard {
      *  @param thumbprint Thumbprint of the client certificate.
      *  @param apiVersion Target API version to use.
      *  @param validationCallback Callback function to be executed during SSL certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
-    public static ISafeguardConnection connect(String networkAddress, String thumbprint, 
-            HostnameVerifier validationCallback, Integer apiVersion) 
+    public static ISafeguardConnection connect(String networkAddress, String thumbprint,
+            HostnameVerifier validationCallback, Integer apiVersion)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -270,8 +270,8 @@ public final class Safeguard {
         else {
             throw new SafeguardForJavaException("Not implemented. This function is only available on the Windows platform.");
         }
-        
-        return getConnection(new CertificateAuthenticator(networkAddress, thumbprint, 
+
+        return getConnection(new CertificateAuthenticator(networkAddress, thumbprint,
                 version, false, validationCallback));
     }
 
@@ -284,13 +284,13 @@ public final class Safeguard {
      *  @param certificatePassword Password to decrypt the certificate file.
      *  @param apiVersion Target API version to use.
      *  @param ignoreSsl Ignore server certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
     public static ISafeguardConnection connect(String networkAddress, String certificatePath,
-            char[] certificatePassword, Integer apiVersion, Boolean ignoreSsl) 
+            char[] certificatePassword, Integer apiVersion, Boolean ignoreSsl)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -315,13 +315,13 @@ public final class Safeguard {
      *  @param certificatePassword Password to decrypt the certificate file.
      *  @param apiVersion Target API version to use.
      *  @param validationCallback Callback function to be executed during SSL certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
     public static ISafeguardConnection connect(String networkAddress, String certificatePath,
-            char[] certificatePassword, HostnameVerifier validationCallback, Integer apiVersion) 
+            char[] certificatePassword, HostnameVerifier validationCallback, Integer apiVersion)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -341,13 +341,13 @@ public final class Safeguard {
      *  @param certificateAlias Alias identifying a client certificate in the keystore.
      *  @param apiVersion Target API version to use.
      *  @param ignoreSsl Ignore server certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
     public static ISafeguardConnection connect(String networkAddress, byte[] certificateData,
-            char[] certificatePassword, String certificateAlias, Integer apiVersion, Boolean ignoreSsl) 
+            char[] certificatePassword, String certificateAlias, Integer apiVersion, Boolean ignoreSsl)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -362,7 +362,7 @@ public final class Safeguard {
         return getConnection(new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias,
                 version, sslIgnore, null));
     }
-    
+
     /**
      *  Connect to Safeguard API using a certificate stored in memory.
      *
@@ -372,13 +372,13 @@ public final class Safeguard {
      *  @param certificateAlias Alias identifying a client certificate in the keystore.
      *  @param apiVersion Target API version to use.
      *  @param validationCallback Callback function to be executed during SSL certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
     public static ISafeguardConnection connect(String networkAddress, byte[] certificateData,
-            char[] certificatePassword, String certificateAlias, HostnameVerifier validationCallback, Integer apiVersion) 
+            char[] certificatePassword, String certificateAlias, HostnameVerifier validationCallback, Integer apiVersion)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -388,7 +388,7 @@ public final class Safeguard {
         return getConnection(new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias,
                 version, false, validationCallback));
     }
-    
+
     /**
      *  Connect to Safeguard API using a certificate from the keystore. The
      *  appropriate keystore must have been loaded in the java process.
@@ -400,14 +400,14 @@ public final class Safeguard {
      *  @param provider Safeguard authentication provider name (e.g. local).
      *  @param apiVersion Target API version to use.
      *  @param ignoreSsl Ignore server certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
-    public static ISafeguardConnection connect(String networkAddress, String keystorePath, 
+    public static ISafeguardConnection connect(String networkAddress, String keystorePath,
             char[] keystorePassword, String certificateAlias, String provider,
-            Integer apiVersion, Boolean ignoreSsl) 
+            Integer apiVersion, Boolean ignoreSsl)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -419,7 +419,7 @@ public final class Safeguard {
             sslIgnore = ignoreSsl;
         }
 
-        return getConnection(new CertificateAuthenticator(networkAddress, keystorePath, 
+        return getConnection(new CertificateAuthenticator(networkAddress, keystorePath,
                 keystorePassword, certificateAlias, version, sslIgnore, null, provider));
     }
 
@@ -434,26 +434,26 @@ public final class Safeguard {
      *  @param provider Safeguard authentication provider name (e.g. local).
      *  @param apiVersion Target API version to use.
      *  @param validationCallback Callback function to be executed during SSL certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
-    public static ISafeguardConnection connect(String networkAddress, String keystorePath, 
+    public static ISafeguardConnection connect(String networkAddress, String keystorePath,
             char[] keystorePassword, String certificateAlias,
-            HostnameVerifier validationCallback,  String provider, Integer apiVersion) 
+            HostnameVerifier validationCallback,  String provider, Integer apiVersion)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
             version = apiVersion;
         }
 
-        return getConnection(new CertificateAuthenticator(networkAddress, keystorePath, 
+        return getConnection(new CertificateAuthenticator(networkAddress, keystorePath,
                 keystorePassword, certificateAlias, version, false, validationCallback, provider));
     }
 
     /**
-     *  Connect to Safeguard API using a certificate from the Windows 
+     *  Connect to Safeguard API using a certificate from the Windows
      *  certificate store. This is a Windows only API and requires that the
      *  SunMSCAPI security provider is available in the Java environment.
      *
@@ -462,13 +462,13 @@ public final class Safeguard {
      *  @param provider Safeguard authentication provider name (e.g. local).
      *  @param apiVersion Target API version to use.
      *  @param ignoreSsl Ignore server certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
-    public static ISafeguardConnection connect(String networkAddress, String thumbprint, 
-             String provider, Integer apiVersion, Boolean ignoreSsl) 
+    public static ISafeguardConnection connect(String networkAddress, String thumbprint,
+             String provider, Integer apiVersion, Boolean ignoreSsl)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -488,13 +488,13 @@ public final class Safeguard {
         else {
             throw new SafeguardForJavaException("Not implemented. This function is only available on the Windows platform.");
         }
-        
-        return getConnection(new CertificateAuthenticator(networkAddress, thumbprint, 
+
+        return getConnection(new CertificateAuthenticator(networkAddress, thumbprint,
                 version, sslIgnore, null, provider));
     }
 
     /**
-     *  Connect to Safeguard API using a certificate from the Windows 
+     *  Connect to Safeguard API using a certificate from the Windows
      *  certificate store. This is a Windows only API and requires that the
      *  SunMSCAPI security provider is available in the Java environment.
      *
@@ -503,13 +503,13 @@ public final class Safeguard {
      *  @param provider Safeguard authentication provider name (e.g. local).
      *  @param apiVersion Target API version to use.
      *  @param validationCallback Callback function to be executed during SSL certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
-    public static ISafeguardConnection connect(String networkAddress, String thumbprint, 
-            HostnameVerifier validationCallback,  String provider, Integer apiVersion) 
+    public static ISafeguardConnection connect(String networkAddress, String thumbprint,
+            HostnameVerifier validationCallback,  String provider, Integer apiVersion)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -524,8 +524,8 @@ public final class Safeguard {
         else {
             throw new SafeguardForJavaException("Not implemented. This function is only available on the Windows platform.");
         }
-        
-        return getConnection(new CertificateAuthenticator(networkAddress, thumbprint, 
+
+        return getConnection(new CertificateAuthenticator(networkAddress, thumbprint,
                 version, false, validationCallback, provider));
     }
 
@@ -539,13 +539,13 @@ public final class Safeguard {
      *  @param apiVersion Target API version to use.
      *  @param ignoreSsl Ignore server certificate validation.
      *  @param provider Safeguard authentication provider name (e.g. local).
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
     public static ISafeguardConnection connect(String networkAddress, String certificatePath,
-            char[] certificatePassword, Integer apiVersion, Boolean ignoreSsl, String provider) 
+            char[] certificatePassword, Integer apiVersion, Boolean ignoreSsl, String provider)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -571,13 +571,13 @@ public final class Safeguard {
      *  @param provider Safeguard authentication provider name (e.g. local).
      *  @param apiVersion Target API version to use.
      *  @param validationCallback Callback function to be executed during SSL certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
     public static ISafeguardConnection connect(String networkAddress, String certificatePath,
-            char[] certificatePassword, HostnameVerifier validationCallback, String provider, Integer apiVersion) 
+            char[] certificatePassword, HostnameVerifier validationCallback, String provider, Integer apiVersion)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -598,13 +598,13 @@ public final class Safeguard {
      *  @param provider Safeguard authentication provider name (e.g. local).
      *  @param apiVersion Target API version to use.
      *  @param ignoreSsl Ignore server certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
     public static ISafeguardConnection connect(String networkAddress, byte[] certificateData,
-            char[] certificatePassword, String certificateAlias, String provider, Integer apiVersion, Boolean ignoreSsl) 
+            char[] certificatePassword, String certificateAlias, String provider, Integer apiVersion, Boolean ignoreSsl)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -619,7 +619,7 @@ public final class Safeguard {
         return getConnection(new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias,
                 version, sslIgnore, null, provider));
     }
-    
+
     /**
      *  Connect to Safeguard API using a certificate stored in memory.
      *
@@ -630,14 +630,14 @@ public final class Safeguard {
      *  @param provider Safeguard authentication provider name (e.g. local).
      *  @param apiVersion Target API version to use.
      *  @param validationCallback Callback function to be executed during SSL certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws ObjectDisposedException Object has already been disposed.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
     public static ISafeguardConnection connect(String networkAddress, byte[] certificateData,
             char[] certificatePassword, String certificateAlias, HostnameVerifier validationCallback,
-            String provider, Integer apiVersion) 
+            String provider, Integer apiVersion)
             throws ObjectDisposedException, SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -647,18 +647,18 @@ public final class Safeguard {
         return getConnection(new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias,
                 version, false, validationCallback, provider));
     }
-    
+
     /**
      *  Connect to Safeguard API anonymously.
      *
      *  @param networkAddress Network address.
      *  @param apiVersion API version.
      *  @param ignoreSsl If set to <code>true</code> ignore ssl.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
-    public static ISafeguardConnection connect(String networkAddress, Integer apiVersion, Boolean ignoreSsl) 
+    public static ISafeguardConnection connect(String networkAddress, Integer apiVersion, Boolean ignoreSsl)
             throws SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -681,11 +681,11 @@ public final class Safeguard {
      *  @param networkAddress Network address.
      *  @param apiVersion API version.
      *  @param validationCallback Callback function to be executed during SSL certificate validation.
-     * 
+     *
      *  @return Reusable Safeguard API connection.
      *  @throws SafeguardForJavaException General Safeguard for Java exception.
      */
-    public static ISafeguardConnection connect(String networkAddress, HostnameVerifier validationCallback, Integer apiVersion) 
+    public static ISafeguardConnection connect(String networkAddress, HostnameVerifier validationCallback, Integer apiVersion)
             throws SafeguardForJavaException {
         int version = DEFAULTAPIVERSION;
         if (apiVersion != null) {
@@ -696,13 +696,13 @@ public final class Safeguard {
         // So, don't use GetConnection() function above
         return new SafeguardConnection(new AnonymousAuthenticator(networkAddress, version, false, validationCallback));
     }
-    
+
     /**
      *  Create a persistent connection to the Safeguard API that automatically renews expired access tokens.
-     * 
+     *
      *  @param connection Connection to be made persistent.
      *  @return Reusable persistent Safeguard API connection.
-     */ 
+     */
     public static ISafeguardConnection Persist(ISafeguardConnection connection)
     {
         return new PersistentSafeguardConnection(connection);
@@ -727,7 +727,7 @@ public final class Safeguard {
          *  @param password User password to use for authentication.
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -737,7 +737,7 @@ public final class Safeguard {
         public static ISafeguardEventListener getPersistentEventListener(String networkAddress, String provider,
                 String username, char[] password, Integer apiVersion, Boolean ignoreSsl)
                 throws ObjectDisposedException, SafeguardForJavaException, ArgumentException {
-            
+
             int version = DEFAULTAPIVERSION;
             if (apiVersion != null) {
                 version = apiVersion;
@@ -762,7 +762,7 @@ public final class Safeguard {
          *  @param password User password to use for authentication.
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -772,7 +772,7 @@ public final class Safeguard {
         public static ISafeguardEventListener getPersistentEventListener(String networkAddress, String provider,
                 String username, char[] password, HostnameVerifier validationCallback, Integer apiVersion)
                 throws ObjectDisposedException, SafeguardForJavaException, ArgumentException {
-            
+
             int version = DEFAULTAPIVERSION;
             if (apiVersion != null) {
                 version = apiVersion;
@@ -792,7 +792,7 @@ public final class Safeguard {
          *  @param certificatePassword Password to decrypt the certificate file.
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -825,7 +825,7 @@ public final class Safeguard {
          *  @param certificatePassword Password to decrypt the certificate file.
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -852,7 +852,7 @@ public final class Safeguard {
          *  @param certificateAlias Alias identifying a client certificate in the keystore.
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -874,7 +874,7 @@ public final class Safeguard {
             return new PersistentSafeguardEventListener(getConnection(
                     new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias, version, ignoreSsl, null)));
         }
-        
+
         /**
          *  Get a persistent event listener using a client certificate stored in memory.
          *
@@ -884,7 +884,7 @@ public final class Safeguard {
          *  @param certificateAlias Alias identifying a client certificate in the keystore.
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -901,7 +901,7 @@ public final class Safeguard {
             return new PersistentSafeguardEventListener(getConnection(
                     new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias, version, false, validationCallback)));
         }
-        
+
         /**
          *  Get a persistent event listener using a client certificate from the
          *  certificate keystore for authentication.
@@ -912,7 +912,7 @@ public final class Safeguard {
          *  @param certificateAlias Alias identifying a client certificate in the keystore.
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java exception.
@@ -933,7 +933,7 @@ public final class Safeguard {
             return new PersistentSafeguardEventListener(getConnection(new CertificateAuthenticator(networkAddress,
                     keystorePath, keystorePassword, certificateAlias, version, ignoreSsl, null)));
         }
-        
+
         /**
          *  Get a persistent event listener using a client certificate from the
          *  certificate keystore for authentication.
@@ -944,7 +944,7 @@ public final class Safeguard {
          *  @param certificateAlias Alias identifying a client certificate in the keystore.
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java exception.
@@ -972,7 +972,7 @@ public final class Safeguard {
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
          *  @param provider Safeguard authentication provider name (e.g. local).
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -1006,7 +1006,7 @@ public final class Safeguard {
          *  @param provider Safeguard authentication provider name (e.g. local).
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -1025,7 +1025,7 @@ public final class Safeguard {
         }
 
         /**
-         *  Get a persistent event listener using a certificate from the Windows 
+         *  Get a persistent event listener using a certificate from the Windows
          *  certificate store. This is a Windows only API and requires that the
          *  SunMSCAPI security provider is available in the Java environment.
          *
@@ -1033,7 +1033,7 @@ public final class Safeguard {
          *  @param thumbprint Thumbprint of the client certificate.
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -1051,7 +1051,7 @@ public final class Safeguard {
             if (ignoreSsl != null) {
                 sslIgnore = ignoreSsl;
             }
-            
+
             if (Utils.isWindows()) {
                 if (!Utils.isSunMSCAPILoaded()) {
                     throw new SafeguardForJavaException("Missing SunMSCAPI provider. The SunMSCAPI provider must be added as a security provider in $JAVA_HOME/jre/lib/security/java.security configuration file.");
@@ -1066,7 +1066,7 @@ public final class Safeguard {
         }
 
         /**
-         *  Get a persistent event listener using a certificate from the Windows 
+         *  Get a persistent event listener using a certificate from the Windows
          *  certificate store. This is a Windows only API and requires that the
          *  SunMSCAPI security provider is available in the Java environment.
          *
@@ -1074,7 +1074,7 @@ public final class Safeguard {
          *  @param thumbprint Thumbprint of the client certificate.
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -1087,7 +1087,7 @@ public final class Safeguard {
             if (apiVersion != null) {
                 version = apiVersion;
             }
-            
+
             if (Utils.isWindows()) {
                 if (!Utils.isSunMSCAPILoaded()) {
                     throw new SafeguardForJavaException("Missing SunMSCAPI provider. The SunMSCAPI provider must be added as a security provider in $JAVA_HOME/jre/lib/security/java.security configuration file.");
@@ -1102,7 +1102,7 @@ public final class Safeguard {
         }
 
         /**
-         *  Get a persistent event listener using a certificate from the Windows 
+         *  Get a persistent event listener using a certificate from the Windows
          *  certificate store. This is a Windows only API and requires that the
          *  SunMSCAPI security provider is available in the Java environment.
          *
@@ -1111,7 +1111,7 @@ public final class Safeguard {
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
          *  @param provider Safeguard authentication provider name (e.g. local).
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -1129,7 +1129,7 @@ public final class Safeguard {
             if (ignoreSsl != null) {
                 sslIgnore = ignoreSsl;
             }
-            
+
             if (Utils.isWindows()) {
                 if (!Utils.isSunMSCAPILoaded()) {
                     throw new SafeguardForJavaException("Missing SunMSCAPI provider. The SunMSCAPI provider must be added as a security provider in $JAVA_HOME/jre/lib/security/java.security configuration file.");
@@ -1144,7 +1144,7 @@ public final class Safeguard {
         }
 
         /**
-         *  Get a persistent event listener using a certificate from the Windows 
+         *  Get a persistent event listener using a certificate from the Windows
          *  certificate store. This is a Windows only API and requires that the
          *  SunMSCAPI security provider is available in the Java environment.
          *
@@ -1153,7 +1153,7 @@ public final class Safeguard {
          *  @param provider Safeguard authentication provider name (e.g. local).
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -1166,7 +1166,7 @@ public final class Safeguard {
             if (apiVersion != null) {
                 version = apiVersion;
             }
-            
+
             if (Utils.isWindows()) {
                 if (!Utils.isSunMSCAPILoaded()) {
                     throw new SafeguardForJavaException("Missing SunMSCAPI provider. The SunMSCAPI provider must be added as a security provider in $JAVA_HOME/jre/lib/security/java.security configuration file.");
@@ -1190,7 +1190,7 @@ public final class Safeguard {
          *  @param provider Safeguard authentication provider name (e.g. local).
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -1212,7 +1212,7 @@ public final class Safeguard {
             return new PersistentSafeguardEventListener(getConnection(
                     new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias, version, ignoreSsl, null, provider)));
         }
-        
+
         /**
          *  Get a persistent event listener using a client certificate stored in memory.
          *
@@ -1223,7 +1223,7 @@ public final class Safeguard {
          *  @param provider Safeguard authentication provider name (e.g. local).
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java
@@ -1241,7 +1241,7 @@ public final class Safeguard {
             return new PersistentSafeguardEventListener(getConnection(
                     new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias, version, false, validationCallback, provider)));
         }
-        
+
         /**
          *  Get a persistent event listener using a client certificate from the
          *  certificate keystore for authentication.
@@ -1253,7 +1253,7 @@ public final class Safeguard {
          *  @param provider Safeguard authentication provider name (e.g. local).
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java exception.
@@ -1275,7 +1275,7 @@ public final class Safeguard {
             return new PersistentSafeguardEventListener(getConnection(new CertificateAuthenticator(networkAddress,
                     keystorePath, keystorePassword, certificateAlias, version, ignoreSsl, null, provider)));
         }
-        
+
         /**
          *  Get a persistent event listener using a client certificate from the
          *  certificate keystore for authentication.
@@ -1287,13 +1287,13 @@ public final class Safeguard {
          *  @param provider Safeguard authentication provider name (e.g. local).
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return New persistent Safeguard event listener.
          *  @throws ObjectDisposedException Object has already been disposed.
          *  @throws SafeguardForJavaException General Safeguard for Java exception.
          */
         public static ISafeguardEventListener getPersistentEventListener(String networkAddress,
-                String keystorePath, char[] keystorePassword, String certificateAlias, 
+                String keystorePath, char[] keystorePassword, String certificateAlias,
                 HostnameVerifier validationCallback, String provider, Integer apiVersion)
                 throws ObjectDisposedException, SafeguardForJavaException {
             int version = DEFAULTAPIVERSION;
@@ -1321,7 +1321,7 @@ public final class Safeguard {
          *  @param certificateAlias Alias identifying a client certificate in the keystore.
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
-         * 
+         *
          *  @return Reusable Safeguard A2A context.
          */
         public static ISafeguardA2AContext getContext(String networkAddress, String keystorePath, char[] keystorePassword, String certificateAlias,
@@ -1348,7 +1348,7 @@ public final class Safeguard {
          *  @param certificateAlias Alias identifying a client certificate in the keystore.
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return Reusable Safeguard A2A context.
          */
         public static ISafeguardA2AContext getContext(String networkAddress, String keystorePath, char[] keystorePassword, String certificateAlias,
@@ -1362,7 +1362,7 @@ public final class Safeguard {
         }
 
         /**
-         *  Establish a Safeguard A2A context using a certificate from the Windows 
+         *  Establish a Safeguard A2A context using a certificate from the Windows
          *  certificate store. This is a Windows only API and requires that the
          *  SunMSCAPI security provider is available in the Java environment.
          *
@@ -1370,7 +1370,7 @@ public final class Safeguard {
          *  @param thumbprint Thumbprint of the client certificate.
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
-         * 
+         *
          *  @return Reusable Safeguard A2A context.
          *  @throws SafeguardForJavaException General Safeguard for Java exception.
          */
@@ -1394,12 +1394,12 @@ public final class Safeguard {
             else {
                 throw new SafeguardForJavaException("Not implemented. This function is only available on the Windows platform.");
             }
-        
+
             return new SafeguardA2AContext(networkAddress, version, sslIgnore, thumbprint, null);
         }
 
         /**
-         *  Establish a Safeguard A2A context using a certificate from the Windows 
+         *  Establish a Safeguard A2A context using a certificate from the Windows
          *  certificate store. This is a Windows only API and requires that the
          *  SunMSCAPI security provider is available in the Java environment.
          *
@@ -1407,7 +1407,7 @@ public final class Safeguard {
          *  @param thumbprint Thumbprint of the client certificate.
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return Reusable Safeguard A2A context.
          *  @throws SafeguardForJavaException General Safeguard for Java exception.
          */
@@ -1417,7 +1417,7 @@ public final class Safeguard {
             if (apiVersion != null) {
                 version = apiVersion;
             }
-            
+
             if (Utils.isWindows()) {
                 if (!Utils.isSunMSCAPILoaded()) {
                     throw new SafeguardForJavaException("Missing SunMSCAPI provider. The SunMSCAPI provider must be added as a security provider in $JAVA_HOME/jre/lib/security/java.security configuration file.");
@@ -1439,7 +1439,7 @@ public final class Safeguard {
          *  @param certificatePassword Password to decrypt the certificate file.
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
-         * 
+         *
          *  @return Reusable Safeguard A2A context.
          */
         public static ISafeguardA2AContext getContext(String networkAddress, String certificatePath,
@@ -1466,7 +1466,7 @@ public final class Safeguard {
          *  @param certificatePassword Password to decrypt the certificate file.
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return Reusable Safeguard A2A context.
          */
         public static ISafeguardA2AContext getContext(String networkAddress, String certificatePath,
@@ -1487,7 +1487,7 @@ public final class Safeguard {
          *  @param certificatePassword Password to decrypt the certificate file.
          *  @param apiVersion Target API version to use.
          *  @param ignoreSsl Ignore server certificate validation.
-         * 
+         *
          *  @return Reusable Safeguard A2A context.
          */
         public static ISafeguardA2AContext getContext(String networkAddress, byte[] certificateData,
@@ -1504,7 +1504,7 @@ public final class Safeguard {
 
             return new SafeguardA2AContext(networkAddress, certificateData, certificatePassword, version, sslIgnore, null);
         }
-        
+
         /**
          *  Establish a Safeguard A2A context using a client certificate stored in memory.
          *
@@ -1513,7 +1513,7 @@ public final class Safeguard {
          *  @param certificatePassword Password to decrypt the certificate file.
          *  @param apiVersion Target API version to use.
          *  @param validationCallback Callback function to be executed during SSL certificate validation.
-         * 
+         *
          *  @return Reusable Safeguard A2A context.
          */
         public static ISafeguardA2AContext getContext(String networkAddress, byte[] certificateData,
@@ -1525,7 +1525,7 @@ public final class Safeguard {
 
             return new SafeguardA2AContext(networkAddress, certificateData, certificatePassword, version, false, validationCallback);
         }
-        
+
         /**
          * This static class provides access to Safeguard A2A Event
          * functionality with persistent event listeners. Persistent event
@@ -1536,9 +1536,9 @@ public final class Safeguard {
         public static class Event {
 
             /**
-             *  Get a persistent A2A event listener. The handler passed 
-             *  in will be registered for the AssetAccountPasswordUpdated 
-             *  event, which is the only one supported in A2A. Uses a 
+             *  Get a persistent A2A event listener. The handler passed
+             *  in will be registered for the AssetAccountPasswordUpdated
+             *  event, which is the only one supported in A2A. Uses a
              *  client certificate in a keystore.
              *
              *  @param apiKey API key corresponding to the configured account to
@@ -1553,7 +1553,7 @@ public final class Safeguard {
              *  the keystore.
              *  @param apiVersion Target API version to use.
              *  @param ignoreSsl Ignore server certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -1578,9 +1578,9 @@ public final class Safeguard {
             }
 
             /**
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
              *  certificate the keystore.
              *
              *  @param apiKey API key corresponding to the configured account to
@@ -1595,7 +1595,7 @@ public final class Safeguard {
              *  the keystore.
              *  @param apiVersion Target API version to use.
              *  @param validationCallback Callback function to be executed during SSL certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -1615,9 +1615,9 @@ public final class Safeguard {
             }
 
             /**
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
              *  certificate from a file.
              *
              *  @param apiKey API key corresponding to the configured account to
@@ -1630,7 +1630,7 @@ public final class Safeguard {
              *  @param certificatePassword Password to decrypt the certificate file.
              *  @param apiVersion Target API version to use.
              *  @param ignoreSsl Ignore server certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -1639,7 +1639,7 @@ public final class Safeguard {
                     ISafeguardEventHandler handler, String networkAddress, String certificatePath,
                     char[] certificatePassword, Integer apiVersion, Boolean ignoreSsl)
                     throws ObjectDisposedException, ArgumentException {
-                
+
                 int version = DEFAULTAPIVERSION;
                 if (apiVersion != null) {
                     version = apiVersion;
@@ -1654,11 +1654,11 @@ public final class Safeguard {
                         new SafeguardA2AContext(networkAddress, certificatePath, certificatePassword, version,
                                 ignoreSsl, null), apiKey, handler);
             }
-            
+
             /**
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
              *  certificate from a file.
              *
              *  @param apiKey API key corresponding to the configured account to
@@ -1671,7 +1671,7 @@ public final class Safeguard {
              *  @param certificatePassword Password to decrypt the certificate file.
              *  @param apiVersion Target API version to use.
              *  @param validationCallback Callback function to be executed during SSL certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -1680,7 +1680,7 @@ public final class Safeguard {
                     ISafeguardEventHandler handler, String networkAddress, String certificatePath,
                     char[] certificatePassword, HostnameVerifier validationCallback, Integer apiVersion)
                     throws ObjectDisposedException, ArgumentException {
-                
+
                 int version = DEFAULTAPIVERSION;
                 if (apiVersion != null) {
                     version = apiVersion;
@@ -1690,11 +1690,11 @@ public final class Safeguard {
                         new SafeguardA2AContext(networkAddress, certificatePath, certificatePassword, version,
                                 false, validationCallback), apiKey, handler);
             }
-            
+
             /**
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
              *  certificate stored in memory.
              *
              *  @param apiKey API key corresponding to the configured account to
@@ -1706,7 +1706,7 @@ public final class Safeguard {
              *  @param certificatePassword Password to decrypt the certificate file.
              *  @param apiVersion Target API version to use.
              *  @param ignoreSsl Ignore server certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -1715,7 +1715,7 @@ public final class Safeguard {
                     ISafeguardEventHandler handler, String networkAddress, byte[] certificateData,
                     char[] certificatePassword, Integer apiVersion, Boolean ignoreSsl)
                     throws ObjectDisposedException, ArgumentException {
-                
+
                 int version = DEFAULTAPIVERSION;
                 if (apiVersion != null) {
                     version = apiVersion;
@@ -1730,11 +1730,11 @@ public final class Safeguard {
                         new SafeguardA2AContext(networkAddress, certificateData, certificatePassword, version,
                                 ignoreSsl, null), apiKey, handler);
             }
-            
+
             /**
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
              *  certificate stored in memory.
              *
              *  @param apiKey API key corresponding to the configured account to
@@ -1746,7 +1746,7 @@ public final class Safeguard {
              *  @param certificatePassword Password to decrypt the certificate file.
              *  @param apiVersion Target API version to use.
              *  @param validationCallback Callback function to be executed during SSL certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -1755,7 +1755,7 @@ public final class Safeguard {
                     ISafeguardEventHandler handler, String networkAddress, byte[] certificateData,
                     char[] certificatePassword, HostnameVerifier validationCallback, Integer apiVersion)
                     throws ObjectDisposedException, ArgumentException {
-                
+
                 int version = DEFAULTAPIVERSION;
                 if (apiVersion != null) {
                     version = apiVersion;
@@ -1765,11 +1765,11 @@ public final class Safeguard {
                         new SafeguardA2AContext(networkAddress, certificateData, certificatePassword, version,
                                 false, validationCallback), apiKey, handler);
             }
-            
+
             /**
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
              *  certificate from a keystore.
              *
              *  @param apiKeys A list of API keys corresponding to the configured accounts to
@@ -1784,7 +1784,7 @@ public final class Safeguard {
              *  the keystore.
              *  @param apiVersion Target API version to use.
              *  @param ignoreSsl Ignore server certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -1809,9 +1809,9 @@ public final class Safeguard {
             }
 
             /**
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
              *  certificate from a keystore.
              *
              *  @param apiKeys A list of API keys corresponding to the configured accounts to
@@ -1826,7 +1826,7 @@ public final class Safeguard {
              *  the keystore.
              *  @param apiVersion Target API version to use.
              *  @param validationCallback Callback function to be executed during SSL certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -1846,9 +1846,9 @@ public final class Safeguard {
             }
 
             /**
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
              *  certificate stored in a file.
              *
              *  @param apiKeys A list of API key corresponding to the configured accounts to
@@ -1861,7 +1861,7 @@ public final class Safeguard {
              *  @param certificatePassword Password to decrypt the certificate file.
              *  @param apiVersion Target API version to use.
              *  @param ignoreSsl Ignore server certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -1870,7 +1870,7 @@ public final class Safeguard {
                     ISafeguardEventHandler handler, String networkAddress, String certificatePath,
                     char[] certificatePassword, Integer apiVersion, Boolean ignoreSsl)
                     throws ObjectDisposedException, ArgumentException {
-                
+
                 int version = DEFAULTAPIVERSION;
                 if (apiVersion != null) {
                     version = apiVersion;
@@ -1885,15 +1885,15 @@ public final class Safeguard {
                         new SafeguardA2AContext(networkAddress, certificatePath, certificatePassword, version,
                                 ignoreSsl, null), apiKeys, handler);
             }
-            
+
             /**
              *  NOT SUPPORTED
-             * 
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
-             *  certificate from the Windows certificate store. This is a 
-             *  Windows only API and requires that the SunMSCAPI security 
+             *
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
+             *  certificate from the Windows certificate store. This is a
+             *  Windows only API and requires that the SunMSCAPI security
              *  provider is available in the Java environment.
              *
              *  @param apiKeys A list of API key corresponding to the configured accounts to
@@ -1904,7 +1904,7 @@ public final class Safeguard {
              *  @param thumbprint Thumbprint of the client certificate.
              *  @param apiVersion Target API version to use.
              *  @param validationCallback Callback function to be executed during SSL certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -1914,9 +1914,9 @@ public final class Safeguard {
                     ISafeguardEventHandler handler, String networkAddress, String thumbprint,
                     HostnameVerifier validationCallback, Integer apiVersion)
                     throws ObjectDisposedException, ArgumentException, SafeguardForJavaException {
-                
+
                 throw new SafeguardForJavaException("Not supported. This function is not available for Java.");
-                    
+
                 /*
                 int version = DEFAULTAPIVERSION;
                 if (apiVersion != null) {
@@ -1931,21 +1931,21 @@ public final class Safeguard {
                 else {
                     throw new SafeguardForJavaException("Not implemented. This function is only available on the Windows platform.");
                 }
-                
+
                 return new PersistentSafeguardA2AEventListener(
-                        new SafeguardA2AContext(networkAddress, version, false, 
+                        new SafeguardA2AContext(networkAddress, version, false,
                                 thumbprint, validationCallback), apiKeys, handler);
                 */
             }
-            
+
             /**
              *  NOT SUPPORTED
-             * 
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
-             *  certificate from the Windows certificate store. This is a 
-             *  Windows only API and requires that the SunMSCAPI security 
+             *
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
+             *  certificate from the Windows certificate store. This is a
+             *  Windows only API and requires that the SunMSCAPI security
              *  provider is available in the Java environment.
              *
              *  @param apiKeys A list of API key corresponding to the configured accounts to
@@ -1956,7 +1956,7 @@ public final class Safeguard {
              *  @param thumbprint Thumbprint of the client certificate.
              *  @param apiVersion Target API version to use.
              *  @param ignoreSsl Ignore server certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -1966,9 +1966,9 @@ public final class Safeguard {
                     ISafeguardEventHandler handler, String networkAddress, String thumbprint,
                     Integer apiVersion, Boolean ignoreSsl)
                     throws ObjectDisposedException, ArgumentException, SafeguardForJavaException {
-                
+
                 throw new SafeguardForJavaException("Not supported. This function is not available for Java.");
-                
+
                 /*
                 int version = DEFAULTAPIVERSION;
                 if (apiVersion != null) {
@@ -1988,17 +1988,17 @@ public final class Safeguard {
                 else {
                     throw new SafeguardForJavaException("Not implemented. This function is only available on the Windows platform.");
                 }
-        
+
                 return new PersistentSafeguardA2AEventListener(
-                        new SafeguardA2AContext(networkAddress, version, ignoreSsl, 
+                        new SafeguardA2AContext(networkAddress, version, ignoreSsl,
                                 thumbprint, null), apiKeys, handler);
                 */
             }
-            
+
             /**
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
              *  certificate stored in a file.
              *
              *  @param apiKeys A list of API key corresponding to the configured accounts to
@@ -2011,7 +2011,7 @@ public final class Safeguard {
              *  @param certificatePassword Password to decrypt the certificate file.
              *  @param apiVersion Target API version to use.
              *  @param validationCallback Callback function to be executed during SSL certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -2020,7 +2020,7 @@ public final class Safeguard {
                     ISafeguardEventHandler handler, String networkAddress, String certificatePath,
                     char[] certificatePassword, HostnameVerifier validationCallback, Integer apiVersion)
                     throws ObjectDisposedException, ArgumentException {
-                
+
                 int version = DEFAULTAPIVERSION;
                 if (apiVersion != null) {
                     version = apiVersion;
@@ -2030,11 +2030,11 @@ public final class Safeguard {
                         new SafeguardA2AContext(networkAddress, certificatePath, certificatePassword, version,
                                 false, validationCallback), apiKeys, handler);
             }
-            
+
             /**
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
              *  certificate stored in memory.
              *
              *  @param apiKeys A list of API key corresponding to the configured accounts to
@@ -2046,7 +2046,7 @@ public final class Safeguard {
              *  @param certificatePassword Password to decrypt the certificate file.
              *  @param apiVersion Target API version to use.
              *  @param ignoreSsl Ignore server certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -2055,7 +2055,7 @@ public final class Safeguard {
                     ISafeguardEventHandler handler, String networkAddress, byte[] certificateData,
                     char[] certificatePassword, Integer apiVersion, Boolean ignoreSsl)
                     throws ObjectDisposedException, ArgumentException {
-                
+
                 int version = DEFAULTAPIVERSION;
                 if (apiVersion != null) {
                     version = apiVersion;
@@ -2070,11 +2070,11 @@ public final class Safeguard {
                         new SafeguardA2AContext(networkAddress, certificateData, certificatePassword, version,
                                 ignoreSsl, null), apiKeys, handler);
             }
-            
+
             /**
-             *  Get a persistent A2A event listener. The handler passed in 
-             *  will be registered for the AssetAccountPasswordUpdated event, 
-             *  which is the only one supported in A2A. Uses a client 
+             *  Get a persistent A2A event listener. The handler passed in
+             *  will be registered for the AssetAccountPasswordUpdated event,
+             *  which is the only one supported in A2A. Uses a client
              *  certificate stored in memory.
              *
              *  @param apiKeys A list of API key corresponding to the configured accounts to
@@ -2086,7 +2086,7 @@ public final class Safeguard {
              *  @param certificatePassword Password to decrypt the certificate file.
              *  @param apiVersion Target API version to use.
              *  @param validationCallback Callback function to be executed during SSL certificate validation.
-             * 
+             *
              *  @return New persistent A2A event listener.
              *  @throws ObjectDisposedException Object has already been disposed.
              *  @throws ArgumentException Invalid argument.
@@ -2095,7 +2095,7 @@ public final class Safeguard {
                     ISafeguardEventHandler handler, String networkAddress, byte[] certificateData,
                     char[] certificatePassword, HostnameVerifier validationCallback, Integer apiVersion)
                     throws ObjectDisposedException, ArgumentException {
-                
+
                 int version = DEFAULTAPIVERSION;
                 if (apiVersion != null) {
                     version = apiVersion;

@@ -43,6 +43,6 @@ public class SafeguardSslCertificate {
     public void setAppliances(SafeguardAppliance[] Appliances) {
         this.Appliances = Appliances;
     }
-    
+
 }
 

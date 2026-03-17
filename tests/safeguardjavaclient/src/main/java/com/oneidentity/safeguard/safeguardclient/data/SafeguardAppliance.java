@@ -43,5 +43,5 @@ public class SafeguardAppliance {
     public void setIpv6Address(String Ipv6Address) {
         this.Ipv6Address = Ipv6Address;
     }
-    
+
 }
