@@ -750,6 +750,95 @@ function Invoke-SgDnSafeguardA2a {
     return Invoke-SgDnSafeguardTool -ProjectDir $Context.A2aToolDir -Arguments $toolArgs -StdinLine $stdinLine -ParseJson $ParseJson
 }
 
+function Invoke-SgDnSafeguardA2aBroker {
+    <#
+    .SYNOPSIS
+        Convenience wrapper for calling SafeguardDotNetAccessRequestBrokerTool.
+
+    .DESCRIPTION
+        Builds the argument string for the A2A access request broker tool and invokes it.
+        Creates a brokered access request on behalf of another user.
+
+    .PARAMETER Context
+        Test context. If omitted, uses the module-scoped context.
+
+    .PARAMETER ApiKey
+        The A2A broker API key.
+
+    .PARAMETER ForUser
+        User ID or name to create the request for.
+
+    .PARAMETER AccessType
+        Access type: Password, Ssh, or Rdp.
+
+    .PARAMETER Asset
+        Asset ID or name.
+
+    .PARAMETER Account
+        Optional account ID or name.
+
+    .PARAMETER CertificateFile
+        Path to a PFX file for certificate authentication.
+
+    .PARAMETER CertificatePassword
+        Password for the PFX file.
+
+    .PARAMETER Thumbprint
+        Certificate thumbprint for cert store auth.
+
+    .EXAMPLE
+        Invoke-SgDnSafeguardA2aBroker -ApiKey $key -ForUser "testuser" -AccessType Password `
+            -Asset "myasset" -CertificateFile $ctx.UserPfx -CertificatePassword "a"
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [PSCustomObject]$Context,
+
+        [Parameter(Mandatory)]
+        [string]$ApiKey,
+
+        [Parameter(Mandatory)]
+        [string]$ForUser,
+
+        [Parameter(Mandatory)]
+        [ValidateSet("Password", "Ssh", "Rdp")]
+        [string]$AccessType,
+
+        [Parameter(Mandatory)]
+        [string]$Asset,
+
+        [Parameter()]
+        [string]$Account,
+
+        [Parameter()]
+        [string]$CertificateFile,
+
+        [Parameter()]
+        [string]$CertificatePassword,
+
+        [Parameter()]
+        [string]$Thumbprint
+    )
+
+    if (-not $Context) { $Context = Get-SgDnTestContext }
+
+    $toolArgs = "-a $($Context.Appliance) -x -A `"$ApiKey`" -U `"$ForUser`" -Y $AccessType -S `"$Asset`""
+
+    if ($Account) { $toolArgs += " -C `"$Account`"" }
+
+    $stdinLine = $null
+    if ($Thumbprint) {
+        $toolArgs += " -t $Thumbprint"
+    }
+    elseif ($CertificateFile) {
+        $toolArgs += " -c `"$CertificateFile`" -p"
+        $stdinLine = if ($CertificatePassword) { $CertificatePassword } else { "" }
+    }
+
+    return Invoke-SgDnSafeguardTool -ProjectDir $Context.AccessRequestBrokerToolDir -Arguments $toolArgs -StdinLine $stdinLine -ParseJson $true
+}
+
 function Invoke-SgDnSafeguardSessions {
     <#
     .SYNOPSIS
@@ -1857,6 +1946,7 @@ Export-ModuleMember -Function @(
     'Invoke-SgDnSafeguardApi'
     'Invoke-SgDnTokenCommand'
     'Invoke-SgDnSafeguardA2a'
+    'Invoke-SgDnSafeguardA2aBroker'
     'Invoke-SgDnSafeguardSessions'
     'Build-SgDnTestProjects'
 
