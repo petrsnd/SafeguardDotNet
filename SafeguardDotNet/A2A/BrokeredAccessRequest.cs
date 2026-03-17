@@ -60,13 +60,11 @@ public class BrokeredAccessRequest
     /// The name of the asset to create the access request for. If the <see cref="AssetId"/> property is
     /// set, then this property will be ignored.
     /// </summary>
-    [JsonProperty(PropertyName = "SystemName")]
     public string AssetName { get; set; }
 
     /// <summary>
     /// The ID of the asset to create the access request for.
     /// </summary>
-    [JsonProperty(PropertyName = "SystemId")]
     public int? AssetId { get; set; }
 
     /// <summary>
@@ -84,13 +82,11 @@ public class BrokeredAccessRequest
     /// The name of the asset the account is from to create the access request for. If the
     /// <see cref="AccountAssetId"/> property is set, then this property will be ignored.
     /// </summary>
-    [JsonProperty(PropertyName = "AccountSystemName")]
     public string AccountAssetName { get; set; }
 
     /// <summary>
     /// The ID of the asset the account is from to create the access request for.
     /// </summary>
-    [JsonProperty(PropertyName = "AccountSystemId")]
     public int? AccountAssetId { get; set; }
 
     /// <summary>
