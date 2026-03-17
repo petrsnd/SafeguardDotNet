@@ -200,8 +200,7 @@ to export a JSON report:
 
 ## Differences from Legacy Script
 
-The legacy `Test/Invoke-SafeguardDotNetTests.ps1` is preserved for backward compatibility
-but is deprecated. Key improvements in this framework:
+Key improvements over the previous monolithic `Invoke-SafeguardDotNetTests.ps1`:
 
 | Legacy | New Framework |
 |---|---|
