@@ -82,6 +82,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Suites", "Suites", "{637508
 		Test\TestFramework\Suites\Suite-EventListeners.ps1 = Test\TestFramework\Suites\Suite-EventListeners.ps1
 		Test\TestFramework\Suites\Suite-ExceptionHandling.ps1 = Test\TestFramework\Suites\Suite-ExceptionHandling.ps1
 		Test\TestFramework\Suites\Suite-PasswordAuth.ps1 = Test\TestFramework\Suites\Suite-PasswordAuth.ps1
+		Test\TestFramework\Suites\Suite-PersistentConnection.ps1 = Test\TestFramework\Suites\Suite-PersistentConnection.ps1
 		Test\TestFramework\Suites\Suite-SpsIntegration.ps1 = Test\TestFramework\Suites\Suite-SpsIntegration.ps1
 		Test\TestFramework\Suites\Suite-Streaming.ps1 = Test\TestFramework\Suites\Suite-Streaming.ps1
 		Test\TestFramework\Suites\Suite-TokenManagement.ps1 = Test\TestFramework\Suites\Suite-TokenManagement.ps1

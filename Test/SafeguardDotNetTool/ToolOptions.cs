@@ -214,4 +214,20 @@ internal class ToolOptions
         Default = false,
         HelpText = "Output the current access token as JSON and exit without logging out")]
     public bool GetToken { get; set; }
+
+    [Option(
+        'Z',
+        "Persist",
+        Required = false,
+        Default = false,
+        HelpText = "Wrap connection with Safeguard.Persist() for automatic token refresh")]
+    public bool Persist { get; set; }
+
+    [Option(
+        'W',
+        "DelaySeconds",
+        Required = false,
+        Default = 0,
+        HelpText = "Wait this many seconds after connecting before executing the operation")]
+    public int DelaySeconds { get; set; }
 }

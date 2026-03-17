@@ -140,6 +140,19 @@ internal static class Program
 
             Log.Debug("Access Token Lifetime Remaining: {Remaining}", connection.GetAccessTokenLifetimeRemaining());
 
+            if (opts.Persist)
+            {
+                connection = Safeguard.Persist(connection);
+                Log.Debug("Connection wrapped with Safeguard.Persist() for automatic token refresh");
+            }
+
+            if (opts.DelaySeconds > 0)
+            {
+                Log.Information("Waiting {Seconds} seconds before executing operation...", opts.DelaySeconds);
+                Thread.Sleep(opts.DelaySeconds * 1000);
+                Log.Information("Delay complete, proceeding with operation");
+            }
+
             if (opts.RefreshToken)
             {
                 connection.RefreshAccessToken();
