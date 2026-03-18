@@ -62,6 +62,14 @@ internal class Program
         public bool ReadPassword { get; set; }
 
         [Option(
+            's',
+            "SecondaryPassword",
+            Required = false,
+            Default = null,
+            HelpText = "Secondary password or one-time code for multi-factor authentication (e.g. TOTP code)")]
+        public string SecondaryPassword { get; set; }
+
+        [Option(
             'v',
             "ApiVersion",
             Required = false,
@@ -196,11 +204,15 @@ internal class Program
             Log.Information("Identity Provider: {IdentityProvider}", opts.IdentityProvider);
             Log.Information("Username: {Username}", opts.Username);
             using var password = HandlePassword(opts.ReadPassword);
+            using var secondaryPassword = !string.IsNullOrEmpty(opts.SecondaryPassword)
+                ? opts.SecondaryPassword.ToSecureString()
+                : null;
             var connection = PkceNoninteractiveLogin.Connect(
                 opts.Appliance,
                 opts.IdentityProvider,
                 opts.Username,
                 password,
+                secondaryPassword,
                 opts.ApiVersion,
                 opts.Insecure);
 
