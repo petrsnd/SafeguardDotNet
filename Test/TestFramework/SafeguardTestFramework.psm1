@@ -80,7 +80,10 @@ function New-SgDnTestContext {
         [string]$SpsPassword,
 
         [Parameter()]
-        [string]$TestPrefix = "SgDnTest"
+        [string]$TestPrefix = "SgDnTest",
+
+        [Parameter()]
+        [string]$TotpSeed
     )
 
     $testRoot = Split-Path -Parent $PSScriptRoot
@@ -95,6 +98,9 @@ function New-SgDnTestContext {
 
         # Naming
         TestPrefix      = $TestPrefix
+
+        # MFA
+        TotpSeed        = $TotpSeed
 
         # Paths
         TestRoot        = $testRoot
