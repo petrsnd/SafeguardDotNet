@@ -45,9 +45,17 @@
 .PARAMETER TestPrefix
     Prefix for test objects created on the appliance. Default: "SgDnTest".
 
+.PARAMETER TotpSeed
+    Base32-encoded TOTP seed for the admin user. When provided, the PKCE
+    authentication suite runs MFA tests instead of standard login tests.
+
 .EXAMPLE
     # Run all suites
     ./Invoke-SafeguardTests.ps1 -Appliance sg.example.com
+
+.EXAMPLE
+    # Run PKCE suite with MFA (user has TOTP configured)
+    ./Invoke-SafeguardTests.ps1 -Appliance sg.example.com -AdminUserName Luser -AdminPassword Secret -TotpSeed ABCDEFGHIJKLMNOP -Suite PkceAuthentication
 
 .EXAMPLE
     # Run specific suites
@@ -93,7 +101,10 @@ param(
     [switch]$SkipBuild,
 
     [Parameter()]
-    [string]$TestPrefix = "SgDnTest"
+    [string]$TestPrefix = "SgDnTest",
+
+    [Parameter()]
+    [string]$TotpSeed
 )
 
 $ErrorActionPreference = "Continue"
@@ -192,7 +203,8 @@ $context = New-SgDnTestContext `
     -SpsAppliance $SpsAppliance `
     -SpsUser $SpsUser `
     -SpsPassword $SpsPassword `
-    -TestPrefix $TestPrefix
+    -TestPrefix $TestPrefix `
+    -TotpSeed $TotpSeed
 
 # --- Build ---
 if (-not $SkipBuild) {
