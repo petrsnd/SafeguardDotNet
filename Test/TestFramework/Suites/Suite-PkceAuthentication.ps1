@@ -44,36 +44,29 @@ print(f'{code:06d}')
             }
         }
 
-        # ── Error handling ──
+        # ── Error handling (standard mode only to avoid rSTS rate limiting) ──
 
-        Test-SgDnAssertThrows "PKCE login with wrong password returns clear error" {
-            Invoke-SgDnSafeguardTool -ProjectDir $Context.PkceToolDir `
-                -Arguments "-a $appliance -x -u $user -i local -p" `
-                -StdinLine "WRONGPASSWORD" `
-                -ParseJson $false
-        } -ExpectedMessage "Invalid password"
-
-        Test-SgDnAssertThrows "PKCE login with unknown user returns clear error" {
-            Invoke-SgDnSafeguardTool -ProjectDir $Context.PkceToolDir `
-                -Arguments "-a $appliance -x -u NoSuchUser_ZZZZZ -i local -p" `
-                -StdinLine "anypassword" `
-                -ParseJson $false
-        } -ExpectedMessage "User is unknown"
-
-        Test-SgDnAssertThrows "PKCE login with unknown provider returns clear error" {
-            Invoke-SgDnSafeguardTool -ProjectDir $Context.PkceToolDir `
-                -Arguments "-a $appliance -x -u $user -i nonexistent_provider -p" `
-                -StdinLine $pass `
-                -ParseJson $false
-        } -ExpectedMessage "Unable to find scope"
-
-        if ($totpSeed) {
-            Test-SgDnAssertThrows "PKCE login without secondary password fails with MFA required" {
+        if (-not $totpSeed) {
+            Test-SgDnAssertThrows "PKCE login with wrong password returns clear error" {
                 Invoke-SgDnSafeguardTool -ProjectDir $Context.PkceToolDir `
                     -Arguments "-a $appliance -x -u $user -i local -p" `
+                    -StdinLine "WRONGPASSWORD" `
+                    -ParseJson $false
+            } -ExpectedMessage "Invalid password"
+
+            Test-SgDnAssertThrows "PKCE login with unknown user returns clear error" {
+                Invoke-SgDnSafeguardTool -ProjectDir $Context.PkceToolDir `
+                    -Arguments "-a $appliance -x -u NoSuchUser_ZZZZZ -i local -p" `
+                    -StdinLine "anypassword" `
+                    -ParseJson $false
+            } -ExpectedMessage "User is unknown"
+
+            Test-SgDnAssertThrows "PKCE login with unknown provider returns clear error" {
+                Invoke-SgDnSafeguardTool -ProjectDir $Context.PkceToolDir `
+                    -Arguments "-a $appliance -x -u $user -i nonexistent_provider -p" `
                     -StdinLine $pass `
                     -ParseJson $false
-            } -ExpectedMessage "Multi-factor authentication is required"
+            } -ExpectedMessage "Unable to find scope"
         }
     }
 
