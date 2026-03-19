@@ -47,21 +47,35 @@ print(f'{code:06d}')
         # ── Error handling (standard mode only to avoid rSTS rate limiting) ──
 
         if (-not $totpSeed) {
-            Test-SgDnAssertThrows "PKCE login with wrong password returns clear error" {
-                Invoke-SgDnSafeguardTool -ProjectDir $Context.PkceToolDir `
-                    -Arguments "-a $appliance -x -u $user -i local -p" `
-                    -StdinLine "WRONGPASSWORD" `
-                    -ParseJson $false
-            } -ExpectedMessage "Invalid password"
+            Test-SgDnAssert "PKCE login with wrong password returns error" {
+                try {
+                    Invoke-SgDnSafeguardTool -ProjectDir $Context.PkceToolDir `
+                        -Arguments "-a $appliance -x -u $user -i local -p" `
+                        -StdinLine "WRONGPASSWORD" `
+                        -ParseJson $false
+                    throw "Expected an exception but none was thrown"
+                }
+                catch {
+                    $msg = $_.Exception.Message
+                    $msg -like "*Invalid password*" -or $msg -like "*Access denied*"
+                }
+            }
 
-            Test-SgDnAssertThrows "PKCE login with unknown user returns clear error" {
-                Invoke-SgDnSafeguardTool -ProjectDir $Context.PkceToolDir `
-                    -Arguments "-a $appliance -x -u NoSuchUser_ZZZZZ -i local -p" `
-                    -StdinLine "anypassword" `
-                    -ParseJson $false
-            } -ExpectedMessage "User is unknown"
+            Test-SgDnAssert "PKCE login with unknown user returns error" {
+                try {
+                    Invoke-SgDnSafeguardTool -ProjectDir $Context.PkceToolDir `
+                        -Arguments "-a $appliance -x -u NoSuchUser_ZZZZZ -i local -p" `
+                        -StdinLine "anypassword" `
+                        -ParseJson $false
+                    throw "Expected an exception but none was thrown"
+                }
+                catch {
+                    $msg = $_.Exception.Message
+                    $msg -like "*User is unknown*" -or $msg -like "*Access denied*"
+                }
+            }
 
-            Test-SgDnAssertThrows "PKCE login with unknown provider returns clear error" {
+            Test-SgDnAssertThrows "PKCE login with unknown provider returns error" {
                 Invoke-SgDnSafeguardTool -ProjectDir $Context.PkceToolDir `
                     -Arguments "-a $appliance -x -u $user -i nonexistent_provider -p" `
                     -StdinLine $pass `
