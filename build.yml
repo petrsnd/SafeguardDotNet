@@ -9,6 +9,7 @@ trigger:
   paths:
     exclude:
     - README.md
+    - AGENTS.md
 
 pr:
   branches:
@@ -18,6 +19,7 @@ pr:
   paths:
     exclude:
     - README.md
+    - AGENTS.md
 
 jobs:
 # Job 1: PR Validation - runs only on pull requests
