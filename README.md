@@ -1,7 +1,5 @@
 [![GitHub](https://img.shields.io/github/license/OneIdentity/SafeguardJava.svg)](https://github.com/OneIdentity/SafeguardJava/blob/master/LICENSE)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.oneidentity.safeguard/safeguardjava/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.oneidentity.safeguard/safeguardjava)
-[![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/r/https/oss.sonatype.org/com.oneidentity.safeguard/safeguardjava.svg)](https://oss.sonatype.org/content/repositories/releases/com/oneidentity/safeguard/safeguardjava/)
-[![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.oneidentity.safeguard/safeguardjava.svg)](https://oss.sonatype.org/content/repositories/snapshots/com/oneidentity/safeguard/safeguardjava/)
+[![Maven Central](https://img.shields.io/maven-central/v/com.oneidentity.safeguard/safeguardjava)](https://central.sonatype.com/artifact/com.oneidentity.safeguard/safeguardjava)
 
 # SafeguardJava
 
@@ -16,7 +14,7 @@ One Identity open source projects are supported through [One Identity GitHub iss
 
 ## Default API Update
 
-SafeguardDotNet will use v4 API by default starting with version 7.0. It is
+SafeguardJava will use v4 API by default starting with version 7.0. It is
 possible to continue using the v3 API by passing in the apiVersion parameter
 when creating a connection or A2A context.
 
@@ -197,14 +195,59 @@ public class CertificateValidator implements HostnameVerifier {
 
 ```
 
-### Building SafeguardJava
+### Installation
 
-Building SafeguardJava requires Java JDK 8 or greater and Maven 3.0.5 or greater.  The following dependency should be added to your POM file:
+SafeguardJava is available from [Maven Central](https://central.sonatype.com/artifact/com.oneidentity.safeguard/safeguardjava)
+and [GitHub Packages](https://github.com/OneIdentity/SafeguardJava/packages). JARs are also
+available for direct download from [GitHub Releases](https://github.com/OneIdentity/SafeguardJava/releases).
+
+**Maven Central** (no additional repository configuration needed):
 
 ```xml
 <dependency>
     <groupId>com.oneidentity.safeguard</groupId>
     <artifactId>safeguardjava</artifactId>
-    <version>7.3.0</version>
+    <version>7.5.0</version>
 </dependency>
 ```
+
+**GitHub Packages** (requires adding the GitHub Packages repository):
+
+```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/OneIdentity/SafeguardJava</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>com.oneidentity.safeguard</groupId>
+    <artifactId>safeguardjava</artifactId>
+    <version>7.5.0</version>
+</dependency>
+```
+
+### Building SafeguardJava
+
+Building SafeguardJava requires Java JDK 8 or greater and Maven 3.0.5 or greater.
+
+```bash
+mvn clean package
+```
+
+### Publishing
+
+SafeguardJava is published to Maven Central via the
+[Sonatype Central Portal](https://central.sonatype.com) and to GitHub Packages.
+Release builds are triggered automatically by the Azure Pipeline when changes are
+pushed to `master` or `release-*` branches.
+
+Publishing credentials and signing keys are stored in Azure Key Vault and injected
+at build time. To configure publishing for a new environment:
+
+1. Generate a user token at [central.sonatype.com](https://central.sonatype.com)
+   and store it as `SonatypeUserToken` / `SonatypeRepositoryPassword` in your
+   Azure Key Vault
+2. Store a GitHub PAT with `write:packages` scope as `GitHubPackagesToken`
+3. Import the GPG signing key and code signing certificate into the Key Vault

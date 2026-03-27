@@ -2,9 +2,14 @@
 
     <servers>
         <server>
-            <id>ossrh</id>
+            <id>central</id>
             <username>${sonatypeusername}</username>
             <password>${sonatypepassword}</password>
+        </server>
+        <server>
+            <id>github</id>
+            <username>${githubusername}</username>
+            <password>${githubtoken}</password>
         </server>
         <server>
             <id>${gpgkeyname}</id>
@@ -14,7 +19,7 @@
 
     <profiles>
         <profile>
-            <id>ossrh</id>
+            <id>central</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>

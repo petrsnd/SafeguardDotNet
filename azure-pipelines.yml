@@ -12,7 +12,7 @@ pool:
 
 # Maven Build Variables:
 variables:
-  version: '7.5.0.$(Build.BuildId)-SNAPSHOT'
+  version: '8.2.0.$(Build.BuildId)-SNAPSHOT'
   targetDir: 'target'
   codeSigningCertFileName: 'OneIdentityCodeSigning.pfx'
   issuerKeyStorePath: 'settings/signingstore.jks'
@@ -32,7 +32,7 @@ steps:
     azureSubscription: 'OneIdentity.RD.SBox.Safeguard-ServiceConnection'
     keyVaultName: 'SafeguardBuildSecrets'
     secretsFilter: '*'
-  displayName: 'Get Sonatype password from Sandbox Azure Key Vault'
+  displayName: 'Get Sonatype Central Portal credentials from Azure Key Vault'
   condition: and(succeeded(), eq(variables.isReleaseBranch, true))
 
 - task: AzureKeyVault@1
@@ -105,7 +105,25 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'deploy'
-  displayName: 'Build and deploy SafeguardJava $(version)'
+  displayName: 'Build and deploy SafeguardJava $(version) to Maven Central'
+  condition: and(succeeded(), eq(variables.isReleaseBranch, true))
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      mvn deploy:deploy-file \
+        -DrepositoryId=github \
+        -Durl=https://maven.pkg.github.com/OneIdentity/SafeguardJava \
+        -DpomFile=pom.xml \
+        -Dfile=target/safeguardjava-$(version).jar \
+        -Dsources=target/safeguardjava-$(version)-sources.jar \
+        -Djavadoc=target/safeguardjava-$(version)-javadoc.jar \
+        -Drevision=$(version) \
+        -D githubusername=OneIdentity \
+        -D githubtoken=$(GitHubPackagesToken) \
+        --settings $(Build.SourcesDirectory)/settings/settings.xml
+  displayName: 'Publish to GitHub Packages'
   condition: and(succeeded(), eq(variables.isReleaseBranch, true))
 
 - task: DeleteFiles@1
