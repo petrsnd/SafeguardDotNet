@@ -72,6 +72,9 @@ import org.apache.hc.core5.util.Timeout;
 
 public class RestClient {
 
+    /** Default timeout in milliseconds for HTTP requests (100 seconds, matching SafeguardDotNet). */
+    public static final int DEFAULT_TIMEOUT_MS = 100_000;
+
     private CloseableHttpClient client = null;
     private BasicCookieStore cookieStore = new BasicCookieStore();
 
@@ -520,13 +523,12 @@ public class RestClient {
 
     private HttpClientContext createContext(Integer timeout) {
         HttpClientContext context = HttpClientContext.create();
-        if (timeout != null) {
-            RequestConfig rconfig = RequestConfig.custom()
-                .setConnectTimeout(Timeout.ofMilliseconds(timeout))
-                .setConnectionRequestTimeout(Timeout.ofMilliseconds(timeout))
-                .setResponseTimeout(Timeout.ofMilliseconds(timeout)).build();
-            context.setRequestConfig(rconfig);
-        }
+        int effectiveTimeout = (timeout != null) ? timeout : DEFAULT_TIMEOUT_MS;
+        RequestConfig rconfig = RequestConfig.custom()
+            .setConnectTimeout(Timeout.ofMilliseconds(effectiveTimeout))
+            .setConnectionRequestTimeout(Timeout.ofMilliseconds(effectiveTimeout))
+            .setResponseTimeout(Timeout.ofMilliseconds(effectiveTimeout)).build();
+        context.setRequestConfig(rconfig);
         return context;
     }
 
