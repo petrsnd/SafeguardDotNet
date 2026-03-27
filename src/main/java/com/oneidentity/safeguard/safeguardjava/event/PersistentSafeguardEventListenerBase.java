@@ -3,10 +3,12 @@ package com.oneidentity.safeguard.safeguardjava.event;
 import com.oneidentity.safeguard.safeguardjava.exceptions.ArgumentException;
 import com.oneidentity.safeguard.safeguardjava.exceptions.ObjectDisposedException;
 import com.oneidentity.safeguard.safeguardjava.exceptions.SafeguardForJavaException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class PersistentSafeguardEventListenerBase implements ISafeguardEventListener {
+
+    private static final Logger logger = LoggerFactory.getLogger(PersistentSafeguardEventListenerBase.class);
 
     private boolean disposed;
 
@@ -59,8 +61,7 @@ public abstract class PersistentSafeguardEventListenerBase implements ISafeguard
                         if (eventListener != null) {
                             eventListener.dispose();
                         }
-                        Logger.getLogger(PersistentSafeguardEventListenerBase.class.getName()).log(Level.FINEST,
-                                "Attempting to connect and start internal event listener.");
+                        logger.trace("Attempting to connect and start internal event listener.");
                         eventListener = reconnectEventListener();
                         eventListener.setEventHandlerRegistry(eventHandlerRegistry);
                         eventListener.SetEventListenerStateCallback(eventListenerStateCallback);
@@ -68,10 +69,8 @@ public abstract class PersistentSafeguardEventListenerBase implements ISafeguard
                         eventListener.setDisconnectHandler(new PersistentReconnectAndStartHandler());
                         break;
                     } catch (ObjectDisposedException | SafeguardForJavaException | ArgumentException ex) {
-                        Logger.getLogger(PersistentSafeguardEventListenerBase.class.getName()).log(Level.WARNING,
-                                "Internal event listener connection error (see debug for more information), sleeping for 5 seconds...");
-                        Logger.getLogger(PersistentSafeguardEventListenerBase.class.getName()).log(Level.FINEST,
-                                "Internal event listener connection error.");
+                        logger.warn("Internal event listener connection error (see debug for more information), sleeping for 5 seconds...");
+                        logger.trace("Internal event listener connection error.");
                         try {
                             Thread.sleep(5000);
                         } catch (InterruptedException ex1) {
@@ -98,7 +97,7 @@ public abstract class PersistentSafeguardEventListenerBase implements ISafeguard
         if (disposed) {
             throw new ObjectDisposedException("PersistentSafeguardEventListener");
         }
-        Logger.getLogger(PersistentSafeguardEventListenerBase.class.getName()).log(Level.INFO, "Internal event listener requested to start.");
+        logger.info("Internal event listener requested to start.");
         persistentReconnectAndStart();
     }
 
@@ -107,7 +106,7 @@ public abstract class PersistentSafeguardEventListenerBase implements ISafeguard
         if (disposed) {
             throw new ObjectDisposedException("PersistentSafeguardEventListener");
         }
-        Logger.getLogger(PersistentSafeguardEventListenerBase.class.getName()).log(Level.INFO, "Internal event listener requested to stop.");
+        logger.info("Internal event listener requested to stop.");
         this.isCancellationRequested = true;
         if (eventListener != null) {
             eventListener.stop();

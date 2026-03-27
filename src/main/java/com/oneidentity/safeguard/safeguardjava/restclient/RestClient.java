@@ -31,10 +31,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -83,7 +81,7 @@ public class RestClient {
     private boolean ignoreSsl = false;
     private HostnameVerifier validationCallback = null;
 
-    Logger logger = Logger.getLogger(getClass().getName());
+    private static final Logger logger = LoggerFactory.getLogger(RestClient.class);
 
     public RestClient(String connectionAddr, boolean ignoreSsl, HostnameVerifier validationCallback) {
 
@@ -104,13 +102,9 @@ public class RestClient {
 
     private HttpClientBuilder createClientBuilder(String connectionAddr, boolean ignoreSsl, HostnameVerifier validationCallback) {
 
-        // Used to produce debug output
+        // Used to produce debug output - enable SLF4J debug level instead
         if (false) {
-            Handler handlerObj = new ConsoleHandler();
-            handlerObj.setLevel(Level.ALL);
-            logger.addHandler(handlerObj);
-            logger.setLevel(Level.ALL);
-            logger.setUseParentHandlers(false);
+            // Debug logging is now controlled via SLF4J configuration
         }
 
         this.ignoreSsl = ignoreSsl;
@@ -120,7 +114,7 @@ public class RestClient {
             URL aUrl = new URL(connectionAddr);
             this.hostDomain = aUrl.getHost();
         } catch (MalformedURLException ex) {
-            Logger.getLogger(RestClient.class.getName()).log(Level.SEVERE, "Invalid URL", ex);
+            logger.error("Invalid URL", ex);
         }
 
         SSLConnectionSocketFactory sslsf = null;
@@ -143,7 +137,7 @@ public class RestClient {
         try {
             return new URI(serverUrl+"/"+segments);
         } catch (URISyntaxException ex) {
-            Logger.getLogger(RestClient.class.getName()).log(Level.SEVERE, "Invalid URI", ex);
+            logger.error("Invalid URI", ex);
         }
         return null;
     }
@@ -171,7 +165,7 @@ public class RestClient {
 
     public void addSessionId(String cookieValue) {
         if (cookieValue == null) {
-            Logger.getLogger(RestClient.class.getName()).log(Level.SEVERE, "Session cookie cannot be null");
+            logger.error("Session cookie cannot be null");
             return;
         }
 
@@ -207,7 +201,7 @@ public class RestClient {
             }
         }
         catch (Exception ex) {
-            Logger.getLogger(RestClient.class.getName()).log(Level.SEVERE, "Failed to set session cookie.", ex);
+            logger.error("Failed to set session cookie.", ex);
         }
     }
 
@@ -472,7 +466,7 @@ public class RestClient {
                     try {
                         clientKs = KeyStore.getInstance("JKS");
                     } catch (KeyStoreException ex) {
-                        Logger.getLogger(RestClient.class.getName()).log(Level.SEVERE, "Could not get instance of JDK, trying PKCS12", ex);
+                        logger.error("Could not get instance of JDK, trying PKCS12", ex);
                         clientKs = KeyStore.getInstance("PKCS12");
                     }
                     clientKs.load(in, keyPass);
@@ -480,9 +474,9 @@ public class RestClient {
                     in.close();
                 }
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(RestClient.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Exception occurred", ex);
             } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException ex) {
-                Logger.getLogger(RestClient.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Exception occurred", ex);
             }
 
             SSLConnectionSocketFactory sslsf = null;

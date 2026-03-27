@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
  */
 public class PkceAuthenticator extends AuthenticatorBase {
 
-    private static final Logger logger = Logger.getLogger(PkceAuthenticator.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(PkceAuthenticator.class);
 
     // rSTS login controller step numbers (from rSTS Login.js)
     private static final String STEP_INIT = "1";
@@ -142,25 +142,25 @@ public class PkceAuthenticator extends AuthenticatorBase {
                     URLEncoder.encode(csrfToken, "UTF-8"));
 
             // Step 1: Initialize
-            logger.log(Level.FINE, "Calling RSTS for provider initialization");
+            logger.debug("Calling RSTS for provider initialization");
             rstsFormPost(httpClient, pkceUrl + STEP_INIT, primaryFormData);
 
             // Step 3: Primary authentication
-            logger.log(Level.FINE, "Calling RSTS for primary authentication");
+            logger.debug("Calling RSTS for primary authentication");
             String primaryBody = rstsFormPost(httpClient, pkceUrl + STEP_PRIMARY_AUTH, primaryFormData);
 
             // Handle secondary authentication (MFA) if required
             handleSecondaryAuthentication(httpClient, pkceUrl, primaryFormData, primaryBody);
 
             // Step 6: Generate claims
-            logger.log(Level.FINE, "Calling RSTS for generate claims");
+            logger.debug("Calling RSTS for generate claims");
             String claimsBody = rstsFormPost(httpClient, pkceUrl + STEP_GENERATE_CLAIMS, primaryFormData);
 
             // Extract authorization code from claims response
             String authorizationCode = extractAuthorizationCode(claimsBody);
 
             // Exchange authorization code for RSTS access token
-            logger.log(Level.FINE, "Redeeming RSTS authorization code");
+            logger.debug("Redeeming RSTS authorization code");
             char[] rstsAccessToken = AgentBasedLoginUtils.postAuthorizationCodeFlow(
                     getNetworkAddress(), authorizationCode, codeVerifier, redirectUri,
                     isIgnoreSsl(), getValidationCallback());
@@ -174,7 +174,7 @@ public class PkceAuthenticator extends AuthenticatorBase {
             try {
                 httpClient.close();
             } catch (IOException e) {
-                logger.log(Level.WARNING, "Failed to close PKCE HTTP client", e);
+                logger.warn("Failed to close PKCE HTTP client", e);
             }
         }
     }
@@ -200,7 +200,7 @@ public class PkceAuthenticator extends AuthenticatorBase {
         }
 
         String secondaryProviderId = secondaryProviderNode.asText();
-        logger.log(Level.FINE, "Secondary authentication required, provider: {0}", secondaryProviderId);
+        logger.debug("Secondary authentication required, provider: {}", secondaryProviderId);
 
         if (secondaryPassword == null) {
             throw new SafeguardForJavaException(
@@ -210,7 +210,7 @@ public class PkceAuthenticator extends AuthenticatorBase {
 
         try {
             // Step 7: Secondary provider initialization
-            logger.log(Level.FINE, "Calling RSTS for secondary provider initialization");
+            logger.debug("Calling RSTS for secondary provider initialization");
             String initBody = rstsFormPost(httpClient, pkceUrl + STEP_SECONDARY_INIT, primaryFormData);
 
             // Parse MFA state from secondary init response
@@ -229,10 +229,10 @@ public class PkceAuthenticator extends AuthenticatorBase {
                     + "&secondaryLoginTextbox=" + URLEncoder.encode(new String(secondaryPassword), "UTF-8")
                     + "&secondaryAuthenticationStateTextbox=" + URLEncoder.encode(mfaState, "UTF-8");
 
-            logger.log(Level.FINE, "Calling RSTS for secondary authentication");
+            logger.debug("Calling RSTS for secondary authentication");
             rstsFormPost(httpClient, pkceUrl + STEP_SECONDARY_AUTH, mfaFormData);
 
-            logger.log(Level.FINE, "Secondary authentication completed successfully");
+            logger.debug("Secondary authentication completed successfully");
         } catch (SafeguardForJavaException e) {
             throw e;
         } catch (Exception e) {
@@ -421,7 +421,7 @@ public class PkceAuthenticator extends AuthenticatorBase {
             auth.accessToken = this.accessToken == null ? null : this.accessToken.clone();
             return auth;
         } catch (ArgumentException ex) {
-            logger.log(Level.SEVERE, null, ex);
+            logger.error("Exception occurred", ex);
         }
         return null;
     }

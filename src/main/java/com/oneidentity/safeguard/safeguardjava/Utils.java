@@ -2,20 +2,21 @@ package com.oneidentity.safeguard.safeguardjava;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.oneidentity.safeguard.safeguardjava.authentication.PasswordAuthenticator;
 import java.io.IOException;
 import java.security.Provider;
 import java.security.Security;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 public class Utils {
+
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     private static String OS = null;
 
@@ -41,7 +42,7 @@ public class Utils {
             map = mapper.readValue(response, new TypeReference<Map<String, String>>() {
             });
         } catch (IOException ex) {
-            Logger.getLogger(PasswordAuthenticator.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Exception occurred", ex);
         }
 
         return map;

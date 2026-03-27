@@ -18,13 +18,15 @@ import com.oneidentity.safeguard.safeguardjava.exceptions.SafeguardForJavaExcept
 import com.oneidentity.safeguard.safeguardjava.restclient.RestClient;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.stream.Collectors;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 class SafeguardConnection implements ISafeguardConnection {
+
+    private static final Logger logger = LoggerFactory.getLogger(SafeguardConnection.class);
 
     private boolean disposed;
 
@@ -61,9 +63,9 @@ class SafeguardConnection implements ISafeguardConnection {
         int lifetime = authenticationMechanism.getAccessTokenLifetimeRemaining();
         if (lifetime > 0) {
             String msg = String.format("Access token lifetime remaining (in minutes): %d", lifetime);
-            Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, msg);
+            logger.trace(msg);
         } else
-            Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "Access token invalid or server unavailable");
+            logger.trace("Access token invalid or server unavailable");
         return lifetime;
     }
 
@@ -73,7 +75,7 @@ class SafeguardConnection implements ISafeguardConnection {
             throw new ObjectDisposedException("SafeguardConnection");
         }
         authenticationMechanism.refreshAccessToken();
-        Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "Successfully obtained a new access token");
+        logger.trace("Successfully obtained a new access token");
     }
 
     @Override
@@ -168,7 +170,7 @@ class SafeguardConnection implements ISafeguardConnection {
         request.setSpp_api_token(authenticationMechanism.getAccessToken());
         request.setSpp_cert_chain(certificateChain);
 
-        Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "Sending join request.");
+        logger.trace("Sending join request.");
         FullResponse joinResponse = spsConnection.invokeMethodFull(Method.Post, "cluster/spp", request.toJson());
 
         logResponseDetails(joinResponse);
@@ -181,7 +183,7 @@ class SafeguardConnection implements ISafeguardConnection {
         SafeguardEventListener eventListener = new SafeguardEventListener(
                 String.format("https://%s/service/event", authenticationMechanism.getNetworkAddress()),
                 authenticationMechanism.getAccessToken(), authenticationMechanism.isIgnoreSsl(), authenticationMechanism.getValidationCallback());
-        Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "Event listener successfully created for Safeguard connection.");
+        logger.trace("Event listener successfully created for Safeguard connection.");
 
         return eventListener;
     }
@@ -215,32 +217,32 @@ class SafeguardConnection implements ISafeguardConnection {
             return;
         try {
             this.invokeMethodFull(Service.Core, Method.Post, "Token/Logout", null, null, null, null);
-            Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "Successfully logged out");
+            logger.trace("Successfully logged out");
         }
         catch (Exception ex) {
-            Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "Exception occurred during logout", ex);
+            logger.trace("Exception occurred during logout", ex);
         }
         authenticationMechanism.clearAccessToken();
-        Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "Cleared access token");
+        logger.trace("Cleared access token");
     }
 
     static void logRequestDetails(Method method, String uri, Map<String, String> parameters, Map<String, String> headers)
     {
         String msg = String.format("Invoking method: %s %s", method.toString().toUpperCase(), uri);
-        Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, msg);
+        logger.trace(msg);
         msg = parameters == null ? "None" : parameters.keySet().stream().map(key -> key + "=" + parameters.get(key)).collect(Collectors.joining(", ", "{", "}"));
-        Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "  Query parameters: {0}", msg);
+        logger.trace("  Query parameters: {}", msg);
         msg = headers == null ? "None" : headers.keySet().stream().map(key -> key + "=" + headers.get(key)).collect(Collectors.joining(", ", "{", "}"));
-        Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "  Additional headers: {0}", msg);
+        logger.trace("  Additional headers: {}", msg);
     }
 
     static void logResponseDetails(FullResponse fullResponse)
     {
-        Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "Reponse status code: {0}", fullResponse.getStatusCode());
+        logger.trace("Reponse status code: {}", fullResponse.getStatusCode());
         String msg = fullResponse.getHeaders() == null ? "None" : fullResponse.getHeaders().stream().map(header -> header.getName() + "=" + header.getValue()).collect(Collectors.joining(", ", "{", "}"));
-        Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "  Response headers: {0}", msg);
+        logger.trace("  Response headers: {}", msg);
         msg = fullResponse.getBody() == null ? "None" : String.format("%d",fullResponse.getBody().length());
-        Logger.getLogger(SafeguardConnection.class.getName()).log(Level.FINEST, "  Body size: {0}", msg);
+        logger.trace("  Body size: {}", msg);
     }
 
     protected RestClient getClientForService(Service service) throws SafeguardForJavaException {

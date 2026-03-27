@@ -20,8 +20,8 @@ import com.oneidentity.safeguard.safeguardjava.restclient.RestClient;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.oneidentity.safeguard.safeguardjava.event.ISafeguardEventHandler;
 import com.oneidentity.safeguard.safeguardjava.event.PersistentSafeguardA2AEventListener;
 import java.io.IOException;
@@ -32,6 +32,8 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 public class SafeguardA2AContext implements ISafeguardA2AContext {
+
+    private static final Logger logger = LoggerFactory.getLogger(SafeguardA2AContext.class);
 
     private boolean disposed;
 
@@ -181,7 +183,7 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
 
         char[] password = parseJsonString(reply).toCharArray();
 
-        Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Successfully retrieved A2A password.");
+        logger.info("Successfully retrieved A2A password.");
         return password;
     }
 
@@ -217,7 +219,7 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
                     + String.format("%s %s", response.getCode(), reply));
         }
 
-        Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Successfully set A2A password.");
+        logger.info("Successfully set A2A password.");
     }
 
     @Override
@@ -253,7 +255,7 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
 
         char[] privateKey = parseJsonString(reply).toCharArray();
 
-        Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Successfully retrieved A2A private key.");
+        logger.info("Successfully retrieved A2A private key.");
         return privateKey;
     }
 
@@ -301,7 +303,7 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
                     + String.format("%s %s", response.getCode(), reply));
         }
 
-        Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Successfully set A2A private key.");
+        logger.info("Successfully set A2A private key.");
         return;
     }
 
@@ -367,7 +369,7 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
         eventListener.registerEventHandler("AssetAccountPasswordUpdated", handler);
         eventListener.registerEventHandler("AssetAccountSshKeyUpdated", handler);
         eventListener.registerEventHandler("AccountApiKeySecretUpdated", handler);
-        Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Event listener successfully created for Safeguard A2A context.");
+        logger.info("Event listener successfully created for Safeguard A2A context.");
         return eventListener;
     }
 
@@ -387,7 +389,7 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
         eventListener.registerEventHandler("AssetAccountPasswordUpdated", handler);
         eventListener.registerEventHandler("AssetAccountSshKeyUpdated", handler);
         eventListener.registerEventHandler("AccountApiKeySecretUpdated", handler);
-        Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Event listener successfully created for Safeguard A2A context.");
+        logger.info("Event listener successfully created for Safeguard A2A context.");
         return eventListener;
     }
 
@@ -458,7 +460,7 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
                     + String.format("%s %s", response.getCode(), reply));
         }
 
-        Logger.getLogger(SafeguardA2AContext.class.getName()).log(Level.INFO, "Successfully created A2A access request.");
+        logger.info("Successfully created A2A access request.");
         return reply;
     }
 
@@ -491,7 +493,7 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
             A2ARegistration[] registrations = mapper.readValue(response, A2ARegistration[].class);
             return Arrays.asList(registrations);
         } catch (IOException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Exception occurred", ex);
         }
 
         return null;
@@ -505,7 +507,7 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
             A2ARetrievableAccountInternal[] accounts = mapper.readValue(response, A2ARetrievableAccountInternal[].class);
             return Arrays.asList(accounts);
         } catch (IOException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Exception occurred", ex);
         }
 
         return null;
@@ -519,7 +521,7 @@ public class SafeguardA2AContext implements ISafeguardA2AContext {
             ApiKeySecretInternal[] apiKeySecrets = mapper.readValue(response, ApiKeySecretInternal[].class);
             return Arrays.asList(apiKeySecrets);
         } catch (IOException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Exception occurred", ex);
         }
 
         return null;

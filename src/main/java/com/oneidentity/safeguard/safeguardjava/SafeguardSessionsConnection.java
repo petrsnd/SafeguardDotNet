@@ -11,8 +11,8 @@ import com.oneidentity.safeguard.safeguardjava.exceptions.SafeguardForJavaExcept
 import com.oneidentity.safeguard.safeguardjava.restclient.RestClient;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.net.ssl.HostnameVerifier;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -21,6 +21,8 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
  * This is the reusable connection interface that can be used to call SPS API.
  */
 class SafeguardSessionsConnection implements ISafeguardSessionsConnection {
+
+    private static final Logger logger = LoggerFactory.getLogger(SafeguardSessionsConnection.class);
 
     private boolean disposed;
 
@@ -35,7 +37,7 @@ class SafeguardSessionsConnection implements ISafeguardSessionsConnection {
 
         Map<String, String> headers = new HashMap<>();
 
-        Logger.getLogger(SafeguardSessionsConnection.class.getName()).log(Level.FINEST, "Starting authentication.");
+        logger.trace("Starting authentication.");
         logRequestDetails(Method.Get, client.getBaseURL() + "/" + "authentication", null, null);
 
         CloseableHttpResponse response = client.execGET("authentication", null, null, null);
@@ -56,7 +58,7 @@ class SafeguardSessionsConnection implements ISafeguardSessionsConnection {
             client.addSessionId(authCookie.getValue());
         }
 
-        Logger.getLogger(SafeguardSessionsConnection.class.getName()).log(Level.FINEST, String.format("Response content: $s", reply));
+        logger.trace(String.format("Response content: $s", reply));
     }
 
     @Override
@@ -91,7 +93,7 @@ class SafeguardSessionsConnection implements ISafeguardSessionsConnection {
             throw new ArgumentException("Parameter relativeUrl may not be null or empty");
         }
 
-        Logger.getLogger(SafeguardSessionsConnection.class.getName()).log(Level.FINEST, String.format("Invoking method on sps: $s", relativeUrl));
+        logger.trace(String.format("Invoking method on sps: $s", relativeUrl));
 
         CloseableHttpResponse response = null;
 
@@ -123,7 +125,7 @@ class SafeguardSessionsConnection implements ISafeguardSessionsConnection {
                     + String.format("%d %s", response.getCode(), reply));
         }
 
-        Logger.getLogger(SafeguardSessionsConnection.class.getName()).log(Level.FINEST, String.format("Invoking method finished: $s", reply));
+        logger.trace(String.format("Invoking method finished: $s", reply));
 
         FullResponse fullResponse = new FullResponse(response.getCode(), response.getHeaders(), reply);
 

@@ -8,7 +8,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Map;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.net.ssl.HostnameVerifier;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
@@ -19,7 +20,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
  */
 public final class AgentBasedLoginUtils {
 
-    private static final Logger logger = Logger.getLogger(AgentBasedLoginUtils.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(AgentBasedLoginUtils.class);
 
     /** Standard redirect URI for installed applications. */
     public static final String REDIRECT_URI = "urn:InstalledApplication";

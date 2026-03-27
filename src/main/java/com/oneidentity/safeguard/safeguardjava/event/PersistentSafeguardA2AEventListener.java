@@ -7,8 +7,8 @@ import com.oneidentity.safeguard.safeguardjava.exceptions.SafeguardForJavaExcept
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class DefaultSafeguardEventHandler implements ISafeguardEventHandler {
 
@@ -19,6 +19,8 @@ class DefaultSafeguardEventHandler implements ISafeguardEventHandler {
 
 public class PersistentSafeguardA2AEventListener extends PersistentSafeguardEventListenerBase
 {
+    private static final Logger logger = LoggerFactory.getLogger(PersistentSafeguardA2AEventListener.class);
+
     private boolean disposed;
 
     private final ISafeguardA2AContext a2AContext;
@@ -36,7 +38,7 @@ public class PersistentSafeguardA2AEventListener extends PersistentSafeguardEven
         registerEventHandler("AssetAccountPasswordUpdated", handler);
         registerEventHandler("AssetAccountSshKeyUpdated", handler);
         registerEventHandler("AccountApiKeySecretUpdated", handler);
-        Logger.getLogger(PersistentSafeguardA2AEventListener.class.getName()).log(Level.FINEST, "Persistent A2A event listener successfully created.");
+        logger.trace("Persistent A2A event listener successfully created.");
     }
 
     public PersistentSafeguardA2AEventListener(ISafeguardA2AContext a2AContext, List<char[]> apiKeys, ISafeguardEventHandler handler)
@@ -56,7 +58,7 @@ public class PersistentSafeguardA2AEventListener extends PersistentSafeguardEven
         registerEventHandler("AssetAccountPasswordUpdated", handler);
         registerEventHandler("AssetAccountSshKeyUpdated", handler);
         registerEventHandler("AccountApiKeySecretUpdated", handler);
-        Logger.getLogger(PersistentSafeguardA2AEventListener.class.getName()).log(Level.FINEST, "Persistent A2A event listener successfully created.");
+        logger.trace("Persistent A2A event listener successfully created.");
     }
 
     @Override

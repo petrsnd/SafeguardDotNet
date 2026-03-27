@@ -4,10 +4,12 @@ import com.oneidentity.safeguard.safeguardjava.ISafeguardConnection;
 import com.oneidentity.safeguard.safeguardjava.exceptions.ArgumentException;
 import com.oneidentity.safeguard.safeguardjava.exceptions.ObjectDisposedException;
 import com.oneidentity.safeguard.safeguardjava.exceptions.SafeguardForJavaException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PersistentSafeguardEventListener extends PersistentSafeguardEventListenerBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(PersistentSafeguardEventListener.class);
 
     private boolean disposed;
 
@@ -15,7 +17,7 @@ public class PersistentSafeguardEventListener extends PersistentSafeguardEventLi
 
     public PersistentSafeguardEventListener(ISafeguardConnection connection) {
         this.connection = connection;
-        Logger.getLogger(PersistentSafeguardEventListener.class.getName()).log(Level.FINEST, "Persistent event listener successfully created.");
+        logger.trace("Persistent event listener successfully created.");
     }
 
     @Override

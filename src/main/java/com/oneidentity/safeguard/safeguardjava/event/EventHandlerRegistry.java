@@ -6,20 +6,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EventHandlerRegistry
 {
     private static final Map<String, List<ISafeguardEventHandler>> delegateRegistry = new HashMap<>();
-    private final Logger logger = Logger.getLogger(getClass().getName());
+    private static final Logger logger = LoggerFactory.getLogger(EventHandlerRegistry.class);
 
     private void handleEvent(String eventName, JsonElement eventBody)
     {
         if (!delegateRegistry.containsKey(eventName))
         {
-            Logger.getLogger(EventHandlerRegistry.class.getName()).log(Level.FINEST,
-                    String.format("No handlers registered for event %s", eventName));
+            logger.trace("No handlers registered for event {}", eventName);
             return;
         }
 
@@ -28,10 +27,8 @@ public class EventHandlerRegistry
             List<ISafeguardEventHandler> handlers = delegateRegistry.get(eventName);
             for (ISafeguardEventHandler handler :  handlers)
             {
-                Logger.getLogger(EventHandlerRegistry.class.getName()).log(Level.INFO,
-                    String.format("Calling handler for event %s", eventName));
-                Logger.getLogger(EventHandlerRegistry.class.getName()).log(Level.WARNING,
-                    String.format("Event %s has body %s", eventName, eventBody));
+                logger.info("Calling handler for event {}", eventName);
+                logger.warn("Event {} has body {}", eventName, eventBody);
                 final EventHandlerRunnable handlerRunnable = new EventHandlerRunnable(handler, eventName, eventBody.toString());
                 final EventHandlerThread eventHandlerThread = new EventHandlerThread(handlerRunnable) {
 
@@ -60,8 +57,7 @@ public class EventHandlerRegistry
         }
         catch (Exception ex)
         {
-            Logger.getLogger(EventHandlerRegistry.class.getName()).log(Level.WARNING,
-                String.format("Unable to parse event object %s", eventObject.toString()));
+            logger.warn("Unable to parse event object {}", eventObject.toString());
             return null;
         }
     }
@@ -74,8 +70,7 @@ public class EventHandlerRegistry
         for (Map.Entry<String,JsonElement> eventInfo : events.entrySet()) {
             if (eventInfo.getKey() == null)
             {
-                Logger.getLogger(EventHandlerRegistry.class.getName()).log(Level.WARNING,
-                    String.format("Found null event with body %s", eventInfo.getValue()));
+                logger.warn("Found null event with body {}", eventInfo.getValue());
                 continue;
             }
             handleEvent(eventInfo.getKey(), eventInfo.getValue());
@@ -89,7 +84,6 @@ public class EventHandlerRegistry
         }
 
         delegateRegistry.get(eventName).add(handler);
-        Logger.getLogger(EventHandlerRegistry.class.getName()).log(Level.WARNING,
-            String.format("Registered a handler for event %s", eventName));
+        logger.warn("Registered a handler for event {}", eventName);
     }
 }

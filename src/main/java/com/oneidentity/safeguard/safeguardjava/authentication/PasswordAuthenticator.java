@@ -7,13 +7,15 @@ import com.oneidentity.safeguard.safeguardjava.exceptions.ObjectDisposedExceptio
 import com.oneidentity.safeguard.safeguardjava.exceptions.SafeguardForJavaException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.net.ssl.HostnameVerifier;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 public class PasswordAuthenticator extends AuthenticatorBase
 {
+    private static final Logger logger = LoggerFactory.getLogger(PasswordAuthenticator.class);
+
     private boolean disposed;
 
     private final String provider;
@@ -78,7 +80,7 @@ public class PasswordAuthenticator extends AuthenticatorBase
             auth.accessToken = this.accessToken == null ? null : this.accessToken.clone();
             return auth;
         } catch (ArgumentException ex) {
-            Logger.getLogger(PasswordAuthenticator.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Exception occurred", ex);
         }
         return null;
     }

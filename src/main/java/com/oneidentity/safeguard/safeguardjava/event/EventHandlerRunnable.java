@@ -1,9 +1,11 @@
 package com.oneidentity.safeguard.safeguardjava.event;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class EventHandlerRunnable implements Runnable {
+
+    private static final Logger logger = LoggerFactory.getLogger(EventHandlerRunnable.class);
 
     private final ISafeguardEventHandler handler;
     private final String eventName;
@@ -23,8 +25,7 @@ class EventHandlerRunnable implements Runnable {
         }
         catch (Exception ex)
         {
-            Logger.getLogger(EventHandlerRegistry.class.getName()).log(Level.WARNING,
-                "An error occured while calling onEventReceived");
+            logger.warn("An error occured while calling onEventReceived");
         }
     }
 }

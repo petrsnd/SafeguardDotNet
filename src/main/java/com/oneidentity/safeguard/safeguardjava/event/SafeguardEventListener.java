@@ -24,8 +24,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -46,6 +46,8 @@ class DefaultDisconnectHandler implements IDisconnectHandler {
 }
 
 public class SafeguardEventListener implements ISafeguardEventListener, AutoCloseable {
+
+    private static final Logger logger = LoggerFactory.getLogger(SafeguardEventListener.class);
 
     private boolean disposed;
 
@@ -182,11 +184,11 @@ public class SafeguardEventListener implements ISafeguardEventListener, AutoClos
             public void invoke(Exception exception){
                 try {
                     if(exception != null) {
-                        Logger.getLogger(SafeguardEventListener.class.getName()).log(Level.WARNING, "SignalR error detected!", exception);
+                        logger.warn("SignalR error detected!", exception);
                     }
                     handleDisconnect();
                 } catch (SafeguardEventListenerDisconnectedException ex) {
-                    Logger.getLogger(SafeguardEventListener.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error("Exception occurred", ex);
                 }
             }
         });
@@ -261,7 +263,7 @@ public class SafeguardEventListener implements ISafeguardEventListener, AutoClos
         if(!this.isStarted()) {
             return;
         }
-        Logger.getLogger(EventHandlerRegistry.class.getName()).log(Level.WARNING, "SignalR disconnect detected, calling handler...");
+        logger.warn("SignalR disconnect detected, calling handler...");
         CallEventListenerStateCallback(SafeguardEventListenerState.Disconnected);
         disconnectHandler.func();
     }
@@ -352,8 +354,7 @@ public class SafeguardEventListener implements ISafeguardEventListener, AutoClos
             }
             catch(Exception error)
             {
-                String msg = String.format("Error setting client authentication certificate: %s", error.getMessage());
-                Logger.getLogger(SafeguardEventListener.class.getName()).log(Level.SEVERE, msg);
+                logger.error("Error setting client authentication certificate: {}", error.getMessage());
             }
         }
 
@@ -383,13 +384,13 @@ public class SafeguardEventListener implements ISafeguardEventListener, AutoClos
             builder.sslSocketFactory(sslContext.getSocketFactory(), x509tm);
         }
         catch(NoSuchAlgorithmException ex) {
-            Logger.getLogger(SafeguardEventListener.class.getName()).log(Level.SEVERE, ex.getMessage());
+            logger.error(ex.getMessage());
         }
         catch(KeyManagementException ex){
-            Logger.getLogger(SafeguardEventListener.class.getName()).log(Level.SEVERE, ex.getMessage());
+            logger.error(ex.getMessage());
         }
         catch(KeyStoreException ex){
-            Logger.getLogger(SafeguardEventListener.class.getName()).log(Level.SEVERE, ex.getMessage());
+            logger.error(ex.getMessage());
         }
     }
 

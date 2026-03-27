@@ -14,13 +14,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.net.ssl.HostnameVerifier;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 abstract class AuthenticatorBase implements IAuthenticationMechanism {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticatorBase.class);
 
     private boolean disposed;
 
@@ -267,7 +269,7 @@ abstract class AuthenticatorBase implements IAuthenticationMechanism {
 		providers.add(p);
             }
         } catch (IOException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Exception occurred", ex);
         }
 
         return providers;
