@@ -79,6 +79,14 @@ public class ToolOptions {
         description = "Output the current access token as JSON and exit")
     boolean getToken;
 
+    @Option(names = {"--pkce"}, defaultValue = "false",
+        description = "Use PKCE (Proof Key for Code Exchange) authentication instead of password grant")
+    boolean pkce;
+
+    @Option(names = {"-R", "--resource-owner"}, arity = "1",
+        description = "Enable (true) or disable (false) the resource owner password grant type and exit")
+    Boolean resourceOwner;
+
     @Option(names = {"-V", "--verbose"}, defaultValue = "false",
         description = "Display verbose debug output")
     boolean verbose;

@@ -32,6 +32,10 @@
 .PARAMETER SkipBuild
     Skip building test projects (use when already built).
 
+.PARAMETER Pkce
+    Use PKCE OAuth2 flow for password authentication instead of resource
+    owner password grant. Required when the appliance disables password grant.
+
 .PARAMETER TestPrefix
     Prefix for test objects created on the appliance. Default: "SgJTest".
 
@@ -72,6 +76,9 @@ param(
 
     [Parameter()]
     [switch]$SkipBuild,
+
+    [Parameter()]
+    [switch]$Pkce,
 
     [Parameter()]
     [string]$TestPrefix = "SgJTest",
@@ -202,6 +209,9 @@ Write-Host ("=" * 66) -ForegroundColor Cyan
 Write-Host "  Appliance:  $Appliance" -ForegroundColor White
 Write-Host "  Maven:      $MavenCmd" -ForegroundColor White
 Write-Host "  Suites:     $(@($selectedSuites).Count) selected" -ForegroundColor White
+if ($Pkce) {
+    Write-Host "  PKCE:       Enabled" -ForegroundColor Yellow
+}
 Write-Host ("=" * 66) -ForegroundColor Cyan
 
 $context = New-SgJTestContext `
@@ -209,7 +219,8 @@ $context = New-SgJTestContext `
     -AdminUserName $AdminUserName `
     -AdminPassword $AdminPassword `
     -TestPrefix $TestPrefix `
-    -MavenCmd $MavenCmd
+    -MavenCmd $MavenCmd `
+    -Pkce:$Pkce
 
 # --- Build ---
 if (-not $SkipBuild) {
@@ -225,6 +236,43 @@ if (-not $SkipBuild) {
     }
 }
 
+# --- Preflight: Check resource owner password grant ---
+Write-Host ""
+Write-Host "Preflight: checking resource owner password grant..." -ForegroundColor Yellow
+$rogEnabled = $false
+try {
+    $rstsResponse = Invoke-WebRequest -Uri "https://$Appliance/RSTS/oauth2/token" `
+        -Method Post -ContentType "application/x-www-form-urlencoded" `
+        -Body "grant_type=password&username=$AdminUserName&password=$AdminPassword&scope=rsts:sts:primaryproviderid:local" `
+        -SkipCertificateCheck -SkipHttpErrorCheck -ErrorAction Stop
+    $rstsBody = $rstsResponse.Content | ConvertFrom-Json
+    if ($rstsResponse.StatusCode -eq 200 -and $rstsBody.access_token) {
+        Write-Host "  Resource owner grant is enabled." -ForegroundColor Green
+        $rogEnabled = $true
+    } elseif ($rstsBody.error_description -match "not allowed") {
+        Write-Host "  Resource owner grant is disabled. Enabling via PKCE..." -ForegroundColor Yellow
+    } else {
+        Write-Host "  Unexpected RSTS response ($($rstsResponse.StatusCode)): $($rstsResponse.Content)" -ForegroundColor Red
+        exit 1
+    }
+} catch {
+    Write-Host "  Failed to reach RSTS: $($_.Exception.Message)" -ForegroundColor Red
+    exit 1
+}
+
+$resourceOwnerWasDisabled = $false
+if (-not $rogEnabled) {
+    try {
+        $pkceResult = Invoke-SgJSafeguardTool -Arguments "-a $Appliance -x -u $AdminUserName -i local -p --pkce -R true" `
+            -StdinLine $AdminPassword -ParseJson $true
+        Write-Host "  Enabled resource owner grant (was: '$($pkceResult.PreviousValue)')." -ForegroundColor Green
+        $resourceOwnerWasDisabled = $true
+    } catch {
+        Write-Host "  Failed to enable resource owner grant: $($_.Exception.Message)" -ForegroundColor Red
+        exit 1
+    }
+}
+
 # --- Global pre-cleanup ---
 Write-Host ""
 Write-Host "Pre-cleanup: removing stale objects from previous runs..." -ForegroundColor Yellow
@@ -233,6 +281,19 @@ Clear-SgJStaleTestEnvironment -Context $context
 # --- Run suites ---
 foreach ($suiteFile in $selectedSuites) {
     Invoke-SgJTestSuite -SuiteFile $suiteFile.FullName -Context $context
+}
+
+# --- Restore resource owner grant setting ---
+if ($resourceOwnerWasDisabled) {
+    Write-Host ""
+    Write-Host "Restoring: disabling resource owner grant (was disabled before tests)..." -ForegroundColor Yellow
+    try {
+        $null = Invoke-SgJSafeguardTool -Arguments "-a $Appliance -x -u $AdminUserName -i local -p --pkce -R false" `
+            -StdinLine $AdminPassword -ParseJson $true
+        Write-Host "  Resource owner grant restored to disabled." -ForegroundColor Green
+    } catch {
+        Write-Host "  Warning: failed to restore resource owner grant: $($_.Exception.Message)" -ForegroundColor DarkYellow
+    }
 }
 
 # --- Report ---

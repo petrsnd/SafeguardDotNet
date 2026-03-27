@@ -1,5 +1,6 @@
 package com.oneidentity.safeguard.safeguardclient;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -56,6 +57,12 @@ public class SafeguardJavaClient {
 
         try {
             ISafeguardConnection connection = createConnection(opts);
+
+            if (opts.resourceOwner != null) {
+                setResourceOwnerGrant(connection, opts.resourceOwner);
+                System.exit(0);
+                return;
+            }
 
             if (opts.tokenLifetime) {
                 int remaining = connection.getAccessTokenLifetimeRemaining();
@@ -117,10 +124,18 @@ public class SafeguardJavaClient {
             password = new Scanner(System.in).nextLine().toCharArray();
         }
 
+        // Resource owner toggle always uses PKCE
+        boolean usePkce = opts.pkce || opts.resourceOwner != null;
+
         if (opts.username != null) {
             String provider = opts.identityProvider != null ? opts.identityProvider : "local";
-            System.err.println("Connecting to " + opts.appliance + " as " + opts.username + " via " + provider);
-            return Safeguard.connect(opts.appliance, provider, opts.username, password, null, opts.insecure);
+            if (usePkce) {
+                System.err.println("Connecting to " + opts.appliance + " as " + opts.username + " via " + provider + " (PKCE)");
+                return Safeguard.connectPkce(opts.appliance, provider, opts.username, password, (Integer) null, opts.insecure);
+            } else {
+                System.err.println("Connecting to " + opts.appliance + " as " + opts.username + " via " + provider);
+                return Safeguard.connect(opts.appliance, provider, opts.username, password, null, opts.insecure);
+            }
         }
 
         if (opts.certificateFile != null) {
@@ -190,6 +205,81 @@ public class SafeguardJavaClient {
             map.put(pair.substring(0, idx), pair.substring(idx + 1));
         }
         return map;
+    }
+
+    private static final String GRANT_TYPE_SETTING_NAME = "Allowed OAuth2 Grant Types";
+
+    private static void setResourceOwnerGrant(ISafeguardConnection connection, boolean enable)
+            throws Exception {
+        String settingsJson = connection.invokeMethod(Service.Core, Method.Get, "Settings",
+                null, null, null, null);
+        JsonNode settings = mapper.readTree(settingsJson);
+
+        JsonNode grantSetting = null;
+        if (settings.isArray()) {
+            for (JsonNode node : settings) {
+                JsonNode nameNode = node.get("Name");
+                if (nameNode != null && GRANT_TYPE_SETTING_NAME.equals(nameNode.asText())) {
+                    grantSetting = node;
+                    break;
+                }
+            }
+        }
+        if (grantSetting == null) {
+            throw new RuntimeException("Setting '" + GRANT_TYPE_SETTING_NAME + "' not found");
+        }
+
+        String currentValue = grantSetting.has("Value") && !grantSetting.get("Value").isNull()
+                ? grantSetting.get("Value").asText() : "";
+
+        String[] parts = currentValue.split(",");
+        java.util.List<String> grantTypes = new java.util.ArrayList<>();
+        for (String part : parts) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) {
+                grantTypes.add(trimmed);
+            }
+        }
+
+        boolean hasResourceOwner = false;
+        for (String gt : grantTypes) {
+            if (gt.equalsIgnoreCase("ResourceOwner")) {
+                hasResourceOwner = true;
+                break;
+            }
+        }
+
+        if (enable && !hasResourceOwner) {
+            grantTypes.add("ResourceOwner");
+        } else if (!enable && hasResourceOwner) {
+            java.util.Iterator<String> it = grantTypes.iterator();
+            while (it.hasNext()) {
+                if (it.next().equalsIgnoreCase("ResourceOwner")) {
+                    it.remove();
+                }
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < grantTypes.size(); i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(grantTypes.get(i));
+        }
+        String newValue = sb.toString();
+
+        ObjectNode body = mapper.createObjectNode();
+        body.put("Value", newValue);
+        connection.invokeMethod(Service.Core, Method.Put,
+                "Settings/" + java.net.URLEncoder.encode(GRANT_TYPE_SETTING_NAME, "UTF-8")
+                        .replace("+", "%20"),
+                mapper.writeValueAsString(body), null, null, null);
+
+        ObjectNode envelope = mapper.createObjectNode();
+        envelope.put("Setting", GRANT_TYPE_SETTING_NAME);
+        envelope.put("PreviousValue", currentValue);
+        envelope.put("NewValue", newValue);
+        envelope.put("ResourceOwnerEnabled", enable);
+        System.out.println(mapper.writeValueAsString(envelope));
     }
 
     private static void runInteractive() {

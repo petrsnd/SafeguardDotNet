@@ -5,6 +5,7 @@ import com.oneidentity.safeguard.safeguardjava.authentication.AnonymousAuthentic
 import com.oneidentity.safeguard.safeguardjava.authentication.CertificateAuthenticator;
 import com.oneidentity.safeguard.safeguardjava.authentication.IAuthenticationMechanism;
 import com.oneidentity.safeguard.safeguardjava.authentication.PasswordAuthenticator;
+import com.oneidentity.safeguard.safeguardjava.authentication.PkceAuthenticator;
 import com.oneidentity.safeguard.safeguardjava.event.ISafeguardEventListener;
 import com.oneidentity.safeguard.safeguardjava.event.PersistentSafeguardA2AEventListener;
 import com.oneidentity.safeguard.safeguardjava.event.PersistentSafeguardEventListener;
@@ -137,6 +138,100 @@ public final class Safeguard {
 
         return getConnection(new PasswordAuthenticator(networkAddress, provider, username, password, version,
                 false, validationCallback));
+    }
+
+    /**
+     *  Connect to Safeguard API using PKCE (Proof Key for Code Exchange) authentication.
+     *  This method programmatically handles the OAuth2/PKCE flow without launching a browser.
+     *  Use this method when the resource owner password grant type is not allowed.
+     *
+     *  @param networkAddress Network address of Safeguard appliance.
+     *  @param provider Safeguard authentication provider name (e.g. local).
+     *  @param username User name to use for authentication.
+     *  @param password User password to use for authentication.
+     *  @param apiVersion Target API version to use.
+     *  @param ignoreSsl Ignore server certificate validation.
+     *  @return Reusable Safeguard API connection.
+     *  @throws ObjectDisposedException Object has already been disposed.
+     *  @throws ArgumentException Invalid argument.
+     *  @throws SafeguardForJavaException General Safeguard for Java exception.
+     */
+    public static ISafeguardConnection connectPkce(String networkAddress, String provider, String username,
+            char[] password, Integer apiVersion, Boolean ignoreSsl)
+            throws ObjectDisposedException, ArgumentException, SafeguardForJavaException {
+        int version = DEFAULTAPIVERSION;
+        if (apiVersion != null) {
+            version = apiVersion;
+        }
+
+        boolean sslIgnore = false;
+        if (ignoreSsl != null) {
+            sslIgnore = ignoreSsl;
+        }
+
+        return getConnection(new PkceAuthenticator(networkAddress, provider, username, password, version,
+                sslIgnore, null));
+    }
+
+    /**
+     *  Connect to Safeguard API using PKCE (Proof Key for Code Exchange) authentication.
+     *  This method programmatically handles the OAuth2/PKCE flow without launching a browser.
+     *  Use this method when the resource owner password grant type is not allowed.
+     *
+     *  @param networkAddress Network address of Safeguard appliance.
+     *  @param provider Safeguard authentication provider name (e.g. local).
+     *  @param username User name to use for authentication.
+     *  @param password User password to use for authentication.
+     *  @param apiVersion Target API version to use.
+     *  @param validationCallback Callback function to be executed during SSL certificate validation.
+     *  @return Reusable Safeguard API connection.
+     *  @throws ObjectDisposedException Object has already been disposed.
+     *  @throws ArgumentException Invalid argument.
+     *  @throws SafeguardForJavaException General Safeguard for Java exception.
+     */
+    public static ISafeguardConnection connectPkce(String networkAddress, String provider, String username,
+            char[] password, HostnameVerifier validationCallback, Integer apiVersion)
+            throws ObjectDisposedException, ArgumentException, SafeguardForJavaException {
+        int version = DEFAULTAPIVERSION;
+        if (apiVersion != null) {
+            version = apiVersion;
+        }
+
+        return getConnection(new PkceAuthenticator(networkAddress, provider, username, password, version,
+                false, validationCallback));
+    }
+
+    /**
+     *  Connect to Safeguard API using PKCE authentication with multi-factor authentication support.
+     *  This method programmatically handles the OAuth2/PKCE flow with secondary authentication (MFA).
+     *
+     *  @param networkAddress Network address of Safeguard appliance.
+     *  @param provider Safeguard authentication provider name (e.g. local).
+     *  @param username User name to use for authentication.
+     *  @param password User password to use for authentication.
+     *  @param secondaryPassword One-time password or code for MFA (null if not required).
+     *  @param apiVersion Target API version to use.
+     *  @param ignoreSsl Ignore server certificate validation.
+     *  @return Reusable Safeguard API connection.
+     *  @throws ObjectDisposedException Object has already been disposed.
+     *  @throws ArgumentException Invalid argument.
+     *  @throws SafeguardForJavaException General Safeguard for Java exception.
+     */
+    public static ISafeguardConnection connectPkce(String networkAddress, String provider, String username,
+            char[] password, char[] secondaryPassword, Integer apiVersion, Boolean ignoreSsl)
+            throws ObjectDisposedException, ArgumentException, SafeguardForJavaException {
+        int version = DEFAULTAPIVERSION;
+        if (apiVersion != null) {
+            version = apiVersion;
+        }
+
+        boolean sslIgnore = false;
+        if (ignoreSsl != null) {
+            sslIgnore = ignoreSsl;
+        }
+
+        return getConnection(new PkceAuthenticator(networkAddress, provider, username, password,
+                secondaryPassword, version, sslIgnore, null));
     }
 
     /**

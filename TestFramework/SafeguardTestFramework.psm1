@@ -43,7 +43,10 @@ function New-SgJTestContext {
         [string]$TestPrefix = "SgJTest",
 
         [Parameter()]
-        [string]$MavenCmd
+        [string]$MavenCmd,
+
+        [Parameter()]
+        [switch]$Pkce
     )
 
     $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -61,6 +64,7 @@ function New-SgJTestContext {
         TestRoot        = $PSScriptRoot
         ToolDir         = (Join-Path $repoRoot "tests" "safeguardjavaclient")
         MavenCmd        = $MavenCmd
+        Pkce            = [bool]$Pkce
 
         # Per-suite transient data (reset each suite)
         SuiteData       = @{}
@@ -320,6 +324,9 @@ function Invoke-SgJSafeguardApi {
         [string]$AccessToken,
 
         [Parameter()]
+        [switch]$Pkce,
+
+        [Parameter()]
         [switch]$Full,
 
         [Parameter()]
@@ -349,6 +356,7 @@ function Invoke-SgJSafeguardApi {
         $effectivePass = if ($Password) { $Password } else { $Context.AdminPassword }
         $provider = "local"
         $toolArgs += " -u $effectiveUser -i $provider -p"
+        if ($Pkce) { $toolArgs += " --pkce" }
         $stdinLine = $effectivePass
     }
 
@@ -397,7 +405,10 @@ function Invoke-SgJTokenCommand {
         [string]$Username,
 
         [Parameter()]
-        [string]$Password
+        [string]$Password,
+
+        [Parameter()]
+        [switch]$Pkce
     )
 
     if (-not $Context) { $Context = Get-SgJTestContext }
@@ -406,6 +417,7 @@ function Invoke-SgJTokenCommand {
     $effectivePass = if ($Password) { $Password } else { $Context.AdminPassword }
 
     $toolArgs = "-a $($Context.Appliance) -x -u $effectiveUser -i local -p"
+    if ($Pkce) { $toolArgs += " --pkce" }
 
     switch ($Command) {
         "TokenLifetime" { $toolArgs += " -T" }
