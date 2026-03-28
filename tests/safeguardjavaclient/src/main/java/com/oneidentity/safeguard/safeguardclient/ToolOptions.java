@@ -95,6 +95,10 @@ public class ToolOptions {
         description = "File path for streaming upload (POST) or download (GET)")
     String file;
 
+    @Option(names = {"--sps"}, defaultValue = "false",
+        description = "Connect to Safeguard for Privileged Sessions (SPS) instead of SPP")
+    boolean sps;
+
     @Option(names = {"--interactive"}, defaultValue = "false",
         description = "Run in interactive menu mode (legacy)")
     boolean interactive;

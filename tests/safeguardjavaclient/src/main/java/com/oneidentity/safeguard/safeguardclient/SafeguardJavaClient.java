@@ -8,6 +8,7 @@ import com.oneidentity.safeguard.safeguardjava.ISafeguardA2AContext;
 import com.oneidentity.safeguard.safeguardjava.ISafeguardConnection;
 import com.oneidentity.safeguard.safeguardjava.ISafeguardSessionsConnection;
 import com.oneidentity.safeguard.safeguardjava.Safeguard;
+import com.oneidentity.safeguard.safeguardjava.SafeguardForPrivilegedSessions;
 import com.oneidentity.safeguard.safeguardjava.data.FullResponse;
 import com.oneidentity.safeguard.safeguardjava.data.Method;
 import com.oneidentity.safeguard.safeguardjava.data.Service;
@@ -58,6 +59,12 @@ public class SafeguardJavaClient {
         }
 
         try {
+            if (opts.sps) {
+                handleSpsRequest(opts);
+                System.exit(0);
+                return;
+            }
+
             ISafeguardConnection connection = createConnection(opts);
 
             if (opts.resourceOwner != null) {
@@ -139,6 +146,38 @@ public class SafeguardJavaClient {
             return "Download written to " + opts.file;
         } else {
             throw new IllegalArgumentException("Streaming is not supported for HTTP method: " + opts.method);
+        }
+    }
+
+    private static void handleSpsRequest(ToolOptions opts) throws Exception {
+        char[] password = null;
+        if (opts.readPassword) {
+            System.err.print("Password: ");
+            password = new Scanner(System.in).nextLine().toCharArray();
+        }
+
+        System.err.println("Connecting to SPS " + opts.appliance + " as " + opts.username);
+        ISafeguardSessionsConnection spsConnection = SafeguardForPrivilegedSessions.Connect(
+                opts.appliance, opts.username, password, opts.insecure);
+
+        Method method = parseMethod(opts.method);
+
+        if (opts.full) {
+            FullResponse response = spsConnection.invokeMethodFull(method, opts.relativeUrl, opts.body);
+            ObjectNode json = mapper.createObjectNode();
+            json.put("StatusCode", response.getStatusCode());
+            ArrayNode headersArray = json.putArray("Headers");
+            for (Header h : response.getHeaders()) {
+                ObjectNode headerObj = mapper.createObjectNode();
+                headerObj.put("Name", h.getName());
+                headerObj.put("Value", h.getValue());
+                headersArray.add(headerObj);
+            }
+            json.put("Body", response.getBody());
+            System.out.println(mapper.writeValueAsString(json));
+        } else {
+            String result = spsConnection.invokeMethod(method, opts.relativeUrl, opts.body);
+            System.out.println(result);
         }
     }
 

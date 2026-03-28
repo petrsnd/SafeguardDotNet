@@ -40,6 +40,15 @@ function New-SgJTestContext {
         [string]$AdminPassword = "Admin123",
 
         [Parameter()]
+        [string]$SpsAppliance,
+
+        [Parameter()]
+        [string]$SpsUserName,
+
+        [Parameter()]
+        [string]$SpsPassword,
+
+        [Parameter()]
         [string]$TestPrefix = "SgJTest",
 
         [Parameter()]
@@ -50,11 +59,23 @@ function New-SgJTestContext {
     )
 
     $repoRoot = Split-Path -Parent $PSScriptRoot
+    $testDataDir = Join-Path $PSScriptRoot "TestData" "CERTS"
     $context = [PSCustomObject]@{
         # Connection info
         Appliance       = $Appliance
         AdminUserName   = $AdminUserName
         AdminPassword   = $AdminPassword
+
+        # SPS connection info
+        SpsAppliance    = $SpsAppliance
+        SpsUserName     = $SpsUserName
+        SpsPassword     = $SpsPassword
+
+        # Certificate test data paths
+        UserPfx         = (Join-Path $testDataDir "UserCert.pfx")
+        UserCert        = (Join-Path $testDataDir "UserCert.pem")
+        RootCert        = (Join-Path $testDataDir "RootCA.pem")
+        CaCert          = (Join-Path $testDataDir "IntermediateCA.pem")
 
         # Naming
         TestPrefix      = $TestPrefix
@@ -324,6 +345,12 @@ function Invoke-SgJSafeguardApi {
         [string]$AccessToken,
 
         [Parameter()]
+        [string]$CertificateFile,
+
+        [Parameter()]
+        [string]$CertificatePassword,
+
+        [Parameter()]
         [switch]$Pkce,
 
         [Parameter()]
@@ -353,6 +380,13 @@ function Invoke-SgJSafeguardApi {
     }
     elseif ($AccessToken) {
         $toolArgs += " -k `"$AccessToken`""
+    }
+    elseif ($CertificateFile) {
+        $toolArgs += " -c `"$CertificateFile`""
+        if ($CertificatePassword) {
+            $toolArgs += " -p"
+            $stdinLine = $CertificatePassword
+        }
     }
     else {
         $effectiveUser = if ($Username) { $Username } else { $Context.AdminUserName }
@@ -432,6 +466,90 @@ function Invoke-SgJTokenCommand {
     return Invoke-SgJSafeguardTool -Arguments $toolArgs -StdinLine $effectivePass
 }
 
+function Invoke-SgJSafeguardSessions {
+    <#
+    .SYNOPSIS
+        Convenience wrapper for calling SPS API via SafeguardJavaTool --sps mode.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [PSCustomObject]$Context,
+
+        [Parameter(Mandatory)]
+        [ValidateSet("Get", "Post", "Put", "Delete")]
+        [string]$Method,
+
+        [Parameter(Mandatory)]
+        [string]$RelativeUrl,
+
+        [Parameter()]
+        $Body,
+
+        [Parameter()]
+        [switch]$Full,
+
+        [Parameter()]
+        [bool]$ParseJson = $true
+    )
+
+    if (-not $Context) { $Context = Get-SgJTestContext }
+
+    $toolArgs = "-a $($Context.SpsAppliance) -x --sps -m $Method -U `"$RelativeUrl`" -u $($Context.SpsUserName) -p"
+
+    if ($Body) {
+        $bodyStr = if ($Body -is [hashtable] -or $Body -is [System.Collections.IDictionary] -or $Body -is [PSCustomObject]) {
+            (ConvertTo-Json -Depth 12 $Body -Compress).Replace('"', "'")
+        }
+        else {
+            [string]$Body
+        }
+        $toolArgs += " -b `"$bodyStr`""
+    }
+
+    if ($Full) { $toolArgs += " -f" }
+
+    Write-Verbose "Invoke-SgJSafeguardSessions: $toolArgs"
+
+    return Invoke-SgJSafeguardTool -Arguments $toolArgs -StdinLine $Context.SpsPassword -ParseJson $ParseJson
+}
+
+function Test-SgJSpsConfigured {
+    <#
+    .SYNOPSIS
+        Returns $true if SPS appliance parameters are configured in the test context.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [PSCustomObject]$Context
+    )
+
+    if (-not $Context) { $Context = Get-SgJTestContext }
+
+    return (-not [string]::IsNullOrEmpty($Context.SpsAppliance) -and
+            -not [string]::IsNullOrEmpty($Context.SpsUserName) -and
+            -not [string]::IsNullOrEmpty($Context.SpsPassword))
+}
+
+function Test-SgJCertsConfigured {
+    <#
+    .SYNOPSIS
+        Returns $true if test certificate files are present.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [PSCustomObject]$Context
+    )
+
+    if (-not $Context) { $Context = Get-SgJTestContext }
+
+    return ((Test-Path $Context.UserPfx) -and
+            (Test-Path $Context.RootCert) -and
+            (Test-Path $Context.CaCert))
+}
+
 # ============================================================================
 # Object Management
 # ============================================================================
@@ -505,6 +623,37 @@ function Remove-SgJSafeguardTestObject {
     }
     catch {
         Write-Verbose "Cleanup of $RelativeUrl skipped: $($_.Exception.Message)"
+    }
+}
+
+function Remove-SgJStaleTestCert {
+    <#
+    .SYNOPSIS
+        Removes a trusted certificate by thumbprint, if it exists.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Context,
+
+        [Parameter(Mandatory)]
+        [string]$Thumbprint
+    )
+
+    try {
+        $certs = Invoke-SgJSafeguardApi -Context $Context -Service Core -Method Get `
+            -RelativeUrl "TrustedCertificates?filter=Thumbprint ieq '$Thumbprint'"
+        $certList = @($certs)
+        foreach ($cert in $certList) {
+            if ($cert.Thumbprint -and $cert.Thumbprint -ieq $Thumbprint) {
+                Write-Host "    Removing stale trusted cert: $Thumbprint (Id=$($cert.Id))" -ForegroundColor DarkYellow
+                Invoke-SgJSafeguardApi -Context $Context -Service Core -Method Delete `
+                    -RelativeUrl "TrustedCertificates/$($cert.Id)" -ParseJson $false
+            }
+        }
+    }
+    catch {
+        Write-Verbose "Pre-cleanup of cert $Thumbprint skipped: $($_.Exception.Message)"
     }
 }
 
@@ -947,10 +1096,14 @@ Export-ModuleMember -Function @(
     'Invoke-SgJSafeguardTool'
     'Invoke-SgJSafeguardApi'
     'Invoke-SgJTokenCommand'
+    'Invoke-SgJSafeguardSessions'
+    'Test-SgJSpsConfigured'
+    'Test-SgJCertsConfigured'
 
     # Object management
     'Remove-SgJStaleTestObject'
     'Remove-SgJSafeguardTestObject'
+    'Remove-SgJStaleTestCert'
     'Clear-SgJStaleTestEnvironment'
 
     # Assertions

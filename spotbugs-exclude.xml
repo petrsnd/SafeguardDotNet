@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!--
+        SpotBugs exclusion filter for SafeguardJava.
+        Only suppress categories that are intentional design choices,
+        not actual bugs. Real issues should be fixed in source.
+    -->
+
+    <!-- Constructor throw: SDK constructors intentionally validate and throw -->
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW" />
+    </Match>
+
+    <!-- Method naming: public API names match SafeguardDotNet conventions (e.g. Persist) -->
+    <Match>
+        <Bug pattern="NM_METHOD_NAMING_CONVENTION" />
+    </Match>
+    <Match>
+        <Bug pattern="NM_VERY_CONFUSING" />
+    </Match>
+
+    <!-- Mutable exposure: SDK DTOs and connections intentionally share references -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+    <!-- Inner classes: Event/A2A nested classes are intentionally non-static -->
+    <Match>
+        <Bug pattern="SIC_INNER_SHOULD_BE_STATIC" />
+    </Match>
+
+</FindBugsFilter>

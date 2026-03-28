@@ -36,6 +36,15 @@
     Use PKCE OAuth2 flow for password authentication instead of resource
     owner password grant. Required when the appliance disables password grant.
 
+.PARAMETER SpsAppliance
+    SPS (Safeguard for Privileged Sessions) appliance address for SPS integration tests.
+
+.PARAMETER SpsUserName
+    SPS admin username. Default: "admin".
+
+.PARAMETER SpsPassword
+    SPS admin password.
+
 .PARAMETER TestPrefix
     Prefix for test objects created on the appliance. Default: "SgJTest".
 
@@ -79,6 +88,15 @@ param(
 
     [Parameter()]
     [switch]$Pkce,
+
+    [Parameter()]
+    [string]$SpsAppliance,
+
+    [Parameter()]
+    [string]$SpsUserName = "admin",
+
+    [Parameter()]
+    [string]$SpsPassword,
 
     [Parameter()]
     [string]$TestPrefix = "SgJTest",
@@ -212,12 +230,18 @@ Write-Host "  Suites:     $(@($selectedSuites).Count) selected" -ForegroundColor
 if ($Pkce) {
     Write-Host "  PKCE:       Enabled" -ForegroundColor Yellow
 }
+if ($SpsAppliance) {
+    Write-Host "  SPS:        $SpsAppliance" -ForegroundColor White
+}
 Write-Host ("=" * 66) -ForegroundColor Cyan
 
 $context = New-SgJTestContext `
     -Appliance $Appliance `
     -AdminUserName $AdminUserName `
     -AdminPassword $AdminPassword `
+    -SpsAppliance $SpsAppliance `
+    -SpsUserName $SpsUserName `
+    -SpsPassword $SpsPassword `
     -TestPrefix $TestPrefix `
     -MavenCmd $MavenCmd `
     -Pkce:$Pkce
