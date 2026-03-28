@@ -6,8 +6,6 @@ import javax.net.ssl.HostnameVerifier;
 
 public class AccessTokenAuthenticator extends AuthenticatorBase
 {
-    private boolean disposed;
-
     public AccessTokenAuthenticator(String networkAddress, char[] accessToken,
         int apiVersion, boolean ignoreSsl, HostnameVerifier validationCallback) throws ArgumentException
     {
@@ -38,14 +36,12 @@ public class AccessTokenAuthenticator extends AuthenticatorBase
     public void dispose()
     {
         super.dispose();
-        disposed = true;
     }
 
     @Override
     protected void finalize() throws Throwable {
         try {
         } finally {
-            disposed = true;
             super.finalize();
         }
     }

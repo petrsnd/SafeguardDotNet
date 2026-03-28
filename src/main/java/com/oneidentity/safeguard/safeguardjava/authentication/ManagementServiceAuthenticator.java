@@ -63,16 +63,25 @@ public class ManagementServiceAuthenticator implements IAuthenticationMechanism 
 
     @Override
     public char[] getAccessToken() throws ObjectDisposedException {
+        if (disposed) {
+            throw new ObjectDisposedException("ManagementServiceAuthenticator");
+        }
         return null;
     }
 
     @Override
     public int getAccessTokenLifetimeRemaining() throws ObjectDisposedException, SafeguardForJavaException {
+        if (disposed) {
+            throw new ObjectDisposedException("ManagementServiceAuthenticator");
+        }
         return 0;
     }
 
     @Override
     public void refreshAccessToken() throws ObjectDisposedException, SafeguardForJavaException {
+        if (disposed) {
+            throw new ObjectDisposedException("ManagementServiceAuthenticator");
+        }
         throw new SafeguardForJavaException("Anonymous connection cannot be used to get an API access token, Error: Unsupported operation");
     }
 

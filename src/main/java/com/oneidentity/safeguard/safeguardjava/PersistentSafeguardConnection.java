@@ -13,7 +13,6 @@ import java.util.Map;
 class PersistentSafeguardConnection implements ISafeguardConnection {
 
     private final ISafeguardConnection _connection;
-    private boolean disposed;
 
     public PersistentSafeguardConnection(ISafeguardConnection connection) {
         _connection = connection;

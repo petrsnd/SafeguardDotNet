@@ -11,8 +11,6 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 public class AnonymousAuthenticator extends AuthenticatorBase {
 
-    private boolean disposed;
-
     public AnonymousAuthenticator(String networkAddress, int apiVersion, boolean ignoreSsl, HostnameVerifier validationCallback) throws SafeguardForJavaException {
         super(networkAddress, apiVersion, ignoreSsl, validationCallback);
 
@@ -64,14 +62,12 @@ public class AnonymousAuthenticator extends AuthenticatorBase {
     @Override
     public void dispose() {
         super.dispose();
-        disposed = true;
     }
 
     @Override
     protected void finalize() throws Throwable {
         try {
         } finally {
-            disposed = true;
             super.finalize();
         }
     }
