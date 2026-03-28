@@ -28,6 +28,8 @@ public final class AgentBasedLoginUtils {
     /** Redirect URI for TCP listener-based authentication. */
     public static final String REDIRECT_URI_TCP_LISTENER = "urn:InstalledApplicationTcpListener";
 
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     private AgentBasedLoginUtils() {
     }
 
@@ -38,7 +40,7 @@ public final class AgentBasedLoginUtils {
      */
     public static String oAuthCodeVerifier() {
         byte[] bytes = new byte[60];
-        new SecureRandom().nextBytes(bytes);
+        RANDOM.nextBytes(bytes);
         return toBase64Url(bytes);
     }
 
@@ -65,7 +67,7 @@ public final class AgentBasedLoginUtils {
      */
     public static String generateCsrfToken() {
         byte[] bytes = new byte[32];
-        new SecureRandom().nextBytes(bytes);
+        RANDOM.nextBytes(bytes);
         return toBase64Url(bytes);
     }
 
