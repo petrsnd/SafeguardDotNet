@@ -16,8 +16,10 @@ import org.apache.hc.core5.http.Header;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -87,7 +89,10 @@ public class SafeguardJavaClient {
             Map<String, String> headers = parseKeyValuePairs(opts.headers);
             Map<String, String> parameters = parseKeyValuePairs(opts.parameters);
 
-            if (opts.full) {
+            if (opts.file != null) {
+                String result = handleStreamingRequest(opts, connection, service, method, headers, parameters);
+                System.out.println(result);
+            } else if (opts.full) {
                 FullResponse response = connection.invokeMethodFull(service, method,
                         opts.relativeUrl, opts.body, parameters, headers, null);
                 ObjectNode json = mapper.createObjectNode();
@@ -114,6 +119,26 @@ public class SafeguardJavaClient {
                 ex.printStackTrace(System.err);
             }
             System.exit(1);
+        }
+    }
+
+    private static String handleStreamingRequest(ToolOptions opts, ISafeguardConnection connection,
+            Service service, Method method, Map<String, String> headers,
+            Map<String, String> parameters) throws Exception {
+        if (method == Method.Post) {
+            byte[] fileContent = Files.readAllBytes(new File(opts.file).toPath());
+            return connection.getStreamingRequest().uploadStream(service, opts.relativeUrl,
+                    fileContent, null, parameters, headers);
+        } else if (method == Method.Get) {
+            File outFile = new File(opts.file);
+            if (outFile.exists()) {
+                throw new IllegalStateException("File exists, remove it first: " + opts.file);
+            }
+            connection.getStreamingRequest().downloadStream(service, opts.relativeUrl,
+                    opts.file, null, parameters, headers);
+            return "Download written to " + opts.file;
+        } else {
+            throw new IllegalArgumentException("Streaming is not supported for HTTP method: " + opts.method);
         }
     }
 

@@ -330,6 +330,9 @@ function Invoke-SgJSafeguardApi {
         [switch]$Full,
 
         [Parameter()]
+        [string]$File,
+
+        [Parameter()]
         [hashtable]$Headers,
 
         [Parameter()]
@@ -371,6 +374,8 @@ function Invoke-SgJSafeguardApi {
     }
 
     if ($Full) { $toolArgs += " -f" }
+
+    if ($File) { $toolArgs += " -F `"$File`"" }
 
     if ($Headers -and $Headers.Count -gt 0) {
         $headerPairs = ($Headers.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ","

@@ -303,9 +303,14 @@ public class SafeguardEventListener implements ISafeguardEventListener, AutoClos
             if (apiKey != null)
                 authKey = new String(apiKey);
             else if (apiKeys != null) {
-                for (char[] key : apiKeys)
-                    authKey += new String(key) + " ";
-                authKey = authKey.trim();
+                StringBuilder authKeyBuilder = new StringBuilder();
+                for (char[] key : apiKeys) {
+                    if (authKeyBuilder.length() > 0) {
+                        authKeyBuilder.append(' ');
+                    }
+                    authKeyBuilder.append(key);
+                }
+                authKey = authKeyBuilder.toString();
             }
 
             if (authKey.isEmpty())
@@ -338,10 +343,10 @@ public class SafeguardEventListener implements ISafeguardEventListener, AutoClos
             // If we have a client certificate, set it into the KeyStore/KeyManager
             try{
                 KeyStore keyStore = KeyStore.getInstance("PKCS12");
-                InputStream inputStream = clientCertificate.getCertificatePath() != null ? new FileInputStream(clientCertificate.getCertificatePath())
-                            : new ByteArrayInputStream(clientCertificate.getCertificateData());
-
-                keyStore.load(inputStream, clientCertificate.getCertificatePassword());
+                try (InputStream inputStream = clientCertificate.getCertificatePath() != null ? new FileInputStream(clientCertificate.getCertificatePath())
+                            : new ByteArrayInputStream(clientCertificate.getCertificateData())) {
+                    keyStore.load(inputStream, clientCertificate.getCertificatePassword());
+                }
 
                 KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
                 keyManagerFactory.init(keyStore, clientCertificate.getCertificatePassword());

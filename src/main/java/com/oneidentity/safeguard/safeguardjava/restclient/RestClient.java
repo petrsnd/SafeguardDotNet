@@ -449,7 +449,6 @@ public class RestClient {
                 || certificateContext.getCertificateData() != null
                 || certificateContext.getCertificateThumbprint() != null) {
 
-            InputStream in;
             KeyStore clientKs = null;
             List<String> aliases = null;
             char[] keyPass = certificateContext.getCertificatePassword();
@@ -461,17 +460,17 @@ public class RestClient {
                     aliases = new ArrayList<>();
                     aliases = Collections.list(clientKs.aliases());
                 } else {
-                    in = certificateContext.getCertificatePath() != null ? new FileInputStream(certificateContext.getCertificatePath())
-                            : new ByteArrayInputStream(certificateContext.getCertificateData());
-                    try {
-                        clientKs = KeyStore.getInstance("JKS");
-                    } catch (KeyStoreException ex) {
-                        logger.error("Could not get instance of JDK, trying PKCS12", ex);
-                        clientKs = KeyStore.getInstance("PKCS12");
+                    try (InputStream in2 = certificateContext.getCertificatePath() != null ? new FileInputStream(certificateContext.getCertificatePath())
+                            : new ByteArrayInputStream(certificateContext.getCertificateData())) {
+                        try {
+                            clientKs = KeyStore.getInstance("JKS");
+                        } catch (KeyStoreException ex) {
+                            logger.error("Could not get instance of JDK, trying PKCS12", ex);
+                            clientKs = KeyStore.getInstance("PKCS12");
+                        }
+                        clientKs.load(in2, keyPass);
+                        aliases = Collections.list(clientKs.aliases());
                     }
-                    clientKs.load(in, keyPass);
-                    aliases = Collections.list(clientKs.aliases());
-                    in.close();
                 }
             } catch (FileNotFoundException ex) {
                 logger.error("Exception occurred", ex);

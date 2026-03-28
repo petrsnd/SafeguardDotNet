@@ -13,11 +13,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Map;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 
 class StreamingRequest implements IStreamingRequest {
 
+    private static final Logger logger = LoggerFactory.getLogger(StreamingRequest.class);
     private final Integer DefaultBufferSize = 81920;
     private final SafeguardConnection safeguardConnection;
     private final IAuthenticationMechanism authenticationMechanism;
@@ -111,8 +114,8 @@ class StreamingRequest implements IStreamingRequest {
         } catch (Exception ex) {
             throw new SafeguardForJavaException(String.format("Unable to download %s", outputFilePath), ex);
         } finally {
-            if (output != null) try { output.close(); } catch (IOException logOrIgnore) {}
-            if (input != null) try { input.close(); } catch (IOException logOrIgnore) {}
+            if (output != null) try { output.close(); } catch (IOException ex) { logger.debug("Error closing output stream", ex); }
+            if (input != null) try { input.close(); } catch (IOException ex) { logger.debug("Error closing input stream", ex); }
         }
 
         FullResponse fullResponse = new FullResponse(response.getCode(), response.getHeaders(), null);

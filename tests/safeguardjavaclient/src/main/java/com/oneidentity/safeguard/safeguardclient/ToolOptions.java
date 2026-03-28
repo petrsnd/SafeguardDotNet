@@ -91,6 +91,10 @@ public class ToolOptions {
         description = "Display verbose debug output")
     boolean verbose;
 
+    @Option(names = {"-F", "--file"},
+        description = "File path for streaming upload (POST) or download (GET)")
+    String file;
+
     @Option(names = {"--interactive"}, defaultValue = "false",
         description = "Run in interactive menu mode (legacy)")
     boolean interactive;

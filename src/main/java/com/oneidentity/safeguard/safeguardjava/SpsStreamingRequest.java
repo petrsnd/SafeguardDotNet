@@ -12,9 +12,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class SpsStreamingRequest implements ISpsStreamingRequest {
 
+    private static final Logger logger = LoggerFactory.getLogger(SpsStreamingRequest.class);
     private final Integer DefaultBufferSize = 81920;
     private RestClient client;
 
@@ -149,7 +152,7 @@ class SpsStreamingRequest implements ISpsStreamingRequest {
         } catch (Exception ex) {
             throw new SafeguardForJavaException(String.format("Unable to download %s", outputFilePath), ex);
         } finally {
-            if (output != null) try { output.close(); } catch (IOException logOrIgnore) {}
+            if (output != null) try { output.close(); } catch (IOException ex) { logger.debug("Error closing output stream", ex); }
             if (streamResponse != null) streamResponse.dispose();
         }
     }
