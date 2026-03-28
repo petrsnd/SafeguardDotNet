@@ -91,6 +91,21 @@ connection.dispose();
 Calling the simple 'Me' endpoint provides information about the currently logged
 on user.
 
+## Samples
+
+The [Samples](Samples/) directory contains standalone example projects demonstrating
+common SafeguardJava usage patterns:
+
+| Sample | Description |
+|--------|-------------|
+| [PasswordConnect](Samples/PasswordConnect/) | Connect using username and password, call the API |
+| [CertificateConnect](Samples/CertificateConnect/) | Connect using a PKCS12 client certificate file |
+| [A2ARetrievalExample](Samples/A2ARetrievalExample/) | Retrieve a credential via Application-to-Application (A2A) |
+| [EventListenerExample](Samples/EventListenerExample/) | Subscribe to real-time Safeguard events via SignalR |
+
+Each sample is a self-contained Maven project that can be built and run independently.
+See the README in each sample directory for prerequisites and usage instructions.
+
 ## About the Safeguard API
 
 The Safeguard API is a REST-based Web API. Safeguard API endpoints are called
