@@ -220,7 +220,7 @@ public class PkceAuthenticator extends AuthenticatorBase {
                 if (initResponse != null && initResponse.has("State")) {
                     mfaState = initResponse.get("State").asText("");
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 // Proceed without state
             }
 
@@ -235,7 +235,7 @@ public class PkceAuthenticator extends AuthenticatorBase {
             logger.debug("Secondary authentication completed successfully");
         } catch (SafeguardForJavaException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new SafeguardForJavaException("Secondary authentication failed", e);
         }
     }

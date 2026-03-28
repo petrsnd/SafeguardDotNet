@@ -239,7 +239,7 @@ class SafeguardConnection implements ISafeguardConnection {
     static void logResponseDetails(FullResponse fullResponse)
     {
         logger.trace("Reponse status code: {}", fullResponse.getStatusCode());
-        String msg = fullResponse.getHeaders() == null ? "None" : fullResponse.getHeaders().stream().map(header -> header.getName() + "=" + header.getValue()).collect(Collectors.joining(", ", "{", "}"));
+        String msg = fullResponse.getHeaders().stream().map(header -> header.getName() + "=" + header.getValue()).collect(Collectors.joining(", ", "{", "}"));
         logger.trace("  Response headers: {}", msg);
         msg = fullResponse.getBody() == null ? "None" : String.format("%d",fullResponse.getBody().length());
         logger.trace("  Body size: {}", msg);

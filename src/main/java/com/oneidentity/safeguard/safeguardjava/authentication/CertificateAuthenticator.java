@@ -118,9 +118,6 @@ public class CertificateAuthenticator extends AuthenticatorBase
 
         String content = Utils.getResponse(response);
         if (!Utils.isSuccessful(response.getCode())) {
-            String msg = Utils.isNullOrEmpty(clientCertificate.getCertificateAlias()) ?
-                    String.format("file=%s", clientCertificate.getCertificatePath()) : String.format("alias=%s", clientCertificate.getCertificateAlias());
-
             throw new SafeguardForJavaException("Error using client_credentials grant_type with " + clientCertificate.toString() +
                     String.format(", Error: %d %s", response.getCode(), content));
         }

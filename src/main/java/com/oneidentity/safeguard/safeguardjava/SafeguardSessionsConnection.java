@@ -9,7 +9,6 @@ import com.oneidentity.safeguard.safeguardjava.exceptions.ArgumentException;
 import com.oneidentity.safeguard.safeguardjava.exceptions.ObjectDisposedException;
 import com.oneidentity.safeguard.safeguardjava.exceptions.SafeguardForJavaException;
 import com.oneidentity.safeguard.safeguardjava.restclient.RestClient;
-import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +33,6 @@ class SafeguardSessionsConnection implements ISafeguardSessionsConnection {
 
         String spsApiUrl = String.format("https://%s/api", networkAddress);
         client = new RestClient(spsApiUrl, username, password, ignoreSsl, validationCallback);
-
-        Map<String, String> headers = new HashMap<>();
 
         logger.trace("Starting authentication.");
         logRequestDetails(Method.Get, client.getBaseURL() + "/" + "authentication", null, null);

@@ -18,7 +18,7 @@ public class CertificateUtilities {
     private CertificateUtilities() {
     }
 
-    public static String WINDOWSKEYSTORE = "Windows-MY";
+    public static final String WINDOWSKEYSTORE = "Windows-MY";
 
     public static String getClientCertificateAliasFromStore(String thumbprint) throws SafeguardForJavaException {
 

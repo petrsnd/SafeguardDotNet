@@ -64,12 +64,4 @@ public class AnonymousAuthenticator extends AuthenticatorBase {
         super.dispose();
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-        } finally {
-            super.finalize();
-        }
-    }
-
 }
