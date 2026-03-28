@@ -844,7 +844,7 @@ public final class Safeguard {
             }
 
             return new PersistentSafeguardEventListener(getConnection(
-                    new PasswordAuthenticator(networkAddress, provider, username, password, version, ignoreSsl, null)));
+                    new PasswordAuthenticator(networkAddress, provider, username, password, version, sslIgnore, null)));
         }
 
         /**
@@ -907,7 +907,7 @@ public final class Safeguard {
             }
 
             return new PersistentSafeguardEventListener(getConnection(
-                    new CertificateAuthenticator(networkAddress, certificatePath, certificatePassword, version, ignoreSsl, null)));
+                    new CertificateAuthenticator(networkAddress, certificatePath, certificatePassword, version, sslIgnore, null)));
         }
 
         /**
@@ -967,7 +967,7 @@ public final class Safeguard {
             }
 
             return new PersistentSafeguardEventListener(getConnection(
-                    new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias, version, ignoreSsl, null)));
+                    new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias, version, sslIgnore, null)));
         }
 
         /**
@@ -1026,7 +1026,7 @@ public final class Safeguard {
             }
 
             return new PersistentSafeguardEventListener(getConnection(new CertificateAuthenticator(networkAddress,
-                    keystorePath, keystorePassword, certificateAlias, version, ignoreSsl, null)));
+                    keystorePath, keystorePassword, certificateAlias, version, sslIgnore, null)));
         }
 
         /**
@@ -1087,7 +1087,7 @@ public final class Safeguard {
             }
 
             return new PersistentSafeguardEventListener(getConnection(
-                    new CertificateAuthenticator(networkAddress, certificatePath, certificatePassword, version, ignoreSsl, null, provider)));
+                    new CertificateAuthenticator(networkAddress, certificatePath, certificatePassword, version, sslIgnore, null, provider)));
         }
 
         /**
@@ -1157,7 +1157,7 @@ public final class Safeguard {
             }
 
             return new PersistentSafeguardEventListener(getConnection(
-                    new CertificateAuthenticator(networkAddress, thumbprint, version, ignoreSsl, null, null)));
+                    new CertificateAuthenticator(networkAddress, thumbprint, version, sslIgnore, null, null)));
         }
 
         /**
@@ -1235,7 +1235,7 @@ public final class Safeguard {
             }
 
             return new PersistentSafeguardEventListener(getConnection(
-                    new CertificateAuthenticator(networkAddress, thumbprint, version, ignoreSsl, null, provider)));
+                    new CertificateAuthenticator(networkAddress, thumbprint, version, sslIgnore, null, provider)));
         }
 
         /**
@@ -1305,7 +1305,7 @@ public final class Safeguard {
             }
 
             return new PersistentSafeguardEventListener(getConnection(
-                    new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias, version, ignoreSsl, null, provider)));
+                    new CertificateAuthenticator(networkAddress, certificateData, certificatePassword, certificateAlias, version, sslIgnore, null, provider)));
         }
 
         /**
@@ -1368,7 +1368,7 @@ public final class Safeguard {
             }
 
             return new PersistentSafeguardEventListener(getConnection(new CertificateAuthenticator(networkAddress,
-                    keystorePath, keystorePassword, certificateAlias, version, ignoreSsl, null, provider)));
+                    keystorePath, keystorePassword, certificateAlias, version, sslIgnore, null, provider)));
         }
 
         /**
@@ -1668,7 +1668,7 @@ public final class Safeguard {
                 }
 
                 return new PersistentSafeguardA2AEventListener(
-                        new SafeguardA2AContext(networkAddress, certificateAlias, keystorePath, keystorePassword, version, ignoreSsl, null),
+                        new SafeguardA2AContext(networkAddress, certificateAlias, keystorePath, keystorePassword, version, sslIgnore, null),
                         apiKey, handler);
             }
 
@@ -1747,7 +1747,7 @@ public final class Safeguard {
 
                 return new PersistentSafeguardA2AEventListener(
                         new SafeguardA2AContext(networkAddress, certificatePath, certificatePassword, version,
-                                ignoreSsl, null), apiKey, handler);
+                                sslIgnore, null), apiKey, handler);
             }
 
             /**
@@ -1823,7 +1823,7 @@ public final class Safeguard {
 
                 return new PersistentSafeguardA2AEventListener(
                         new SafeguardA2AContext(networkAddress, certificateData, certificatePassword, version,
-                                ignoreSsl, null), apiKey, handler);
+                                sslIgnore, null), apiKey, handler);
             }
 
             /**
@@ -1899,7 +1899,7 @@ public final class Safeguard {
                 }
 
                 return new PersistentSafeguardA2AEventListener(
-                        new SafeguardA2AContext(networkAddress, certificateAlias, keystorePath, keystorePassword, version, ignoreSsl, null),
+                        new SafeguardA2AContext(networkAddress, certificateAlias, keystorePath, keystorePassword, version, sslIgnore, null),
                         apiKeys, handler);
             }
 
@@ -1978,7 +1978,7 @@ public final class Safeguard {
 
                 return new PersistentSafeguardA2AEventListener(
                         new SafeguardA2AContext(networkAddress, certificatePath, certificatePassword, version,
-                                ignoreSsl, null), apiKeys, handler);
+                                sslIgnore, null), apiKeys, handler);
             }
 
             /**
@@ -2085,7 +2085,7 @@ public final class Safeguard {
                 }
 
                 return new PersistentSafeguardA2AEventListener(
-                        new SafeguardA2AContext(networkAddress, version, ignoreSsl,
+                        new SafeguardA2AContext(networkAddress, version, sslIgnore,
                                 thumbprint, null), apiKeys, handler);
                 */
             }
@@ -2163,7 +2163,7 @@ public final class Safeguard {
 
                 return new PersistentSafeguardA2AEventListener(
                         new SafeguardA2AContext(networkAddress, certificateData, certificatePassword, version,
-                                ignoreSsl, null), apiKeys, handler);
+                                sslIgnore, null), apiKeys, handler);
             }
 
             /**
