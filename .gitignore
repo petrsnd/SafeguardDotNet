@@ -25,3 +25,9 @@ hs_err_pid*
 /jenkins-plugin/safeguard4jenkins/target/
 /safeguard4jenkins/target/
 /tests/safeguardjavaclient/target/
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
