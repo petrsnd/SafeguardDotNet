@@ -17,10 +17,16 @@
             $null -ne $result
         }
 
-        Test-SgJAssert "Anonymous response contains appliance state" {
+        Test-SgJAssert "Anonymous status response contains ApplianceCurrentState" {
             $result = Invoke-SgJSafeguardApi -Context $Context `
-                -Service Notification -Method Get -RelativeUrl "Status" -Anonymous -ParseJson $false
-            $null -ne $result -and $result.Length -gt 0
+                -Service Notification -Method Get -RelativeUrl "Status" -Anonymous
+            $null -ne $result.ApplianceCurrentState -and $result.ApplianceCurrentState.Length -gt 0
+        }
+
+        Test-SgJAssert "Anonymous status ApplianceCurrentState is Online" {
+            $result = Invoke-SgJSafeguardApi -Context $Context `
+                -Service Notification -Method Get -RelativeUrl "Status" -Anonymous
+            $result.ApplianceCurrentState -eq "Online"
         }
     }
 

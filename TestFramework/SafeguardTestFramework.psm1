@@ -437,7 +437,7 @@ function Invoke-SgJTokenCommand {
         [PSCustomObject]$Context,
 
         [Parameter(Mandatory)]
-        [ValidateSet("TokenLifetime", "GetToken")]
+        [ValidateSet("TokenLifetime", "GetToken", "RefreshToken", "Logout")]
         [string]$Command,
 
         [Parameter()]
@@ -461,6 +461,8 @@ function Invoke-SgJTokenCommand {
     switch ($Command) {
         "TokenLifetime" { $toolArgs += " -T" }
         "GetToken"      { $toolArgs += " -G" }
+        "RefreshToken"  { $toolArgs += " --refresh-token" }
+        "Logout"        { $toolArgs += " -L" }
     }
 
     return Invoke-SgJSafeguardTool -Arguments $toolArgs -StdinLine $effectivePass

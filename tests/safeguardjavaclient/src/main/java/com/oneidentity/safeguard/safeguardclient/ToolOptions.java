@@ -79,6 +79,14 @@ public class ToolOptions {
         description = "Output the current access token as JSON and exit")
     boolean getToken;
 
+    @Option(names = {"-L", "--logout"}, defaultValue = "false",
+        description = "Log out the connection (invalidate token) and output result as JSON")
+    boolean logout;
+
+    @Option(names = {"--refresh-token"}, defaultValue = "false",
+        description = "Refresh the access token and output new token lifetime as JSON")
+    boolean refreshToken;
+
     @Option(names = {"--pkce"}, defaultValue = "false",
         description = "Use PKCE (Proof Key for Code Exchange) authentication instead of password grant")
     boolean pkce;

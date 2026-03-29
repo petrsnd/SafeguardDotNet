@@ -61,8 +61,8 @@
                 -RelativeUrl "Backups/Upload" `
                 -File $downloadPath
 
-            Test-SgJAssert "Streaming upload: response received" {
-                $null -ne $uploadResult
+            Test-SgJAssert "Streaming upload: response has Id and Complete status" {
+                $null -ne $uploadResult.Id -and $uploadResult.Status -eq "Complete"
             }
 
         } finally {

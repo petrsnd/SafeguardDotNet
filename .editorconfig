@@ -17,3 +17,11 @@ trim_trailing_whitespace = false
 
 [*.xml]
 indent_size = 4
+
+[*.{pfx,cer,pvk}]
+charset = unset
+end_of_line = unset
+indent_style = unset
+indent_size = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset

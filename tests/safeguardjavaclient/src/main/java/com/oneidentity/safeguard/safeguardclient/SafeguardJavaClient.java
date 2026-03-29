@@ -91,6 +91,27 @@ public class SafeguardJavaClient {
                 return;
             }
 
+            if (opts.refreshToken) {
+                connection.refreshAccessToken();
+                int remaining = connection.getAccessTokenLifetimeRemaining();
+                ObjectNode json = mapper.createObjectNode();
+                json.put("TokenLifetimeRemaining", remaining);
+                System.out.println(mapper.writeValueAsString(json));
+                System.exit(0);
+                return;
+            }
+
+            if (opts.logout) {
+                char[] token = connection.getAccessToken();
+                ObjectNode json = mapper.createObjectNode();
+                json.put("AccessToken", new String(token));
+                connection.logOut();
+                json.put("LoggedOut", true);
+                System.out.println(mapper.writeValueAsString(json));
+                System.exit(0);
+                return;
+            }
+
             Service service = parseService(opts.service);
             Method method = parseMethod(opts.method);
             Map<String, String> headers = parseKeyValuePairs(opts.headers);

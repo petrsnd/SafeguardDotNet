@@ -135,7 +135,16 @@ public class RestClient {
 
     private URI getBaseURI(String segments) {
         try {
-            return new URI(serverUrl+"/"+segments);
+            String fullUrl = serverUrl + "/" + segments;
+            int queryIdx = fullUrl.indexOf('?');
+            if (queryIdx >= 0) {
+                URI base = new URI(fullUrl.substring(0, queryIdx));
+                String rawQuery = fullUrl.substring(queryIdx + 1);
+                return new URI(base.getScheme(), base.getUserInfo(),
+                        base.getHost(), base.getPort(), base.getPath(),
+                        rawQuery, null);
+            }
+            return new URI(fullUrl);
         } catch (URISyntaxException ex) {
             logger.error("Invalid URI", ex);
         }

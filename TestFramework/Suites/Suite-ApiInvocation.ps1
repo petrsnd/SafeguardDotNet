@@ -14,6 +14,8 @@
         Remove-SgJStaleTestObject -Context $Context -Collection "AssetAccounts" -Name "${prefix}_ApiAccount"
         Remove-SgJStaleTestObject -Context $Context -Collection "Assets" -Name "${prefix}_ApiAsset"
         Remove-SgJStaleTestObject -Context $Context -Collection "Users" -Name "${prefix}_ApiDeleteMe"
+        Remove-SgJStaleTestObject -Context $Context -Collection "Users" -Name "${prefix}_ApiFullPost"
+        Remove-SgJStaleTestObject -Context $Context -Collection "Users" -Name "${prefix}_ApiFullDel"
         Remove-SgJStaleTestObject -Context $Context -Collection "Users" -Name $adminUser
 
         # Create admin user for privileged operations
@@ -67,6 +69,38 @@
                 -Service Core -Method Get -RelativeUrl "Users"
             $items = @($result)
             $items.Count -ge 1
+        }
+
+        # --- GET with query filter ---
+        Test-SgJAssert "GET with filter returns matching objects only" {
+            $result = Invoke-SgJSafeguardApi -Context $Context -Service Core -Method Get `
+                -RelativeUrl "Users?filter=Name eq '$adminUser'"
+            $items = @($result)
+            $items.Count -eq 1 -and $items[0].Name -eq $adminUser
+        }
+
+        # --- GET with contains filter ---
+        Test-SgJAssert "GET with contains filter finds test objects" {
+            $result = Invoke-SgJSafeguardApi -Context $Context -Service Core -Method Get `
+                -RelativeUrl "Users?filter=Name contains '${prefix}'"
+            $items = @($result)
+            $items.Count -ge 1
+        }
+
+        # --- GET with ordering ---
+        Test-SgJAssert "GET with orderby returns ordered results" {
+            $result = Invoke-SgJSafeguardApi -Context $Context -Service Core -Method Get `
+                -RelativeUrl "Users?orderby=Name"
+            $items = @($result)
+            if ($items.Count -lt 2) { $false; return }
+            $ordered = $true
+            for ($i = 1; $i -lt $items.Count; $i++) {
+                if ($items[$i].Name -lt $items[$i - 1].Name) {
+                    $ordered = $false
+                    break
+                }
+            }
+            $ordered
         }
 
         # --- DELETE removes an object ---
@@ -130,6 +164,49 @@
             $body = $result.Body
             if ($body -is [string]) { $body = $body | ConvertFrom-Json }
             $null -ne $body.Name
+        }
+
+        # --- InvokeMethodFull: response contains Headers ---
+        Test-SgJAssert "Full response contains Headers" {
+            $result = Invoke-SgJSafeguardApi -Context $Context -Service Core -Method Get `
+                -RelativeUrl "Me" -Full
+            $null -ne $result.Headers -and $result.Headers.Count -gt 0
+        }
+
+        # --- InvokeMethodFull: POST returns 201 ---
+        Test-SgJAssert "Full response POST returns StatusCode 201" {
+            Remove-SgJStaleTestObject -Context $Context -Collection "Users" -Name "${prefix}_ApiFullPost"
+            $result = Invoke-SgJSafeguardApi -Context $Context -Service Core -Method Post `
+                -RelativeUrl "Users" -Full -Body @{
+                    PrimaryAuthenticationProvider = @{ Id = -1 }
+                    Name = "${prefix}_ApiFullPost"
+                }
+            try {
+                $result.StatusCode -eq 201
+            }
+            finally {
+                $body = $result.Body
+                if ($body -is [string]) { $body = $body | ConvertFrom-Json }
+                if ($body.Id) {
+                    try {
+                        Invoke-SgJSafeguardApi -Context $Context -Service Core -Method Delete `
+                            -RelativeUrl "Users/$($body.Id)" -ParseJson $false
+                    } catch {}
+                }
+            }
+        }
+
+        # --- InvokeMethodFull: DELETE returns 204 ---
+        Test-SgJAssert "Full response DELETE returns StatusCode 204" {
+            Remove-SgJStaleTestObject -Context $Context -Collection "Users" -Name "${prefix}_ApiFullDel"
+            $tempUser = Invoke-SgJSafeguardApi -Context $Context -Service Core -Method Post `
+                -RelativeUrl "Users" -Body @{
+                    PrimaryAuthenticationProvider = @{ Id = -1 }
+                    Name = "${prefix}_ApiFullDel"
+                }
+            $deleteResult = Invoke-SgJSafeguardApi -Context $Context -Service Core -Method Delete `
+                -RelativeUrl "Users/$($tempUser.Id)" -Full
+            $deleteResult.StatusCode -eq 204
         }
 
         # --- GET against Notification service (anonymous) ---

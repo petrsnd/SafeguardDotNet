@@ -42,7 +42,7 @@
         Test-SgJAssert "Bootstrap admin can connect and call Me endpoint" {
             $result = Invoke-SgJSafeguardApi -Context $Context `
                 -Service Core -Method Get -RelativeUrl "Me"
-            $null -ne $result -and $null -ne $result.Id
+            $null -ne $result -and $result.Name -eq $Context.AdminUserName.ToLower()
         }
 
         Test-SgJAssert "Test user can authenticate with password" {
@@ -53,9 +53,31 @@
             $result.Name -eq $Context.SuiteData["UserName"]
         }
 
+        Test-SgJAssert "Test user Id matches created user" {
+            $result = Invoke-SgJSafeguardApi -Context $Context `
+                -Service Core -Method Get -RelativeUrl "Me" `
+                -Username $Context.SuiteData["UserName"] `
+                -Password $Context.SuiteData["UserPassword"]
+            $result.Id -eq $Context.SuiteData["UserId"]
+        }
+
         Test-SgJAssert "Token lifetime is positive after authentication" {
             $result = Invoke-SgJTokenCommand -Context $Context -Command TokenLifetime
             $result.TokenLifetimeRemaining -gt 0
+        }
+
+        Test-SgJAssert "Wrong password is rejected" {
+            $rejected = $false
+            try {
+                Invoke-SgJSafeguardApi -Context $Context `
+                    -Service Core -Method Get -RelativeUrl "Me" `
+                    -Username $Context.SuiteData["UserName"] `
+                    -Password "CompletelyWrongPassword!99"
+            }
+            catch {
+                $rejected = $true
+            }
+            $rejected
         }
     }
 
