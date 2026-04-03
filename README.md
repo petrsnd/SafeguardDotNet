@@ -77,9 +77,88 @@ SafeguardDotNet uses RestSharp and Json.NET to call the Safeguard API. It
 includes calls to Serilog, and if your calling application provides a sink you
 will get log information automatically.
 
+## Resource Owner Password Grant Deprecation
+
+The OAuth2 Resource Owner Password Credential (ROPC) grant type — where
+usernames and passwords are sent directly to the API — is disabled by default
+in Safeguard and **should not be used for new integrations**. ROPC does not
+support federated identity providers, multi-factor authentication, or modern
+security best practices.
+
+The `Safeguard.Connect(appliance, provider, username, password)` overload
+relies on the Resource Owner grant. If the appliance has not explicitly
+enabled this grant type, calls using this method will fail.
+
+**Instead, use one of the PKCE-based authentication packages:**
+
+| Package | NuGet | Use Case |
+|-|-|-|
+| [SafeguardDotNet.BrowserLogin](SafeguardDotNet.BrowserLogin) | `OneIdentity.SafeguardDotNet.BrowserLogin` | Interactive apps — opens the default browser for login (cross-platform) |
+| [SafeguardDotNet.PkceNoninteractiveLogin](SafeguardDotNet.PkceNoninteractiveLogin) | `OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin` | Automated/programmatic scenarios — no browser required |
+| [SafeguardDotNet.GuiLogin](SafeguardDotNet.GuiLogin) | `OneIdentity.SafeguardDotNet.GuiLogin` | Windows Forms desktop apps — embedded WebView2 dialog |
+
+All three packages use the OAuth2 Authorization Code flow with PKCE
+(RFC 7636), which is the recommended approach for authenticating users.
+
+Client certificate authentication and pre-existing API tokens are **not
+affected** by this change and remain fully supported.
+
 ## Getting Started
 
-A simple code example for calling the Safeguard API:
+### Browser Login (Recommended for Interactive Apps)
+
+The simplest way to authenticate a user without relying on the Resource Owner
+grant is the browser-based PKCE flow. Install the `BrowserLogin` package:
+
+```PowerShell
+PS> dotnet add package OneIdentity.SafeguardDotNet.BrowserLogin
+```
+
+```C#
+using OneIdentity.SafeguardDotNet;
+using OneIdentity.SafeguardDotNet.BrowserLogin;
+
+// Opens the default browser to the Safeguard login page
+var connection = DefaultBrowserLogin.Connect("safeguard.sample.corp");
+Console.WriteLine(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
+```
+
+### PKCE Non-Interactive Login (Recommended for Automation)
+
+When you need programmatic authentication without a browser (e.g. automated
+tests, CI/CD pipelines, or headless environments), use the PKCE
+non-interactive package:
+
+```PowerShell
+PS> dotnet add package OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin
+```
+
+```C#
+using OneIdentity.SafeguardDotNet;
+using OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin;
+
+SecureString password = GetPasswordSomehow();
+var connection = PkceNoninteractiveLogin.Connect(
+    "safeguard.sample.corp", "local", "Admin", password);
+Console.WriteLine(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
+```
+
+If the identity provider requires multi-factor authentication, pass the
+one-time code as a secondary password:
+
+```C#
+SecureString password = GetPasswordSomehow();
+SecureString totp = GetOneTimeCodeSomehow();
+var connection = PkceNoninteractiveLogin.Connect(
+    "safeguard.sample.corp", "local", "Admin", password, totp);
+Console.WriteLine(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
+```
+
+### Username / Password (Resource Owner Grant — Legacy)
+
+The following method relies on the Resource Owner grant, which is disabled by
+default. See the [deprecation note](#resource-owner-password-grant-deprecation)
+above for recommended alternatives.
 
 ```C#
 SecureString password = GetPasswordSomehow(); // default password is "Admin123"
@@ -87,9 +166,12 @@ var connection = Safeguard.Connect("safeguard.sample.corp", "local", "Admin", pa
 Console.WriteLine(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
 ```
 
+### Client Certificate Authentication
+
 Certificates may be used in two different ways, either via a PFX (PKCS12) file
 or using a SHA-1 thumbprint identifying a certificate in the User or Computer
-personal store.
+personal store. Certificate authentication is **not affected** by the Resource
+Owner grant deprecation.
 
 ```C#
 SecureString certificatePassword = GetPasswordSomehow();
@@ -101,6 +183,8 @@ Console.WriteLine(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
 var connection = Safeguard.Connect("safeguard.sample.corp", "756766BB590D7FA9CA9E1971A4AE41BB9CEC82F1");
 Console.WriteLine(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
 ```
+
+### Existing API Token
 
 A final authentication method that is available is using an existing Safeguard API token.
 
