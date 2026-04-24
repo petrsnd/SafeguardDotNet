@@ -22,6 +22,16 @@ public interface ISafeguardA2AContext : IDisposable
     IList<A2ARetrievableAccount> GetRetrievableAccounts();
 
     /// <summary>
+    /// Retrieves a filtered list of retrievable accounts for this A2A context.  Listing the retrievable accounts
+    /// is a new feature for Safeguard v2.8+, and it needs to be enabled in the A2A configuration.  The filter
+    /// is applied server-side to each A2A registration's retrievable accounts endpoint.  All A2A registrations
+    /// are still enumerated.
+    /// </summary>
+    /// <param name="filter">SCIM-style filter string (e.g., "AccountName eq 'admin'").</param>
+    /// <returns>A filtered list of retrievable accounts.</returns>
+    IList<A2ARetrievableAccount> GetRetrievableAccounts(string filter);
+
+    /// <summary>
     /// Retrieves a password using Safeguard A2A.
     /// </summary>
     /// <param name="apiKey">API key corresponding to the configured account.</param>

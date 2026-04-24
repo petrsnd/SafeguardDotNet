@@ -104,6 +104,11 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
 
     public IList<A2ARetrievableAccount> GetRetrievableAccounts()
     {
+        return GetRetrievableAccounts(null);
+    }
+
+    public IList<A2ARetrievableAccount> GetRetrievableAccounts(string filter)
+    {
         if (_disposed)
         {
             throw new ObjectDisposedException("SafeguardA2AContext");
@@ -117,7 +122,17 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
 
         foreach (var registration in registrations)
         {
-            json = ApiRequest(HttpMethod.Get, GetUrl(Core, $"A2ARegistrations/{registration.Id}/RetrievableAccounts"), null, null);
+            var url = GetUrl(Core, $"A2ARegistrations/{registration.Id}/RetrievableAccounts");
+
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                url = SafeguardConnection.AddQueryParameters(url, new Dictionary<string, string>
+                {
+                    ["filter"] = filter,
+                });
+            }
+
+            json = ApiRequest(HttpMethod.Get, url, null, null);
 
             var accounts = JsonConvert.DeserializeObject<List<A2ARetrievableAccount>>(json);
 
