@@ -715,6 +715,9 @@ function Invoke-SgDnSafeguardA2a {
         [switch]$RetrievableAccounts,
 
         [Parameter()]
+        [string]$Filter,
+
+        [Parameter()]
         [switch]$NewPassword,
 
         [Parameter()]
@@ -747,6 +750,7 @@ function Invoke-SgDnSafeguardA2a {
     }
 
     if ($RetrievableAccounts) { $toolArgs += " -R" }
+    if ($Filter) { $toolArgs += " -f `"$Filter`"" }
     if ($NewPassword) { $toolArgs += " -N" }
     if ($PrivateKey) { $toolArgs += " -K" }
     if ($ApiKeySecret) { $toolArgs += " -P" }
