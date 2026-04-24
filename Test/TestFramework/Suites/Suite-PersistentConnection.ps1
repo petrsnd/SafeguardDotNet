@@ -1,4 +1,4 @@
-@{
+﻿@{
     Name        = "Persistent Connection"
     Description = "Tests Safeguard.Persist() wrapper for automatic token refresh"
     Tags        = @("persistent", "token", "refresh")
@@ -72,28 +72,26 @@
                     -RelativeUrl "Settings"
                 $tokenSetting = $settings | Where-Object { $_.Name -eq "Token Lifetime" }
                 $originalLifetime = $tokenSetting.Value
-                Write-Host "    Original token lifetime: ${originalLifetime}s"
-
+                Write-Host "    Original token lifetime: ${originalLifetime}s" -ForegroundColor DarkGray
                 try {
                     # Lower token lifetime to minimum (600s)
                     $null = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Put `
                         -RelativeUrl "Settings/Token Lifetime" -Body @{ Value = "600" }
-                    Write-Host "    Token lifetime set to 600s"
-
+                    Write-Host "    Token lifetime set to 600s" -ForegroundColor DarkGray
                     # Connect with Persist, delay 660s (11 min), then make API call.
                     # If auto-refresh works, the call succeeds despite the expired token.
                     $result = Invoke-PersistTool `
                         -ExtraArgs "-W 660 -s Core -m Get -U `"Users?limit=1`"" `
                         -TimeoutSec 720
                     $success = $null -ne $result
-                    Write-Host "    API call after expiry: $(if ($success) { 'succeeded' } else { 'FAILED' })"
+                    Write-Host "    API call after expiry: $(if ($success) { 'succeeded' } else { 'FAILED' })" -ForegroundColor DarkGray
                     $success
                 }
                 finally {
                     # Restore original token lifetime
                     $null = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Put `
                         -RelativeUrl "Settings/Token Lifetime" -Body @{ Value = "$originalLifetime" }
-                    Write-Host "    Token lifetime restored to ${originalLifetime}s"
+                    Write-Host "    Token lifetime restored to ${originalLifetime}s" -ForegroundColor DarkGray
                 }
             }
         }

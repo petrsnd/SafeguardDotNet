@@ -1,4 +1,4 @@
-@{
+﻿@{
     Name        = "Password Authentication"
     Description = "Tests password-based authentication and basic admin API access"
     Tags        = @("auth", "core")
@@ -11,9 +11,11 @@
         $testPassword = "2309aseflkasdlf209349qauerA"
 
         # Pre-cleanup: remove stale objects from previous failed runs
+        Write-Host "    Removing stale objects from previous runs..." -ForegroundColor DarkGray
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name $testUser
 
         # Create a test user with admin roles
+        Write-Host "    Creating test user '$testUser'..." -ForegroundColor DarkGray
         $user = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Users" -Body @{
                 PrimaryAuthenticationProvider = @{ Id = -1 }
@@ -32,6 +34,7 @@
         }
 
         # Set password
+        Write-Host "    Setting user password..." -ForegroundColor DarkGray
         Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Put `
             -RelativeUrl "Users/$($user.Id)/Password" -Body "'$testPassword'" -ParseJson $false
     }

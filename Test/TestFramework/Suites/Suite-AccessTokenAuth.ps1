@@ -1,4 +1,4 @@
-@{
+﻿@{
     Name        = "Access Token Authentication"
     Description = "Tests connecting to Safeguard using a pre-obtained access token via Safeguard.Connect(address, token)"
     Tags        = @("token", "auth", "core")
@@ -7,6 +7,7 @@
         param($Context)
 
         # Obtain a valid access token via password auth without invalidating it.
+        Write-Host "    Obtaining access token..." -ForegroundColor DarkGray
         $tokenResult = Invoke-SgDnTokenCommand -Context $Context -Command GetToken
         $Context.SuiteData["AccessToken"] = $tokenResult.AccessToken
     }

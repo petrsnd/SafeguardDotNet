@@ -126,4 +126,12 @@ internal class ToolOptions
         Default = null,
         HelpText = "Private key format to request")]
     public KeyFormat KeyFormat { get; set; }
+
+    [Option(
+        'f',
+        "Filter",
+        Required = false,
+        Default = null,
+        HelpText = "SCIM-style filter for retrievable accounts (e.g. \"AccountName eq 'admin'\")")]
+    public string Filter { get; set; }
 }

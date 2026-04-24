@@ -107,7 +107,9 @@ void Execute(ToolOptions opts)
         using var context = CreateA2AContext(opts);
         if (opts.ApiKey.Equals("?", StringComparison.Ordinal))
         {
-            var responseBody = context.GetRetrievableAccounts();
+            var responseBody = string.IsNullOrEmpty(opts.Filter)
+                ? context.GetRetrievableAccounts()
+                : context.GetRetrievableAccounts(opts.Filter);
             foreach (var obj in responseBody)
             {
                 Log.Information(obj.ToString());
@@ -117,7 +119,9 @@ void Execute(ToolOptions opts)
         {
             if (opts.RetrievableAccounts)
             {
-                var accounts = context.GetRetrievableAccounts();
+                var accounts = string.IsNullOrEmpty(opts.Filter)
+                    ? context.GetRetrievableAccounts()
+                    : context.GetRetrievableAccounts(opts.Filter);
                 Log.Information(System.Text.Json.JsonSerializer.Serialize(accounts));
             }
 

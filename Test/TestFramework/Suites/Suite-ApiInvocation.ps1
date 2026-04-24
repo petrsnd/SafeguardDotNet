@@ -1,4 +1,4 @@
-@{
+﻿@{
     Name        = "API Invocation Patterns"
     Description = "Tests HTTP methods, CSV output, query parameters, PUT updates, InvokeMethodFull, custom headers, and structured parameters via SafeguardDotNet"
     Tags        = @("api", "core")
@@ -11,6 +11,7 @@
         $adminPassword = "2309aseflkasdlf209349qauerA"
 
         # Pre-cleanup
+        Write-Host "    Removing stale objects from previous runs..." -ForegroundColor DarkGray
         Remove-SgDnStaleTestObject -Context $Context -Collection "AssetAccounts" -Name "${prefix}_ApiAccount"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Assets" -Name "${prefix}_ApiAsset"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name "${prefix}_ApiDeleteMe"
@@ -19,6 +20,7 @@
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name $adminUser
 
         # 1. Create admin user for privileged operations
+        Write-Host "    Creating admin user '$adminUser'..." -ForegroundColor DarkGray
         $admin = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Users" -Body @{
                 PrimaryAuthenticationProvider = @{ Id = -1 }
@@ -37,6 +39,7 @@
             -RelativeUrl "Users/$($admin.Id)/Password" -Body "'$adminPassword'" -ParseJson $false
 
         # 2. Create an asset for testing non-User endpoints
+        Write-Host "    Creating asset '${prefix}_ApiAsset'..." -ForegroundColor DarkGray
         $asset = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Assets" `
             -Username $adminUser -Password $adminPassword `
@@ -56,6 +59,7 @@
         }
 
         # 3. Create an account on the asset
+        Write-Host "    Creating account '${prefix}_ApiAccount' on asset..." -ForegroundColor DarkGray
         $account = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "AssetAccounts" `
             -Username $adminUser -Password $adminPassword `

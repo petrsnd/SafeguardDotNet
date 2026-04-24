@@ -1,4 +1,4 @@
-@{
+﻿@{
     Name        = "Streaming Upload and Download"
     Description = "Tests streaming file upload (UploadAsync) and download (DownloadStreamAsync) via backup endpoints"
     Tags        = @("streaming", "appliance")

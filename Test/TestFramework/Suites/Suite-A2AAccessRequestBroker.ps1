@@ -1,4 +1,4 @@
-@{
+﻿@{
     Name        = "A2A Access Request Broker"
     Description = "Tests brokered access requests via the A2A AccessRequestBroker tool and SDK"
     Tags        = @("a2a", "broker", "accessrequest")
@@ -13,11 +13,13 @@
         $requesterPassword = "xR3quester!Pass99"
         $certUserName = "${prefix}_BrkCertUser"
 
+        Write-Host "    Computing certificate thumbprints..." -ForegroundColor DarkGray
         $userThumbprint = (Get-PfxCertificate $Context.UserCert).Thumbprint
         $rootThumbprint = (Get-PfxCertificate $Context.RootCert).Thumbprint
         $caThumbprint   = (Get-PfxCertificate $Context.CaCert).Thumbprint
 
         # Pre-cleanup
+        Write-Host "    Removing stale objects from previous runs..." -ForegroundColor DarkGray
         Remove-SgDnStaleTestObject -Context $Context -Collection "A2ARegistrations" -Name "${prefix}_BrkA2A"
         Remove-SgDnStaleTestObject -Context $Context -Collection "AssetAccounts" -Name "${prefix}_BrkAccount"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Assets" -Name "${prefix}_BrkAsset"
@@ -28,6 +30,7 @@
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name $adminUser
 
         # 1. Admin user
+        Write-Host "    Creating admin user '$adminUser'..." -ForegroundColor DarkGray
         $admin = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Users" -Body @{
                 PrimaryAuthenticationProvider = @{ Id = -1 }
@@ -46,6 +49,7 @@
             -RelativeUrl "Users/$($admin.Id)/Password" -Body "'$adminPassword'" -ParseJson $false
 
         # 2. Upload cert trust chain
+        Write-Host "    Uploading certificate trust chain..." -ForegroundColor DarkGray
         $rootCertData = [string](Get-Content -Raw $Context.RootCert)
         $rootCert = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "TrustedCertificates" `
@@ -71,6 +75,7 @@
         }
 
         # 3. Certificate user (for A2A context)
+        Write-Host "    Creating certificate user '$certUserName'..." -ForegroundColor DarkGray
         $cUser = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Users" `
             -Username $adminUser -Password $adminPassword `
@@ -86,6 +91,7 @@
         }
 
         # 4. Requester user (the user the broker creates requests for)
+        Write-Host "    Creating requester user '$requesterUser'..." -ForegroundColor DarkGray
         $reqUser = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Users" -Body @{
                 PrimaryAuthenticationProvider = @{ Id = -1 }
@@ -103,6 +109,7 @@
             -RelativeUrl "Users/$($reqUser.Id)/Password" -Body "'$requesterPassword'" -ParseJson $false
 
         # 5. Asset
+        Write-Host "    Creating asset '${prefix}_BrkAsset'..." -ForegroundColor DarkGray
         $asset = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Assets" `
             -Username $adminUser -Password $adminPassword `
@@ -122,6 +129,7 @@
         }
 
         # 6. Account on asset
+        Write-Host "    Creating account '${prefix}_BrkAccount' on asset..." -ForegroundColor DarkGray
         $account = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "AssetAccounts" `
             -Username $adminUser -Password $adminPassword `
@@ -136,12 +144,14 @@
                 -RelativeUrl "AssetAccounts/$($Ctx.SuiteData['AccountId'])" `
                 -Username $Ctx.SuiteData['AdminUser'] -Password $Ctx.SuiteData['AdminPassword']
         }
+        Write-Host "    Setting account password..." -ForegroundColor DarkGray
         Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Put `
             -RelativeUrl "AssetAccounts/$($account.Id)/Password" `
             -Username $adminUser -Password $adminPassword `
             -Body "'$adminPassword'" -ParseJson $false
 
         # 7. Role with requester user as member
+        Write-Host "    Creating role '${prefix}_BrkRole'..." -ForegroundColor DarkGray
         $role = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Roles" `
             -Username $adminUser -Password $adminPassword `
@@ -158,6 +168,7 @@
         }
 
         # 8. Access policy linking role to account (admin user as approver)
+        Write-Host "    Creating access policy '${prefix}_BrkPolicy'..." -ForegroundColor DarkGray
         $policy = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "AccessPolicies" `
             -Username $adminUser -Password $adminPassword `
@@ -193,6 +204,7 @@
         }
 
         # 9. A2A registration
+        Write-Host "    Creating A2A registration '${prefix}_BrkA2A'..." -ForegroundColor DarkGray
         $a2aReg = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "A2ARegistrations" `
             -Username $adminUser -Password $adminPassword `
@@ -209,6 +221,7 @@
         }
 
         # 10. Configure AccessRequestBroker on the A2A registration
+        Write-Host "    Configuring access request broker..." -ForegroundColor DarkGray
         # The RegistrationAlias schema uses 'UserId' (not 'Id')
         $reqUserId = [int]$Context.SuiteData["RequesterId"]
         $broker = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Put `
@@ -220,6 +233,7 @@
         $Context.SuiteData["BrokerApiKey"] = $broker.ApiKey
 
         # 11. Enable A2A service
+        Write-Host "    Enabling A2A service..." -ForegroundColor DarkGray
         Invoke-SgDnSafeguardApi -Context $Context -Service Appliance -Method Post `
             -RelativeUrl "A2AService/Enable" `
             -Username $adminUser -Password $adminPassword `

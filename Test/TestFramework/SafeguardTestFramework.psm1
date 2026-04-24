@@ -715,6 +715,9 @@ function Invoke-SgDnSafeguardA2a {
         [switch]$RetrievableAccounts,
 
         [Parameter()]
+        [string]$Filter,
+
+        [Parameter()]
         [switch]$NewPassword,
 
         [Parameter()]
@@ -747,6 +750,7 @@ function Invoke-SgDnSafeguardA2a {
     }
 
     if ($RetrievableAccounts) { $toolArgs += " -R" }
+    if ($Filter) { $toolArgs += " -f `"$Filter`"" }
     if ($NewPassword) { $toolArgs += " -N" }
     if ($PrivateKey) { $toolArgs += " -K" }
     if ($ApiKeySecret) { $toolArgs += " -P" }
@@ -1656,6 +1660,7 @@ function Remove-SgDnStaleTestObject {
     )
 
     try {
+        Write-Host "      Checking $Collection for '$Name'..." -ForegroundColor DarkGray
         $filterParams = @{
             Context     = $Context
             Service     = "Core"
@@ -1670,7 +1675,7 @@ function Remove-SgDnStaleTestObject {
             $items = @($existing)
             foreach ($item in $items) {
                 if ($item.Id) {
-                    Write-Verbose "  Pre-cleanup: removing stale $Collection object '$Name' (Id=$($item.Id))"
+                    Write-Host "      Removing stale $Collection '$Name' (Id=$($item.Id))" -ForegroundColor DarkGray
                     Remove-SgDnSafeguardTestObject -Context $Context `
                         -RelativeUrl "${Collection}/$($item.Id)" `
                         -Username:$Username -Password:$Password
@@ -1723,6 +1728,7 @@ function Remove-SgDnStaleTestCert {
     )
 
     try {
+        Write-Host "      Checking TrustedCertificates for thumbprint $($Thumbprint.Substring(0, [Math]::Min(8, $Thumbprint.Length)))..." -ForegroundColor DarkGray
         $filterParams = @{
             Context     = $Context
             Service     = "Core"
@@ -1737,7 +1743,7 @@ function Remove-SgDnStaleTestCert {
             $items = @($existing)
             foreach ($item in $items) {
                 if ($item.Id) {
-                    Write-Verbose "  Pre-cleanup: removing stale TrustedCertificate (Thumbprint=$Thumbprint, Id=$($item.Id))"
+                    Write-Host "      Removing stale TrustedCertificate (Id=$($item.Id))" -ForegroundColor DarkGray
                     Remove-SgDnSafeguardTestObject -Context $Context `
                         -RelativeUrl "TrustedCertificates/$($item.Id)" `
                         -Username:$Username -Password:$Password

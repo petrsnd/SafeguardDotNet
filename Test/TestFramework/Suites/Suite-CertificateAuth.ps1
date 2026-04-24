@@ -1,4 +1,4 @@
-@{
+﻿@{
     Name        = "Certificate Authentication"
     Description = "Tests certificate-based authentication via PFX file, PFX data buffer, and cert store"
     Tags        = @("auth", "certificate")
@@ -12,6 +12,7 @@
         $certUser = "${prefix}_CertUser"
 
         # Compute thumbprints
+        Write-Host "    Computing certificate thumbprints..." -ForegroundColor DarkGray
         $userThumbprint = (Get-PfxCertificate $Context.UserCert).Thumbprint
         $rootThumbprint = (Get-PfxCertificate $Context.RootCert).Thumbprint
         $caThumbprint   = (Get-PfxCertificate $Context.CaCert).Thumbprint
@@ -21,12 +22,14 @@
         $Context.SuiteData["CaThumbprint"]   = $caThumbprint
 
         # Pre-cleanup: remove stale objects from previous failed runs (reverse dependency order)
+        Write-Host "    Removing stale objects from previous runs..." -ForegroundColor DarkGray
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name $certUser
         Remove-SgDnStaleTestCert -Context $Context -Thumbprint $caThumbprint
         Remove-SgDnStaleTestCert -Context $Context -Thumbprint $rootThumbprint
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name $adminUser
 
         # 1. Create admin user for setup operations
+        Write-Host "    Creating admin user '$adminUser'..." -ForegroundColor DarkGray
         $admin = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Users" -Body @{
                 PrimaryAuthenticationProvider = @{ Id = -1 }
@@ -43,6 +46,7 @@
             -RelativeUrl "Users/$($admin.Id)/Password" -Body "'$adminPassword'" -ParseJson $false
 
         # 2. Upload Root CA
+        Write-Host "    Uploading certificate trust chain..." -ForegroundColor DarkGray
         $rootCertData = [string](Get-Content -Raw $Context.RootCert)
         $rootCert = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "TrustedCertificates" `
@@ -69,6 +73,7 @@
         }
 
         # 4. Create certificate user
+        Write-Host "    Creating certificate user '$certUser'..." -ForegroundColor DarkGray
         $cUser = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Users" `
             -Username $adminUser -Password $adminPassword `
