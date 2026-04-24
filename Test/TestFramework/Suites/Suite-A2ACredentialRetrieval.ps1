@@ -234,6 +234,64 @@
                 }
             }
         }
+
+        # --- Filter tests ---
+
+        $accountName = "$($Context.TestPrefix)_A2aAccount"
+
+        Test-SgDnAssert "A2A filter retrievable accounts by valid property" {
+            $result = Invoke-SgDnSafeguardA2a -Context $Context `
+                -ApiKey $apiKey `
+                -CertificateFile $Context.UserPfx -CertificatePassword "a" `
+                -RetrievableAccounts -Filter "AccountName eq '$accountName'"
+            ($null -ne $result) -and ($result.Count -ge 1)
+        }
+
+        Test-SgDnAssert "A2A filter with no matches returns empty list" {
+            $raw = Invoke-SgDnSafeguardA2a -Context $Context `
+                -ApiKey $apiKey `
+                -CertificateFile $Context.UserPfx -CertificatePassword "a" `
+                -RetrievableAccounts -Filter "AccountName eq 'NonExistentAccount_xyz_999'" `
+                -ParseJson $false
+            # -R lists filtered accounts ("[]") then also retrieves the password;
+            # just verify no error was thrown and the empty array is in the output
+            $raw -match '\[\]'
+        }
+
+        Test-SgDnAssert "A2A garbage filter gives useful error" {
+            $threw = $false
+            try {
+                Invoke-SgDnSafeguardA2a -Context $Context `
+                    -ApiKey $apiKey `
+                    -CertificateFile $Context.UserPfx -CertificatePassword "a" `
+                    -RetrievableAccounts -Filter "This eq 'broken'"
+            }
+            catch {
+                $threw = ($_.Exception.Message -match "invalid filter" -or
+                          $_.Exception.Message -match "not a valid filter" -or
+                          $_.Exception.Message -match "BadRequest" -or
+                          $_.Exception.Message -match "400")
+            }
+            $threw
+        }
+
+        Test-SgDnAssert "A2A malformed filter expression gives useful error" {
+            $threw = $false
+            try {
+                Invoke-SgDnSafeguardA2a -Context $Context `
+                    -ApiKey $apiKey `
+                    -CertificateFile $Context.UserPfx -CertificatePassword "a" `
+                    -RetrievableAccounts -Filter "not even close to a filter!!!"
+            }
+            catch {
+                $threw = ($_.Exception.Message -match "invalid filter" -or
+                          $_.Exception.Message -match "not a valid filter" -or
+                          $_.Exception.Message -match "error" -or
+                          $_.Exception.Message -match "BadRequest" -or
+                          $_.Exception.Message -match "400")
+            }
+            $threw
+        }
     }
 
     Cleanup = {
