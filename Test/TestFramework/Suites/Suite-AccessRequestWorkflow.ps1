@@ -1,4 +1,4 @@
-@{
+﻿@{
     Name        = "Access Request Workflow"
     Description = "Tests the full access request lifecycle: create, approve, checkout, checkin"
     Tags        = @("workflow", "access-request")
@@ -12,10 +12,12 @@
         $certUser = "${prefix}_WfCertUser"
 
         # Compute thumbprint for approver cert user
+        Write-Host "    Computing certificate thumbprints..." -ForegroundColor DarkGray
         $userThumbprint = (Get-PfxCertificate $Context.UserCert).Thumbprint
         $Context.SuiteData["UserThumbprint"] = $userThumbprint
 
         # Pre-cleanup: remove stale objects from previous failed runs (reverse dependency order)
+        Write-Host "    Removing stale objects from previous runs..." -ForegroundColor DarkGray
         Remove-SgDnStaleTestObject -Context $Context -Collection "AccessPolicies" -Name "${prefix}_WfPolicy"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Roles" -Name "${prefix}_WfRole"
         Remove-SgDnStaleTestObject -Context $Context -Collection "AssetAccounts" -Name "${prefix}_WfAccount"
@@ -26,6 +28,7 @@
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name $adminUser
 
         # 1. Create admin user (requester)
+        Write-Host "    Creating admin user '$adminUser'..." -ForegroundColor DarkGray
         $admin = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Users" -Body @{
                 PrimaryAuthenticationProvider = @{ Id = -1 }
@@ -44,6 +47,7 @@
             -RelativeUrl "Users/$($admin.Id)/Password" -Body "'$adminPassword'" -ParseJson $false
 
         # 2. Upload cert trust chain
+        Write-Host "    Uploading certificate trust chain..." -ForegroundColor DarkGray
         $rootCertData = [string](Get-Content -Raw $Context.RootCert)
         $rootCert = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "TrustedCertificates" `
@@ -69,6 +73,7 @@
         }
 
         # 3. Create cert user (approver)
+        Write-Host "    Creating certificate user '$certUser'..." -ForegroundColor DarkGray
         $cUser = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Users" `
             -Username $adminUser -Password $adminPassword `
@@ -87,6 +92,7 @@
         }
 
         # 4. Create asset
+        Write-Host "    Creating asset '${prefix}_WfAsset'..." -ForegroundColor DarkGray
         $asset = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Assets" `
             -Username $adminUser -Password $adminPassword `
@@ -106,6 +112,7 @@
         }
 
         # 5. Create account on asset
+        Write-Host "    Creating account '${prefix}_WfAccount' on asset..." -ForegroundColor DarkGray
         $account = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "AssetAccounts" `
             -Username $adminUser -Password $adminPassword `
@@ -120,12 +127,14 @@
                 -RelativeUrl "AssetAccounts/$($Ctx.SuiteData['AccountId'])" `
                 -Username $Ctx.SuiteData['AdminUser'] -Password $Ctx.SuiteData['AdminPassword']
         }
+        Write-Host "    Setting account password..." -ForegroundColor DarkGray
         Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Put `
             -RelativeUrl "AssetAccounts/$($account.Id)/Password" `
             -Username $adminUser -Password $adminPassword `
             -Body "'$adminPassword'" -ParseJson $false
 
         # 6. Create role (entitlement) with admin user as member
+        Write-Host "    Creating role '${prefix}_WfRole'..." -ForegroundColor DarkGray
         $role = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "Roles" `
             -Username $adminUser -Password $adminPassword `
@@ -143,6 +152,7 @@
         }
 
         # 7. Create access policy with cert user as approver
+        Write-Host "    Creating access policy '${prefix}_WfPolicy'..." -ForegroundColor DarkGray
         $policy = Invoke-SgDnSafeguardApi -Context $Context -Service Core -Method Post `
             -RelativeUrl "AccessPolicies" `
             -Username $adminUser -Password $adminPassword `
