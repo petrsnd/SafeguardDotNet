@@ -236,7 +236,7 @@ When you change a specific SDK module, run the relevant suite(s) rather than the
 | `SafeguardDotNet/SafeguardConnection.cs` | ApiInvocation, PersistentConnection, TokenManagement |
 | `SafeguardDotNet/Authentication/` | PasswordAuth, CertificateAuth, AccessTokenAuth |
 | `SafeguardDotNet/Event/` | EventListeners |
-| `SafeguardDotNet/A2A/` | A2ACredentialRetrieval, A2AAccessRequestBroker |
+| `SafeguardDotNet/A2A/` | A2ACredentialRetrieval, A2AAccessRequestBroker, A2AEventListener |
 | `SafeguardDotNet/Sps/` | SpsIntegration (requires SPS appliance) |
 | `SafeguardDotNet/SafeguardDotNetException.cs` | ExceptionHandling |
 | `SafeguardDotNet/*Streaming*` | Streaming |
