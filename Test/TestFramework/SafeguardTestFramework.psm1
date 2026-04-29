@@ -1632,6 +1632,10 @@ function Remove-SgDnStaleTestObject {
     .PARAMETER Name
         The exact Name value to search for.
 
+    .PARAMETER NameField
+        The API field name to filter on. Defaults to "Name". Use "AppName" for
+        A2ARegistrations, which use AppName instead of Name.
+
     .PARAMETER Username
         Optional username override for authentication.
 
@@ -1640,6 +1644,9 @@ function Remove-SgDnStaleTestObject {
 
     .EXAMPLE
         Remove-SgDnStaleTestObject -Context $ctx -Collection "Users" -Name "SgDnTest_A2aAdmin"
+
+    .EXAMPLE
+        Remove-SgDnStaleTestObject -Context $ctx -Collection "A2ARegistrations" -Name "SgDnTest_A2aReg" -NameField "AppName"
     #>
     [CmdletBinding()]
     param(
@@ -1651,6 +1658,9 @@ function Remove-SgDnStaleTestObject {
 
         [Parameter(Mandatory)]
         [string]$Name,
+
+        [Parameter()]
+        [string]$NameField = "Name",
 
         [Parameter()]
         [string]$Username,
@@ -1665,7 +1675,7 @@ function Remove-SgDnStaleTestObject {
             Context     = $Context
             Service     = "Core"
             Method      = "Get"
-            RelativeUrl = "${Collection}?filter=Name eq '${Name}'"
+            RelativeUrl = "${Collection}?filter=${NameField} eq '${Name}'"
         }
         if ($Username) { $filterParams.Username = $Username }
         if ($Password) { $filterParams.Password = $Password }

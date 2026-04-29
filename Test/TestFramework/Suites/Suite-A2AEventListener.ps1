@@ -19,7 +19,7 @@
 
         # Pre-cleanup: remove stale objects from previous failed runs (reverse dependency order)
         Write-Host "    Removing stale objects from previous runs..." -ForegroundColor DarkGray
-        Remove-SgDnStaleTestObject -Context $Context -Collection "A2ARegistrations" -Name "${prefix}_A2aEvtReg"
+        Remove-SgDnStaleTestObject -Context $Context -Collection "A2ARegistrations" -Name "${prefix}_A2aEvtReg" -NameField "AppName"
         Remove-SgDnStaleTestObject -Context $Context -Collection "AssetAccounts" -Name "${prefix}_A2aEvtAccount"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Assets" -Name "${prefix}_A2aEvtAsset"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name $certUser
@@ -341,9 +341,11 @@
     Cleanup = {
         param($Context)
         $prefix = $Context.TestPrefix
-        Remove-SgDnStaleTestObject -Context $Context -Collection "A2ARegistrations" -Name "${prefix}_A2aEvtReg"
-        Remove-SgDnStaleTestObject -Context $Context -Collection "AssetAccounts" -Name "${prefix}_A2aEvtAccount"
-        Remove-SgDnStaleTestObject -Context $Context -Collection "Assets" -Name "${prefix}_A2aEvtAsset"
+        $adminUser = $Context.SuiteData["AdminUser"]
+        $adminPassword = $Context.SuiteData["AdminPassword"]
+        Remove-SgDnStaleTestObject -Context $Context -Collection "A2ARegistrations" -Name "${prefix}_A2aEvtReg" -NameField "AppName" -Username $adminUser -Password $adminPassword
+        Remove-SgDnStaleTestObject -Context $Context -Collection "AssetAccounts" -Name "${prefix}_A2aEvtAccount" -Username $adminUser -Password $adminPassword
+        Remove-SgDnStaleTestObject -Context $Context -Collection "Assets" -Name "${prefix}_A2aEvtAsset" -Username $adminUser -Password $adminPassword
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name "${prefix}_A2aEvtCertUser"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name "${prefix}_A2aEvtAdmin"
     }
