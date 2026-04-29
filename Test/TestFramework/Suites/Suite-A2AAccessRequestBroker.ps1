@@ -20,7 +20,7 @@
 
         # Pre-cleanup
         Write-Host "    Removing stale objects from previous runs..." -ForegroundColor DarkGray
-        Remove-SgDnStaleTestObject -Context $Context -Collection "A2ARegistrations" -Name "${prefix}_BrkA2A"
+        Remove-SgDnStaleTestObject -Context $Context -Collection "A2ARegistrations" -Name "${prefix}_BrkA2A" -NameField "AppName"
         Remove-SgDnStaleTestObject -Context $Context -Collection "AssetAccounts" -Name "${prefix}_BrkAccount"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Assets" -Name "${prefix}_BrkAsset"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name $certUserName

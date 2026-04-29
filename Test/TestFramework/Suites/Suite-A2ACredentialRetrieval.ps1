@@ -20,7 +20,7 @@
 
         # Pre-cleanup: remove stale objects from previous failed runs (reverse dependency order)
         Write-Host "    Removing stale objects from previous runs..." -ForegroundColor DarkGray
-        Remove-SgDnStaleTestObject -Context $Context -Collection "A2ARegistrations" -Name "${prefix}_A2aReg"
+        Remove-SgDnStaleTestObject -Context $Context -Collection "A2ARegistrations" -Name "${prefix}_A2aReg" -NameField "AppName"
         Remove-SgDnStaleTestObject -Context $Context -Collection "AssetAccounts" -Name "${prefix}_A2aAccount"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Assets" -Name "${prefix}_A2aAsset"
         Remove-SgDnStaleTestObject -Context $Context -Collection "Users" -Name $certUser
