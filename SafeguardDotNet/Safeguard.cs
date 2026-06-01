@@ -4,11 +4,13 @@ namespace OneIdentity.SafeguardDotNet;
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Security;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
@@ -1406,6 +1408,240 @@ public static class Safeguard
             return ToBase64Url(bytes);
         }
 
+        /// <summary>
+        /// Creates an HttpClient suitable for stateless token exchange operations (no cookies needed).
+        /// The caller is responsible for disposing the returned client.
+        /// </summary>
+        /// <param name="ignoreSsl">When true, bypasses server certificate validation.</param>
+        /// <returns>A new HttpClient configured with TLS 1.2.</returns>
+        public static HttpClient CreateStatelessHttpClient(bool ignoreSsl)
+        {
+            var handler = new HttpClientHandler()
+            {
+                SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
+            };
+
+            if (ignoreSsl)
+            {
+#pragma warning disable S4830 // Intentional SSL bypass when user explicitly opts in via ignoreSsl parameter
+                handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+#pragma warning restore S4830
+            }
+
+            return new HttpClient(handler);
+        }
+
+        /// <summary>
+        /// Creates an HttpClient with a CookieContainer pre-loaded with the CSRF token for rSTS
+        /// login controller flows. The caller is responsible for disposing the returned client.
+        /// </summary>
+        /// <param name="appliance">Network address of the Safeguard appliance.</param>
+        /// <param name="csrfToken">The CSRF token to include as a cookie.</param>
+        /// <param name="ignoreSsl">When true, bypasses server certificate validation.</param>
+        /// <returns>A new HttpClient configured with TLS 1.2 and session cookies.</returns>
+        public static HttpClient CreateSessionHttpClient(string appliance, string csrfToken, bool ignoreSsl)
+        {
+            var cookieContainer = new CookieContainer();
+            cookieContainer.SetCookies(new Uri($"https://{appliance}/RSTS"), $"CsrfToken={csrfToken}");
+
+            var handler = new HttpClientHandler()
+            {
+                SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
+                UseCookies = true,
+                CookieContainer = cookieContainer,
+            };
+
+            if (ignoreSsl)
+            {
+#pragma warning disable S4830 // Intentional SSL bypass when user explicitly opts in via ignoreSsl parameter
+                handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+#pragma warning restore S4830
+            }
+
+            return new HttpClient(handler);
+        }
+
+        /// <summary>
+        /// Posts the OAuth2 authorization code to complete the PKCE authentication flow and obtain an RSTS access token (async).
+        /// </summary>
+        /// <param name="appliance">Network address of the Safeguard appliance.</param>
+        /// <param name="authorizationCode">The authorization code received from the authorization endpoint.</param>
+        /// <param name="codeVerifier">The PKCE code verifier that matches the code challenge sent in the authorization request.</param>
+        /// <param name="redirectUri">The redirect URI that was used in the authorization request.</param>
+        /// <param name="ignoreSsl">When true, bypasses server certificate validation.</param>
+        /// <param name="cancellationToken">Cancellation token to abort the operation.</param>
+        /// <returns>An RSTS access token as a SecureString.</returns>
+        public static async Task<SecureString> PostAuthorizationCodeFlowAsync(
+            string appliance,
+            string authorizationCode,
+            string codeVerifier,
+            string redirectUri,
+            bool ignoreSsl,
+            CancellationToken cancellationToken)
+        {
+            var safeguardRstsUrl = $"https://{appliance}/RSTS";
+            var data = JsonConvert.SerializeObject(new
+            {
+                grant_type = "authorization_code",
+                redirect_uri = redirectUri,
+                code = authorizationCode,
+                code_verifier = codeVerifier,
+            });
+
+            using var http = CreateStatelessHttpClient(ignoreSsl);
+            var json = await ApiRequestAsync(http, HttpMethod.Post, $"{safeguardRstsUrl}/oauth2/token", data, cancellationToken)
+                .ConfigureAwait(false);
+
+            var jObject = JObject.Parse(json);
+            var accessToken = jObject.GetValue("access_token")?.ToString();
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                throw new SafeguardDotNetException("RSTS token response did not contain an access_token.");
+            }
+
+            return accessToken.ToSecureString();
+        }
+
+        /// <summary>
+        /// Posts the RSTS access token to the Safeguard API to obtain a Safeguard user access token (async).
+        /// </summary>
+        /// <param name="appliance">Network address of the Safeguard appliance.</param>
+        /// <param name="rstsAccessToken">The RSTS access token obtained from the OAuth2 flow.</param>
+        /// <param name="apiVersion">Target API version to use.</param>
+        /// <param name="ignoreSsl">When true, bypasses server certificate validation.</param>
+        /// <param name="cancellationToken">Cancellation token to abort the operation.</param>
+        /// <returns>A JObject containing the login response with the Safeguard user token.</returns>
+        public static async Task<JObject> PostLoginResponseAsync(
+            string appliance,
+            SecureString rstsAccessToken,
+            int apiVersion,
+            bool ignoreSsl,
+            CancellationToken cancellationToken)
+        {
+            var safeguardCoreUrl = $"https://{appliance}/service/core/v{apiVersion}";
+            var data = JsonConvert.SerializeObject(new
+            {
+                StsAccessToken = rstsAccessToken.ToInsecureString(),
+            });
+
+            using var http = CreateStatelessHttpClient(ignoreSsl);
+            var json = await ApiRequestAsync(http, HttpMethod.Post, $"{safeguardCoreUrl}/Token/LoginResponse", data, cancellationToken)
+                .ConfigureAwait(false);
+
+            return JObject.Parse(json);
+        }
+
+        /// <summary>
+        /// Exchanges an RSTS access token for a full Safeguard API connection (async).
+        /// Calls <see cref="PostLoginResponseAsync"/> internally, validates the response,
+        /// then constructs a connection. The caller retains ownership of <paramref name="rstsAccessToken"/>.
+        /// </summary>
+        /// <param name="appliance">Network address of the Safeguard appliance.</param>
+        /// <param name="rstsAccessToken">The RSTS access token to exchange. Caller retains ownership.</param>
+        /// <param name="apiVersion">Target API version to use.</param>
+        /// <param name="ignoreSsl">When true, bypasses server certificate validation.</param>
+        /// <param name="cancellationToken">Cancellation token to abort the operation.</param>
+        /// <returns>A reusable Safeguard API connection.</returns>
+        public static async Task<ISafeguardConnection> ExchangeRstsTokenForConnectionAsync(
+            string appliance,
+            SecureString rstsAccessToken,
+            int apiVersion,
+            bool ignoreSsl,
+            CancellationToken cancellationToken)
+        {
+            var responseObject = await PostLoginResponseAsync(appliance, rstsAccessToken, apiVersion, ignoreSsl, cancellationToken)
+                .ConfigureAwait(false);
+
+            var statusValue = responseObject.GetValue("Status")?.ToString();
+            if (string.IsNullOrEmpty(statusValue) || statusValue != "Success")
+            {
+                throw new SafeguardDotNetException($"Error exchanging RSTS token, status: {statusValue}");
+            }
+
+            var userTokenValue = responseObject.GetValue("UserToken")?.ToString();
+            if (string.IsNullOrEmpty(userTokenValue))
+            {
+                throw new SafeguardDotNetException("Login response did not contain a UserToken.");
+            }
+
+            using var accessToken = userTokenValue.ToSecureString();
+            return Connect(appliance, accessToken, apiVersion, ignoreSsl);
+        }
+
+        /// <summary>
+        /// Exchanges an RSTS access token for a full Safeguard API connection (sync).
+        /// Calls <see cref="ExchangeRstsTokenForConnectionAsync"/> internally.
+        /// The caller retains ownership of <paramref name="rstsAccessToken"/>.
+        /// </summary>
+        /// <param name="appliance">Network address of the Safeguard appliance.</param>
+        /// <param name="rstsAccessToken">The RSTS access token to exchange. Caller retains ownership.</param>
+        /// <param name="apiVersion">Target API version to use.</param>
+        /// <param name="ignoreSsl">When true, bypasses server certificate validation.</param>
+        /// <returns>A reusable Safeguard API connection.</returns>
+        public static ISafeguardConnection ExchangeRstsTokenForConnection(
+            string appliance,
+            SecureString rstsAccessToken,
+            int apiVersion,
+            bool ignoreSsl)
+        {
+            return ExchangeRstsTokenForConnectionAsync(appliance, rstsAccessToken, apiVersion, ignoreSsl, CancellationToken.None)
+                .GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ConsoleCancellationScope"/> that wires Console.CancelKeyPress to a
+        /// CancellationToken. Dispose the scope to unsubscribe the event handler.
+        /// </summary>
+        /// <returns>A disposable scope whose <see cref="ConsoleCancellationScope.Token"/> is cancelled on Ctrl+C.</returns>
+        public static ConsoleCancellationScope CreateConsoleCancellationToken()
+        {
+            return new ConsoleCancellationScope();
+        }
+
+        /// <summary>
+        /// A disposable wrapper that connects Console.CancelKeyPress to a CancellationToken.
+        /// When Ctrl+C is pressed, the token is cancelled and process termination is suppressed.
+        /// Dispose to unsubscribe the event handler and release the CancellationTokenSource.
+        /// </summary>
+        public sealed class ConsoleCancellationScope : IDisposable
+        {
+            private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+            private readonly ConsoleCancelEventHandler _handler;
+            private bool _disposed;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ConsoleCancellationScope"/> class
+            /// and subscribes to Console.CancelKeyPress.
+            /// </summary>
+            internal ConsoleCancellationScope()
+            {
+                _handler = (sender, e) =>
+                {
+                    e.Cancel = true;
+                    _cts.Cancel();
+                };
+                Console.CancelKeyPress += _handler;
+            }
+
+            /// <summary>
+            /// Gets the cancellation token that is triggered when Ctrl+C is pressed.
+            /// </summary>
+            public CancellationToken Token => _cts.Token;
+
+            /// <inheritdoc/>
+            public void Dispose()
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                _disposed = true;
+                Console.CancelKeyPress -= _handler;
+                _cts.Dispose();
+            }
+        }
+
         private static string ApiRequest(HttpMethod method, string url, string postData)
         {
             var req = new HttpRequestMessage
@@ -1428,6 +1664,45 @@ public static class Safeguard
                 }
 
                 return msg;
+            }
+            catch (TaskCanceledException)
+            {
+                throw new SafeguardDotNetException($"Request timeout to {url}.");
+            }
+        }
+
+        private static async Task<string> ApiRequestAsync(
+            HttpClient http,
+            HttpMethod method,
+            string url,
+            string postData,
+            CancellationToken cancellationToken)
+        {
+            var req = new HttpRequestMessage
+            {
+                Method = method,
+                RequestUri = new Uri(url, UriKind.Absolute),
+            };
+
+            req.Headers.Add("Accept", "application/json");
+            req.Content = new StringContent(postData, Encoding.UTF8, "application/json");
+
+            try
+            {
+                var res = await http.SendAsync(req, cancellationToken).ConfigureAwait(false);
+                var msg = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                if (!res.IsSuccessStatusCode)
+                {
+                    throw new SafeguardDotNetException(
+                        $"Error returned from Safeguard API, Error: {res.StatusCode} {msg}", res.StatusCode, msg);
+                }
+
+                return msg;
+            }
+            catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException(cancellationToken);
             }
             catch (TaskCanceledException)
             {
