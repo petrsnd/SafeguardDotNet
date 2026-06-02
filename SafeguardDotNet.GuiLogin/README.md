@@ -75,7 +75,6 @@ The dialog handles all OAuth flow details automatically.
 This package uses `.nuspec` packaging to support .NET Framework 4.8.1 dependencies and framework assemblies:
 - System.Windows.Forms
 - System.Web
-- Newtonsoft.Json
 - Serilog
 
 ## Related Packages

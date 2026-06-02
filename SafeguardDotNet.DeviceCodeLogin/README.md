@@ -91,7 +91,7 @@ using var connection = await DeviceCodeLogin.ConnectAsync(
 
 - SafeguardDotNet (core SDK)
 - Serilog (logging)
-- Newtonsoft.Json
+- System.Text.Json (via SafeguardDotNet)
 
 ## Testing
 

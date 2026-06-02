@@ -10,11 +10,10 @@ using System.Net;
 using System.Net.Http;
 using System.Security;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-
-using Newtonsoft.Json.Linq;
 
 using Serilog;
 
@@ -217,30 +216,34 @@ public static class PkceNoninteractiveLogin
         SecureString secondaryPassword,
         CancellationToken cancellationToken)
     {
-        JObject primaryResponse;
+        JsonDocument primaryResponse;
         try
         {
-            primaryResponse = JObject.Parse(primaryAuthBody);
+            primaryResponse = JsonDocument.Parse(primaryAuthBody);
         }
         catch
         {
             return; // Non-JSON response means no secondary auth info
         }
 
-        var secondaryProviderId = primaryResponse["SecondaryProviderID"]?.ToString();
-
-        if (string.IsNullOrEmpty(secondaryProviderId))
+        using (primaryResponse)
         {
-            return; // No MFA required
-        }
+            var root = primaryResponse.RootElement;
+            var secondaryProviderId = root.TryGetProperty("SecondaryProviderID", out var spId) ? spId.GetString() : null;
 
-        Log.Debug("Secondary authentication required, provider: {SecondaryProviderId}", secondaryProviderId);
+            if (string.IsNullOrEmpty(secondaryProviderId))
+            {
+                return; // No MFA required
+            }
 
-        if (secondaryPassword == null)
-        {
-            throw new SafeguardDotNetException(
-                $"Multi-factor authentication is required (provider: {secondaryProviderId}) " +
-                "but no secondary password was provided. Use the secondaryPassword parameter to supply the one-time code.");
+            Log.Debug("Secondary authentication required, provider: {SecondaryProviderId}", secondaryProviderId);
+
+            if (secondaryPassword == null)
+            {
+                throw new SafeguardDotNetException(
+                    $"Multi-factor authentication is required (provider: {secondaryProviderId}) " +
+                    "but no secondary password was provided. Use the secondaryPassword parameter to supply the one-time code.");
+            }
         }
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -255,9 +258,10 @@ public static class PkceNoninteractiveLogin
         {
             try
             {
-                var initResponse = JObject.Parse(initBody);
-                mfaState = initResponse["State"]?.ToString() ?? string.Empty;
-                var mfaMessage = initResponse["Message"]?.ToString();
+                using var initResponse = JsonDocument.Parse(initBody);
+                var initRoot = initResponse.RootElement;
+                mfaState = initRoot.TryGetProperty("State", out var stateEl) ? stateEl.GetString() ?? string.Empty : string.Empty;
+                var mfaMessage = initRoot.TryGetProperty("Message", out var msgEl) ? msgEl.GetString() : null;
                 if (!string.IsNullOrEmpty(mfaMessage))
                 {
                     Log.Debug("MFA prompt: {Message}", mfaMessage);
@@ -286,8 +290,8 @@ public static class PkceNoninteractiveLogin
             var errorMessage = "Secondary authentication failed.";
             try
             {
-                var mfaResponse = JObject.Parse(mfaBody);
-                errorMessage = mfaResponse["Message"]?.ToString() ?? errorMessage;
+                using var mfaResponse = JsonDocument.Parse(mfaBody);
+                errorMessage = mfaResponse.RootElement.TryGetProperty("Message", out var mEl) ? mEl.GetString() ?? errorMessage : errorMessage;
             }
             catch
             {
@@ -315,8 +319,8 @@ public static class PkceNoninteractiveLogin
         string authorizationCode;
         try
         {
-            var jsonObject = JObject.Parse(response);
-            var relyingPartyUrl = jsonObject["RelyingPartyUrl"]?.ToString();
+            using var jsonDoc = JsonDocument.Parse(response);
+            var relyingPartyUrl = jsonDoc.RootElement.TryGetProperty("RelyingPartyUrl", out var rpEl) ? rpEl.GetString() : null;
 
             if (string.IsNullOrEmpty(relyingPartyUrl))
             {
@@ -364,11 +368,16 @@ public static class PkceNoninteractiveLogin
             cancellationToken)
             .ConfigureAwait(false);
 
-        var jProviders = JArray.Parse(response);
         var knownScopes = new List<(string RstsProviderId, string Name, string RstsProviderScope)>();
-        if (jProviders != null)
+        using (var jProviders = JsonDocument.Parse(response))
         {
-            knownScopes = jProviders.Select(s => (Id: s["RstsProviderId"].ToString(), Name: s["Name"].ToString(), Scope: s["RstsProviderScope"].ToString())).ToList();
+            foreach (var item in jProviders.RootElement.EnumerateArray())
+            {
+                var id = item.TryGetProperty("RstsProviderId", out var idEl) ? idEl.GetString() : null;
+                var name = item.TryGetProperty("Name", out var nameEl) ? nameEl.GetString() : null;
+                var providerScope = item.TryGetProperty("RstsProviderScope", out var scopeEl) ? scopeEl.GetString() : null;
+                knownScopes.Add((id, name, providerScope));
+            }
         }
 
         // try to match what the user typed for provider to an rSTS ID
