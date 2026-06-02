@@ -2,6 +2,8 @@
 
 namespace OneIdentity.SafeguardDotNet.GuiLogin
 {
+    using System.Threading;
+
     using Serilog;
 
     /// <summary>
@@ -33,8 +35,13 @@ namespace OneIdentity.SafeguardDotNet.GuiLogin
 
                 Log.Debug("Redeeming RSTS authorization code");
 
-                using (var rstsAccessToken = Safeguard.AgentBasedLoginUtils.PostAuthorizationCodeFlow(
-                    appliance, rstsWindow.AuthorizationCode, rstsWindow.CodeVerifier, Safeguard.AgentBasedLoginUtils.RedirectUri))
+                using (var rstsAccessToken = Safeguard.AgentBasedLoginUtils.PostAuthorizationCodeFlowAsync(
+                    appliance,
+                    rstsWindow.AuthorizationCode,
+                    rstsWindow.CodeVerifier,
+                    Safeguard.AgentBasedLoginUtils.RedirectUri,
+                    ignoreSsl,
+                    CancellationToken.None).GetAwaiter().GetResult())
                 {
                     Log.Debug("Exchanging RSTS access token");
 

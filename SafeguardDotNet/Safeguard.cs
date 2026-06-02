@@ -1314,53 +1314,6 @@ public static class Safeguard
         /// </summary>
         public const string RedirectUriTcpListener = "urn:InstalledApplicationTcpListener";
 
-        private static readonly HttpClient Http = CreateHttpClient();
-
-        /// <summary>
-        /// Posts the OAuth2 authorization code to complete the PKCE authentication flow and obtain an RSTS access token.
-        /// </summary>
-        /// <param name="appliance">Network address of the Safeguard appliance.</param>
-        /// <param name="authorizationCode">The authorization code received from the authorization endpoint.</param>
-        /// <param name="codeVerifier">The PKCE code verifier that matches the code challenge sent in the authorization request.</param>
-        /// <param name="redirectUri">The redirect URI that was used in the authorization request.</param>
-        /// <returns>An RSTS access token as a SecureString.</returns>
-        public static SecureString PostAuthorizationCodeFlow(string appliance, string authorizationCode, string codeVerifier, string redirectUri)
-        {
-            var safeguardRstsUrl = $"https://{appliance}/RSTS";
-            var data = JsonConvert.SerializeObject(new
-            {
-                grant_type = "authorization_code",
-                redirect_uri = redirectUri,
-                code = authorizationCode,
-                code_verifier = codeVerifier,
-            });
-
-            var json = ApiRequest(HttpMethod.Post, $"{safeguardRstsUrl}/oauth2/token", data);
-
-            var jObject = JObject.Parse(json);
-            return jObject.GetValue("access_token")?.ToString().ToSecureString();
-        }
-
-        /// <summary>
-        /// Posts the RSTS access token to the Safeguard API to obtain a Safeguard user access token.
-        /// </summary>
-        /// <param name="appliance">Network address of the Safeguard appliance.</param>
-        /// <param name="rstsAccessToken">The RSTS access token obtained from the OAuth2 flow.</param>
-        /// <param name="apiVersion">Target API version to use.</param>
-        /// <returns>A JObject containing the login response with the Safeguard user token.</returns>
-        public static JObject PostLoginResponse(string appliance, SecureString rstsAccessToken, int apiVersion = DefaultApiVersion)
-        {
-            var safeguardCoreUrl = $"https://{appliance}/service/core/v{apiVersion}";
-            var data = JsonConvert.SerializeObject(new
-            {
-                StsAccessToken = rstsAccessToken.ToInsecureString(),
-            });
-
-            var json = ApiRequest(HttpMethod.Post, $"{safeguardCoreUrl}/Token/LoginResponse", data);
-
-            return JObject.Parse(json);
-        }
-
         /// <summary>
         /// Generates a cryptographically random code verifier for PKCE (Proof Key for Code Exchange) OAuth2 flow.
         /// The code verifier is a high-entropy cryptographic random string used to securely verify the authorization code exchange.
@@ -1642,35 +1595,6 @@ public static class Safeguard
             }
         }
 
-        private static string ApiRequest(HttpMethod method, string url, string postData)
-        {
-            var req = new HttpRequestMessage
-            {
-                Method = method,
-                RequestUri = new Uri(url, UriKind.Absolute),
-            };
-
-            req.Headers.Add("Accept", "application/json");
-            req.Content = new StringContent(postData, Encoding.UTF8, "application/json");
-
-            try
-            {
-                var res = Http.SendAsync(req).GetAwaiter().GetResult();
-                var msg = res.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
-
-                if (!res.IsSuccessStatusCode)
-                {
-                    throw new SafeguardDotNetException($"Error returned from Safeguard API, Error: {res.StatusCode} {msg}", res.StatusCode, msg);
-                }
-
-                return msg;
-            }
-            catch (TaskCanceledException)
-            {
-                throw new SafeguardDotNetException($"Request timeout to {url}.");
-            }
-        }
-
         private static async Task<string> ApiRequestAsync(
             HttpClient http,
             HttpMethod method,
@@ -1708,19 +1632,6 @@ public static class Safeguard
             {
                 throw new SafeguardDotNetException($"Request timeout to {url}.");
             }
-        }
-
-        private static HttpClient CreateHttpClient()
-        {
-            var handler = new HttpClientHandler()
-            {
-                SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
-#pragma warning disable S4830 // Server certificate validation is intentionally bypassed for RSTS token requests
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true,
-#pragma warning restore S4830
-            };
-
-            return new HttpClient(handler);
         }
 
         private static string ToBase64Url(byte[] data)
