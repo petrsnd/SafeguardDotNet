@@ -26,7 +26,7 @@ internal sealed class CustomTimeSpanJsonConverter : JsonConverter<TimeSpan>
             throw new SafeguardDotNetException($"Unexpected timespan value \"{value}\"");
         }
 
-        return new TimeSpan(int.Parse(fields[0]), int.Parse(fields[1]), int.Parse(fields[2]));
+        return new TimeSpan(int.Parse(fields[0]), int.Parse(fields[1]), int.Parse(fields[2]), 0);
     }
 
     public override void Write(Utf8JsonWriter writer, TimeSpan value, JsonSerializerOptions options)

@@ -1,0 +1,8 @@
+{
+  "Status": "Success",
+  "UserToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovLzE5Mi4xNjguMTE3LjE1L1JTVFMiLCJhdWQiOiJodHRwczovLzE5Mi4xNjguMTE3LjE1L1JTVFMiLCJleHAiOjE3NDg5MDUxNDYsIm5iZiI6MTc0ODkwNDg0Nn0.SIGNATURE",
+  "PrimaryProviderId": null,
+  "SecondaryProviderId": null,
+  "WebClientInactivityTimeout": 15,
+  "DesktopClientInactivityTimeout": 1440
+}

@@ -1,0 +1,9 @@
+{
+  "ApplianceCurrentState": "Online",
+  "ApplianceId": "SG-VM-00000001",
+  "Version": "8.0.0.12345",
+  "IsPrimary": true,
+  "IsClusterLeader": true,
+  "ClusterOperationState": "NoCluster",
+  "PrimaryId": "SG-VM-00000001"
+}

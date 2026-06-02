@@ -1,0 +1,7 @@
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovLzE5Mi4xNjguMTE3LjE1L1JTVFMiLCJzdWIiOiJBZG1pbiIsImF1ZCI6Imh0dHBzOi8vMTkyLjE2OC4xMTcuMTUvUlNUUyIsIm5iZiI6MTc0ODkwNDg0NiwiZXhwIjoxNzQ4OTA1MTQ2LCJpYXQiOjE3NDg5MDQ4NDYsImp0aSI6IjVjYTMyOWU3LTg5MzItNGEyYS05Yjk5LTZiMGM5MjQyNzc5MSIsIm5vbmNlIjoidGVzdCJ9.SIGNATURE",
+  "expires_in": 299,
+  "scope": "rsts:sts:primaryproviderid:local:pwd",
+  "success": true,
+  "token_type": "Bearer"
+}

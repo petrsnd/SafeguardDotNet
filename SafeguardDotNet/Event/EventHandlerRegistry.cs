@@ -47,7 +47,7 @@ internal class EventHandlerRegistry
         }
     }
 
-    private static (string Name, string Body)[] ParseEvents(string eventObject)
+    internal static (string Name, string Body)[] ParseEvents(string eventObject)
     {
         try
         {

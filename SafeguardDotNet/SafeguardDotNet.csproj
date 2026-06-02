@@ -35,6 +35,10 @@ Updates:
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="SafeguardDotNet.SerializationTests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\SafeguardLogo.png" Link="SafeguardLogo.png" Pack="true" PackagePath="Content\images\" />
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
