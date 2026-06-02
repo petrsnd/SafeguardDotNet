@@ -7,11 +7,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security;
+using System.Text.Json;
 using System.Threading;
 
 using CommandLine;
-
-using Newtonsoft.Json;
 
 using OneIdentity.SafeguardDotNet;
 
@@ -165,7 +164,7 @@ internal static class Program
                 {
                     TokenLifetimeRemaining = connection.GetAccessTokenLifetimeRemaining(),
                 };
-                Console.WriteLine(JsonConvert.SerializeObject(envelope));
+                Console.WriteLine(JsonSerializer.Serialize(envelope));
                 connection.LogOut();
                 return;
             }
@@ -179,7 +178,7 @@ internal static class Program
                     AccessToken = accessToken,
                     LoggedOut = true,
                 };
-                Console.WriteLine(JsonConvert.SerializeObject(envelope));
+                Console.WriteLine(JsonSerializer.Serialize(envelope));
                 return;
             }
 
@@ -190,7 +189,7 @@ internal static class Program
                 {
                     AccessToken = accessToken,
                 };
-                Console.WriteLine(JsonConvert.SerializeObject(envelope));
+                Console.WriteLine(JsonSerializer.Serialize(envelope));
                 return;
             }
 
@@ -217,7 +216,7 @@ internal static class Program
                     fullResponse.Headers,
                     fullResponse.Body,
                 };
-                responseBody = JsonConvert.SerializeObject(envelope);
+                responseBody = JsonSerializer.Serialize(envelope);
             }
             else if (opts.Csv)
             {
