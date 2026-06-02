@@ -11,6 +11,8 @@ using System.Security;
 
 using Newtonsoft.Json;
 
+using OneIdentity.SafeguardDotNet.Serialization;
+
 /// <summary>
 /// Service identifiers for the different services in the Safeguard API.
 /// </summary>
@@ -119,6 +121,7 @@ public class ApiKeySecret : IDisposable
     public string ClientId { get; set; }
 
     [JsonConverter(typeof(SecureStringConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(SecureStringJsonConverter))]
     public SecureString ClientSecret { get; set; }
 
     public string ClientSecretId { get; set; }
@@ -206,10 +209,13 @@ public class A2ARetrievableAccount : IDisposable
     public string Description { get; set; }
 
     [JsonProperty("AccountDisabled")]
+    [System.Text.Json.Serialization.JsonPropertyName("AccountDisabled")]
     [JsonConverter(typeof(BoolConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(BoolIntJsonConverter))]
     public bool Disabled { get; set; }
 
     [JsonConverter(typeof(SecureStringConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(SecureStringJsonConverter))]
     public SecureString ApiKey { get; set; }
 
     public int AssetId { get; set; }
@@ -217,6 +223,7 @@ public class A2ARetrievableAccount : IDisposable
     public string AssetName { get; set; }
 
     [JsonProperty("NetworkAddress")]
+    [System.Text.Json.Serialization.JsonPropertyName("NetworkAddress")]
     public string AssetNetworkAddress { get; set; }
 
     public string AssetDescription { get; set; }

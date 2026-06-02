@@ -6,6 +6,8 @@ using System;
 
 using Newtonsoft.Json;
 
+using OneIdentity.SafeguardDotNet.Serialization;
+
 /// <summary>
 /// Type of brokered access request to create.
 /// </summary>
@@ -36,6 +38,7 @@ public class BrokeredAccessRequest
     /// The type of access request to create.
     /// </summary>
     [JsonConverter(typeof(AccessRequestTypeConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(AccessRequestTypeJsonConverter))]
     public BrokeredAccessRequestType AccessType { get; set; }
 
     /// <summary>
@@ -49,6 +52,7 @@ public class BrokeredAccessRequest
     /// property is set, then this property will be ignored.
     /// </summary>
     [JsonProperty(PropertyName = "ForProvider")]
+    [System.Text.Json.Serialization.JsonPropertyName("ForProvider")]
     public string ForUserIdentityProvider { get; set; }
 
     /// <summary>
@@ -120,12 +124,14 @@ public class BrokeredAccessRequest
     /// before being sent to the server.
     /// </summary>
     [JsonConverter(typeof(UtcDateTimeConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(UtcDateTimeJsonConverter))]
     public DateTime? RequestedFor { get; set; }
 
     /// <summary>
     /// The amount of time the access request should be requested for.
     /// </summary>
     [JsonConverter(typeof(CustomTimeSpanConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(CustomTimeSpanJsonConverter))]
     public TimeSpan? RequestedDuration { get; set; }
 
     public int? RequestedDurationDays => RequestedDuration?.Days;
