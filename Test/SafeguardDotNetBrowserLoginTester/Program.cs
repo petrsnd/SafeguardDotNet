@@ -86,9 +86,7 @@ internal class Program
         catch (Exception ex)
 #pragma warning restore CA1031
         {
-            Log.Error(ex, "Fatal exception occurred");
-            Log.Information("Press any key to quit...");
-            Console.ReadKey();
+            Log.Error(ex, "Fatal error occurred");
             Environment.Exit(1);
         }
     }

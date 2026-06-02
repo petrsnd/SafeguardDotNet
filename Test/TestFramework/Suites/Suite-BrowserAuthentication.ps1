@@ -15,24 +15,48 @@
         $browserToolDir = Join-Path $Context.TestRoot "SafeguardDotNetBrowserLoginTester"
 
         # ── Error path: invalid appliance (async mode) ──
+        # An unreachable host should produce a connection error and exit
+        # immediately with a non-zero exit code. However, DNS resolution
+        # or HTTP timeouts for invalid hosts may exceed the test timeout,
+        # so a framework-level timeout is also an acceptable failure mode.
+        # The key assertion: the tool must not succeed.
 
-        Test-SgDnAssertThrows "Browser login async with invalid appliance returns connection error" {
-            Invoke-SgDnSafeguardTool -ProjectDir $browserToolDir `
-                -Arguments "-a $appliance.invalid.nonexistent -x --async" `
-                -TimeoutSeconds 30 `
-                -ParseJson $false
-        } -ExpectedMessage "error"
+        Test-SgDnAssert "Browser login async with invalid appliance does not succeed" {
+            try {
+                Invoke-SgDnSafeguardTool -ProjectDir $browserToolDir `
+                    -Arguments "-a $appliance.invalid.nonexistent -x --async" `
+                    -TimeoutSeconds 30 `
+                    -ParseJson $false
+                # If the tool succeeds with a bogus hostname, that is a bug
+                return $false
+            }
+            catch {
+                # Both connection error and timeout are valid failure modes
+                return $true
+            }
+        }
 
-        # ── Error path: unreachable callback port (sync mode) ──
-        # Use a port that is already bound or privileged to trigger a socket error.
+        # ── Error path: incomplete auth flow (sync mode) ──
+        # The tool contacts the real appliance, starts a local callback
+        # listener, and waits for a browser to complete authentication.
+        # Without a human completing the flow the tool must not succeed.
+        # It may time out waiting for the callback or error out trying
+        # to open a browser — either failure mode is acceptable.
 
-        Test-SgDnAssertThrows "Browser login with unreachable port fails gracefully" {
-            # Port 1 is privileged and typically cannot be bound
-            Invoke-SgDnSafeguardTool -ProjectDir $browserToolDir `
-                -Arguments "-a $appliance -x" `
-                -TimeoutSeconds 15 `
-                -ParseJson $false
-        } -ExpectedMessage "error"
+        Test-SgDnAssert "Browser login without completing auth flow does not succeed" {
+            try {
+                Invoke-SgDnSafeguardTool -ProjectDir $browserToolDir `
+                    -Arguments "-a $appliance -x" `
+                    -TimeoutSeconds 15 `
+                    -ParseJson $false
+                # If the tool succeeds without a human completing auth, that is a bug
+                return $false
+            }
+            catch {
+                # Both timeout and error exit are valid failure modes
+                return $true
+            }
+        }
 
         # ── Happy path: async flow starts and listener binds ──
         # Launch the async browser flow with a short timeout. The listener should
