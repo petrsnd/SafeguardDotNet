@@ -8,8 +8,7 @@ using System.Net.Http;
 using System.Net.Security;
 using System.Security;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OneIdentity.SafeguardDotNet.Serialization;
 
 internal class CertificateAuthenticator : AuthenticatorBase
 {
@@ -111,16 +110,16 @@ internal class CertificateAuthenticator : AuthenticatorBase
             providerScope = ResolveProviderToScope(_provider);
         }
 
-        var data = JsonConvert.SerializeObject(new
+        var data = SafeguardJson.Serialize(new Dictionary<string, string>
         {
-            grant_type = "client_credentials",
-            scope = providerScope,
+            ["grant_type"] = "client_credentials",
+            ["scope"] = providerScope,
         });
 
         var json = ApiRequest(HttpMethod.Post, $"https://{NetworkAddress}/RSTS/oauth2/token", data);
 
-        var jObject = JObject.Parse(json);
-        return jObject.GetValue("access_token")?.ToString().ToSecureString();
+        using var doc = SafeguardJson.Parse(json);
+        return doc.RootElement.GetProperty("access_token").GetString().ToSecureString();
     }
 
     public override object Clone()

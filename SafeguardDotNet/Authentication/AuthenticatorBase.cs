@@ -11,8 +11,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OneIdentity.SafeguardDotNet.Serialization;
 
 internal abstract class AuthenticatorBase : IAuthenticationMechanism
 {
@@ -104,15 +103,15 @@ internal abstract class AuthenticatorBase : IAuthenticationMechanism
         }
 
         using var rStsToken = GetRstsTokenInternal();
-        var data = JsonConvert.SerializeObject(new
+        var data = SafeguardJson.Serialize(new Dictionary<string, string>
         {
-            StsAccessToken = rStsToken.ToInsecureString(),
+            ["StsAccessToken"] = rStsToken.ToInsecureString(),
         });
 
         var json = ApiRequest(HttpMethod.Post, $"{safeguardCoreUrl}/Token/LoginResponse", data);
 
-        var jObject = JObject.Parse(json);
-        accessToken = jObject.GetValue("UserToken")?.ToString().ToSecureString();
+        using var doc = SafeguardJson.Parse(json);
+        accessToken = doc.RootElement.GetProperty("UserToken").GetString().ToSecureString();
     }
 
     public string ResolveProviderToScope(string provider)
@@ -121,11 +120,16 @@ internal abstract class AuthenticatorBase : IAuthenticationMechanism
         {
             var json = ApiRequest(HttpMethod.Get, $"{safeguardCoreUrl}/AuthenticationProviders");
 
-            var jProviders = JArray.Parse(json);
             var knownScopes = new List<(string RstsProviderId, string Name, string RstsProviderScope)>();
-            if (jProviders != null)
+            using (var doc = SafeguardJson.Parse(json))
             {
-                knownScopes = jProviders.Select(s => (Id: s["RstsProviderId"].ToString(), Name: s["Name"].ToString(), Scope: s["RstsProviderScope"].ToString())).ToList();
+                foreach (var element in doc.RootElement.EnumerateArray())
+                {
+                    var id = element.GetProperty("RstsProviderId").GetString();
+                    var name = element.GetProperty("Name").GetString();
+                    var providerScope = element.GetProperty("RstsProviderScope").GetString();
+                    knownScopes.Add((id, name, providerScope));
+                }
             }
 
             // 3 step check for determining if the user provided scope is valid:
