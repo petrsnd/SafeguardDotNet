@@ -75,7 +75,7 @@ public static class DeviceCodeLogin
         var clientId = parameters.ClientId ?? "SafeguardDotNet";
         var scope = parameters.Scope ?? "rsts:sts:primaryproviderid:local";
 
-        using var http = CreateHttpClient(ignoreSsl);
+        using var http = Safeguard.AgentBasedLoginUtils.CreateStatelessHttpClient(ignoreSsl);
 
         // Step 1: Request device code (CRITICAL: no trailing slash on URL)
         Log.Debug("Requesting device authorization from {Appliance}", appliance);
@@ -188,35 +188,9 @@ public static class DeviceCodeLogin
 
         using (rstsAccessToken)
         {
-            var responseObject = Safeguard.AgentBasedLoginUtils.PostLoginResponse(
-                appliance, rstsAccessToken, apiVersion);
-
-            var statusValue = responseObject.GetValue("Status")?.ToString();
-            if (string.IsNullOrEmpty(statusValue) || statusValue != "Success")
-            {
-                throw new SafeguardDotNetException($"Error exchanging RSTS token, status: {statusValue}");
-            }
-
-            // Step 5: Create connection
-            using var accessToken = responseObject.GetValue("UserToken")?.ToString().ToSecureString();
-            return Safeguard.Connect(appliance, accessToken, apiVersion, ignoreSsl);
+            return await Safeguard.AgentBasedLoginUtils.ExchangeRstsTokenForConnectionAsync(
+                appliance, rstsAccessToken, apiVersion, ignoreSsl, cancellationToken)
+                .ConfigureAwait(false);
         }
-    }
-
-    private static HttpClient CreateHttpClient(bool ignoreSsl)
-    {
-        var handler = new HttpClientHandler()
-        {
-            SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
-        };
-
-        if (ignoreSsl)
-        {
-#pragma warning disable S4830 // Intentional SSL bypass when user explicitly opts in
-            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
-#pragma warning restore S4830
-        }
-
-        return new HttpClient(handler);
     }
 }
