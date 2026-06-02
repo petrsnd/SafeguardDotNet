@@ -13,12 +13,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using OneIdentity.SafeguardDotNet.A2A;
 using OneIdentity.SafeguardDotNet.Authentication;
 using OneIdentity.SafeguardDotNet.Event;
+using OneIdentity.SafeguardDotNet.Serialization;
 
 /// <summary>
 /// This static class provides static methods for connecting to Safeguard API.
@@ -1433,20 +1433,20 @@ public static class Safeguard
             CancellationToken cancellationToken)
         {
             var safeguardRstsUrl = $"https://{appliance}/RSTS";
-            var data = JsonConvert.SerializeObject(new
+            var data = SafeguardJson.Serialize(new Dictionary<string, string>
             {
-                grant_type = "authorization_code",
-                redirect_uri = redirectUri,
-                code = authorizationCode,
-                code_verifier = codeVerifier,
+                ["grant_type"] = "authorization_code",
+                ["redirect_uri"] = redirectUri,
+                ["code"] = authorizationCode,
+                ["code_verifier"] = codeVerifier,
             });
 
             using var http = CreateStatelessHttpClient(ignoreSsl);
             var json = await ApiRequestAsync(http, HttpMethod.Post, $"{safeguardRstsUrl}/oauth2/token", data, cancellationToken)
                 .ConfigureAwait(false);
 
-            var jObject = JObject.Parse(json);
-            var accessToken = jObject.GetValue("access_token")?.ToString();
+            using var doc = SafeguardJson.Parse(json);
+            var accessToken = doc.RootElement.GetProperty("access_token").GetString();
             if (string.IsNullOrEmpty(accessToken))
             {
                 throw new SafeguardDotNetException("RSTS token response did not contain an access_token.");
@@ -1472,9 +1472,9 @@ public static class Safeguard
             CancellationToken cancellationToken)
         {
             var safeguardCoreUrl = $"https://{appliance}/service/core/v{apiVersion}";
-            var data = JsonConvert.SerializeObject(new
+            var data = SafeguardJson.Serialize(new Dictionary<string, string>
             {
-                StsAccessToken = rstsAccessToken.ToInsecureString(),
+                ["StsAccessToken"] = rstsAccessToken.ToInsecureString(),
             });
 
             using var http = CreateStatelessHttpClient(ignoreSsl);
@@ -1502,22 +1502,29 @@ public static class Safeguard
             bool ignoreSsl,
             CancellationToken cancellationToken)
         {
-            var responseObject = await PostLoginResponseAsync(appliance, rstsAccessToken, apiVersion, ignoreSsl, cancellationToken)
+            var safeguardCoreUrl = $"https://{appliance}/service/core/v{apiVersion}";
+            var data = SafeguardJson.Serialize(new Dictionary<string, string>
+            {
+                ["StsAccessToken"] = rstsAccessToken.ToInsecureString(),
+            });
+
+            using var http = CreateStatelessHttpClient(ignoreSsl);
+            var json = await ApiRequestAsync(http, HttpMethod.Post, $"{safeguardCoreUrl}/Token/LoginResponse", data, cancellationToken)
                 .ConfigureAwait(false);
 
-            var statusValue = responseObject.GetValue("Status")?.ToString();
-            if (string.IsNullOrEmpty(statusValue) || statusValue != "Success")
+            var loginResponse = SafeguardJson.Deserialize<LoginResponse>(json);
+
+            if (string.IsNullOrEmpty(loginResponse?.Status) || loginResponse.Status != "Success")
             {
-                throw new SafeguardDotNetException($"Error exchanging RSTS token, status: {statusValue}");
+                throw new SafeguardDotNetException($"Error exchanging RSTS token, status: {loginResponse?.Status}");
             }
 
-            var userTokenValue = responseObject.GetValue("UserToken")?.ToString();
-            if (string.IsNullOrEmpty(userTokenValue))
+            if (string.IsNullOrEmpty(loginResponse.UserToken))
             {
                 throw new SafeguardDotNetException("Login response did not contain a UserToken.");
             }
 
-            using var accessToken = userTokenValue.ToSecureString();
+            using var accessToken = loginResponse.UserToken.ToSecureString();
             return Connect(appliance, accessToken, apiVersion, ignoreSsl);
         }
 
