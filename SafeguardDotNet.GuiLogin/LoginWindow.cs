@@ -38,19 +38,8 @@ namespace OneIdentity.SafeguardDotNet.GuiLogin
                 {
                     Log.Debug("Exchanging RSTS access token");
 
-                    var responseObject = Safeguard.AgentBasedLoginUtils.PostLoginResponse(appliance, rstsAccessToken);
-
-                    var statusValue = responseObject.GetValue("Status")?.ToString();
-
-                    if (string.IsNullOrEmpty(statusValue) || statusValue != "Success")
-                    {
-                        throw new SafeguardDotNetException($"Error response status {statusValue} from login response service");
-                    }
-
-                    using (var accessToken = responseObject.GetValue("UserToken")?.ToString().ToSecureString())
-                    {
-                        return Safeguard.Connect(appliance, accessToken, apiVersion, ignoreSsl);
-                    }
+                    return Safeguard.AgentBasedLoginUtils.ExchangeRstsTokenForConnection(
+                        appliance, rstsAccessToken, apiVersion, ignoreSsl);
                 }
             }
             else
