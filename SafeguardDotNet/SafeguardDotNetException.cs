@@ -4,8 +4,7 @@ namespace OneIdentity.SafeguardDotNet;
 
 using System;
 using System.Net;
-
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 /// <summary>
 /// This class extends the base Exception class with a SafeguardDotNet specific exception.
@@ -40,27 +39,30 @@ public class SafeguardDotNetException : Exception
         {
             try
             {
-                if (JToken.Parse(Response) is JObject responseObj)
+                using var doc = JsonDocument.Parse(Response);
+                var root = doc.RootElement;
+
+                if (root.ValueKind == JsonValueKind.Object)
                 {
-                    if (responseObj.TryGetValue("Code", StringComparison.OrdinalIgnoreCase, out var codeVal)
-                        && int.TryParse(codeVal.ToString(), out var code))
+                    if (root.TryGetProperty("Code", out var codeEl)
+                        && int.TryParse(codeEl.ToString(), out var code))
                     {
                         ErrorCode = code;
                     }
 
-                    if (responseObj.TryGetValue("Message", StringComparison.OrdinalIgnoreCase, out var messageVal))
+                    if (root.TryGetProperty("Message", out var messageEl))
                     {
-                        ErrorMessage = messageVal.ToString();
+                        ErrorMessage = messageEl.ToString();
                     }
 
                     // Sps provides an "error" json object containing details
-                    if (responseObj.TryGetValue("error", StringComparison.OrdinalIgnoreCase, out var errorVal))
+                    if (root.TryGetProperty("error", out var errorEl))
                     {
-                        ErrorMessage = errorVal.ToString();
+                        ErrorMessage = errorEl.ToString();
                     }
                 }
             }
-            catch (Newtonsoft.Json.JsonReaderException)
+            catch (JsonException)
             {
                 ErrorMessage = response;
             }

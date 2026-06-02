@@ -10,10 +10,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-
 using OneIdentity.SafeguardDotNet.Authentication;
 using OneIdentity.SafeguardDotNet.Event;
+using OneIdentity.SafeguardDotNet.Serialization;
 using OneIdentity.SafeguardDotNet.Sps;
 
 using Serilog;
@@ -287,7 +286,7 @@ internal class SafeguardConnection : ISafeguardConnection, ICloneable
             spp_api_token = authenticationMechanism.GetAccessToken().ToInsecureString(),
             spp_cert_chain = certificateChain,
         };
-        var joinBody = JsonConvert.SerializeObject(request);
+        var joinBody = SafeguardJson.Serialize(request);
 
         Log.Debug("Sending join request.");
         var joinResponse = spsConnection.InvokeMethodFull(Method.Post, "cluster/spp", joinBody);
