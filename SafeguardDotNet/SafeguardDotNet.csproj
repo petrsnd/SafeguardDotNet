@@ -3,8 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <IsTrimmable>true</IsTrimmable>
-    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <RootNamespace>OneIdentity.SafeguardDotNet</RootNamespace>
     <PackageId>OneIdentity.SafeguardDotNet</PackageId>
     <Authors>One Identity LLC</Authors>
