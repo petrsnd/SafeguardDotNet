@@ -30,17 +30,8 @@ Provides an easy way to connect to Safeguard and call the Safeguard API.
 - Real-time event notifications
 - Persistent event listeners that reconnect even after an appliance goes offline
 
-What's new in 8.3.0:
-
-New features:
-- Device Code Login: new OneIdentity.SafeguardDotNet.DeviceCodeLogin package implementing OAuth 2.0 Device Authorization Grant (RFC 8628). Enables authentication from headless environments where no local browser is available.
-- ConnectAsync: DefaultBrowserLogin, PkceNoninteractiveLogin, and DeviceCodeLogin now offer async login methods with cancellation and timeout support.
-
-Bug fixes:
-- ignoreSsl is now honored for all token exchange calls. Previously, internal HTTP calls during the OAuth token exchange always bypassed SSL validation regardless of the ignoreSsl parameter.
-
-Behavioral changes:
-- DefaultBrowserLogin.Connect() no longer registers a non-functional Console.CancelKeyPress handler. Ctrl+C already terminated the process in practice; this removes dead code.</PackageReleaseNotes>
+Updates:
+- Bug fixes and dependency updates.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
