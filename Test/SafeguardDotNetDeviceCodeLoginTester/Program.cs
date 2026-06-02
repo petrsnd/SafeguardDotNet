@@ -1,82 +1,137 @@
 // Copyright (c) One Identity LLC. All rights reserved.
 
+namespace SafeguardDotNetDeviceCodeLoginTester;
+
 using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+using CommandLine;
 
 using OneIdentity.SafeguardDotNet;
 using OneIdentity.SafeguardDotNet.DeviceCodeLogin;
 
 using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .WriteTo.Console()
-    .CreateLogger();
-
-var useAsync = args.Contains("--async", StringComparer.OrdinalIgnoreCase);
-var positionalArgs = args.Where(a => !a.StartsWith("--")).ToArray();
-
-if (positionalArgs.Length < 1)
+internal class Program
 {
-    await Console.Out.WriteLineAsync("Usage: SafeguardDotNetDeviceCodeLoginTester <appliance> [ignoreSsl] [--async]");
-    return;
-}
+    internal class Options
+    {
+        [Option(
+            'a',
+            "Appliance",
+            Required = true,
+            HelpText = "IP address or hostname of Safeguard appliance")]
+        public string Appliance { get; set; }
 
-var appliance = positionalArgs[0];
-var ignoreSsl = positionalArgs.Length > 1 && positionalArgs[1].Equals("true", StringComparison.OrdinalIgnoreCase);
+        [Option(
+            'x',
+            "Insecure",
+            Required = false,
+            Default = false,
+            HelpText = "Ignore validation of Safeguard appliance SSL certificate")]
+        public bool Insecure { get; set; }
 
-Action<DeviceCodeInfo> displayCallback = info =>
-{
-    Console.WriteLine();
-    Console.WriteLine("═══════════════════════════════════════════════════════");
-    Console.WriteLine("  To sign in, open a browser and visit:");
-    Console.WriteLine($"  {info.VerificationUriComplete}");
-    Console.WriteLine();
-    Console.WriteLine($"  Or go to: {info.VerificationUri}");
-    Console.WriteLine($"  And enter code: {info.UserCode}");
-    Console.WriteLine();
-    Console.WriteLine($"  Code expires in {info.ExpiresIn} seconds.");
-    Console.WriteLine("═══════════════════════════════════════════════════════");
-    Console.WriteLine();
-};
+        [Option(
+            'V',
+            "Verbose",
+            Required = false,
+            Default = false,
+            HelpText = "Display verbose debug output")]
+        public bool Verbose { get; set; }
 
-try
-{
-    ISafeguardConnection connection;
-    if (useAsync)
+        [Option(
+            "async",
+            Required = false,
+            Default = false,
+            HelpText = "Use ConnectAsync with Ctrl+C cancellation support")]
+        public bool Async { get; set; }
+    }
+
+    private static void Execute(Options opts)
+    {
+        try
+        {
+            var config = new LoggerConfiguration();
+            config.WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}{Exception}", theme: AnsiConsoleTheme.Code);
+
+            if (opts.Verbose)
+            {
+                config.MinimumLevel.Debug();
+            }
+            else
+            {
+                config.MinimumLevel.Information();
+            }
+
+            Log.Logger = config.CreateLogger();
+
+            ISafeguardConnection connection;
+            if (opts.Async)
+            {
+                connection = ExecuteAsync(opts).GetAwaiter().GetResult();
+            }
+            else
+            {
+                connection = DeviceCodeLogin.ConnectAsync(
+                    opts.Appliance,
+                    new DeviceCodeLoginParameters { DisplayCallback = DisplayCallback },
+                    ignoreSsl: opts.Insecure).GetAwaiter().GetResult();
+            }
+
+            Log.Information("Successfully connected!");
+            Log.Information(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
+            Log.Information("Press any key to quit...");
+            Console.ReadKey();
+            connection.LogOut();
+        }
+#pragma warning disable CA1031 // Intentional top-level catch-all for error logging
+        catch (Exception ex)
+#pragma warning restore CA1031
+        {
+            Log.Error(ex, "Fatal exception occurred");
+            Environment.Exit(1);
+        }
+    }
+
+    private static async Task<ISafeguardConnection> ExecuteAsync(Options opts)
     {
         using var cts = Safeguard.AgentBasedLoginUtils.CreateConsoleCancellationToken();
-        await Console.Out.WriteLineAsync("Async mode: press Ctrl+C to cancel");
-        connection = await DeviceCodeLogin.ConnectAsync(
-            appliance,
-            new DeviceCodeLoginParameters { DisplayCallback = displayCallback },
-            ignoreSsl: ignoreSsl,
+        Log.Information("Async mode: press Ctrl+C to cancel");
+        return await DeviceCodeLogin.ConnectAsync(
+            opts.Appliance,
+            new DeviceCodeLoginParameters { DisplayCallback = DisplayCallback },
+            ignoreSsl: opts.Insecure,
             cancellationToken: cts.Token);
     }
-    else
+
+    private static void DisplayCallback(DeviceCodeInfo info)
     {
-        connection = await DeviceCodeLogin.ConnectAsync(
-            appliance,
-            new DeviceCodeLoginParameters { DisplayCallback = displayCallback },
-            ignoreSsl: ignoreSsl);
+        Console.WriteLine();
+        Console.WriteLine("═══════════════════════════════════════════════════════");
+        Console.WriteLine("  To sign in, open a browser and visit:");
+        Console.WriteLine($"  {info.VerificationUriComplete}");
+        Console.WriteLine();
+        Console.WriteLine($"  Or go to: {info.VerificationUri}");
+        Console.WriteLine($"  And enter code: {info.UserCode}");
+        Console.WriteLine();
+        Console.WriteLine($"  Code expires in {info.ExpiresIn} seconds.");
+        Console.WriteLine("═══════════════════════════════════════════════════════");
+        Console.WriteLine();
     }
 
-    await Console.Out.WriteLineAsync("Successfully connected!");
-    var me = connection.InvokeMethod(Service.Core, Method.Get, "Me");
-    await Console.Out.WriteLineAsync($"Logged in as: {me}");
-}
-catch (OperationCanceledException)
-{
-    await Console.Error.WriteLineAsync("Operation cancelled.");
-    Environment.ExitCode = 1;
-}
-catch (SafeguardDotNetException ex)
-{
-    await Console.Error.WriteLineAsync($"Error: {ex.Message}");
-    if (ex.HasResponse)
+    private static void HandleParseError(IEnumerable<Error> errors)
     {
-        await Console.Error.WriteLineAsync($"Response: {ex.Response}");
+        Log.Logger = new LoggerConfiguration().WriteTo.Console(theme: AnsiConsoleTheme.Code).CreateLogger();
+        Log.Error("Invalid command line options");
+        Environment.Exit(1);
     }
 
-    Environment.ExitCode = 1;
+    private static void Main(string[] args)
+    {
+        Parser.Default.ParseArguments<Options>(args)
+            .WithParsed(Execute)
+            .WithNotParsed(HandleParseError);
+    }
 }

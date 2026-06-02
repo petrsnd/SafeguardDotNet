@@ -39,7 +39,7 @@
 
         Test-SgDnAssertThrows "Device code login with invalid appliance returns connection error" {
             Invoke-SgDnSafeguardTool -ProjectDir $deviceCodeToolDir `
-                -Arguments "$appliance.invalid.nonexistent true" `
+                -Arguments "-a $appliance.invalid.nonexistent -x" `
                 -TimeoutSeconds 30 `
                 -ParseJson $false
         } -ExpectedMessage "Device authorization request failed"
@@ -56,7 +56,7 @@
 
         Test-SgDnAssertThrows "Device code login with grant disabled returns clear error" {
             Invoke-SgDnSafeguardTool -ProjectDir $deviceCodeToolDir `
-                -Arguments "$appliance true" `
+                -Arguments "-a $appliance -x" `
                 -TimeoutSeconds 30 `
                 -ParseJson $false
         } -ExpectedMessage "Device authorization request failed"
@@ -78,7 +78,7 @@
                 # The tool will get a device code, print the URL, then poll until timeout.
                 # It times out because no human authenticates — that's expected.
                 Invoke-SgDnSafeguardTool -ProjectDir $deviceCodeToolDir `
-                    -Arguments "$appliance true" `
+                    -Arguments "-a $appliance -x" `
                     -TimeoutSeconds 20 `
                     -ParseJson $false
                 # If it somehow succeeds (unlikely without human), that's fine too
