@@ -17,6 +17,12 @@ using OneIdentity.SafeguardDotNet.A2A;
 [JsonSerializable(typeof(LoginResponse))]
 [JsonSerializable(typeof(Dictionary<string, string>))]
 [JsonSerializable(typeof(JoinRequest))]
+[JsonSerializable(typeof(SshKey))]
+[JsonSerializable(typeof(A2ARegistration))]
+[JsonSerializable(typeof(List<A2ARegistration>))]
+[JsonSerializable(typeof(List<A2ARetrievableAccount>))]
+[JsonSerializable(typeof(List<ApiKeySecret>))]
+[JsonSerializable(typeof(string))]
 internal partial class SafeguardJsonContext : JsonSerializerContext
 {
 }

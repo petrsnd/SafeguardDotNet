@@ -13,8 +13,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json.Linq;
-
 using OneIdentity.SafeguardDotNet.A2A;
 using OneIdentity.SafeguardDotNet.Authentication;
 using OneIdentity.SafeguardDotNet.Event;
@@ -1463,8 +1461,8 @@ public static class Safeguard
         /// <param name="apiVersion">Target API version to use.</param>
         /// <param name="ignoreSsl">When true, bypasses server certificate validation.</param>
         /// <param name="cancellationToken">Cancellation token to abort the operation.</param>
-        /// <returns>A JObject containing the login response with the Safeguard user token.</returns>
-        public static async Task<JObject> PostLoginResponseAsync(
+        /// <returns>The raw JSON string containing the login response with the Safeguard user token.</returns>
+        public static async Task<string> PostLoginResponseAsync(
             string appliance,
             SecureString rstsAccessToken,
             int apiVersion,
@@ -1478,10 +1476,8 @@ public static class Safeguard
             });
 
             using var http = CreateStatelessHttpClient(ignoreSsl);
-            var json = await ApiRequestAsync(http, HttpMethod.Post, $"{safeguardCoreUrl}/Token/LoginResponse", data, cancellationToken)
+            return await ApiRequestAsync(http, HttpMethod.Post, $"{safeguardCoreUrl}/Token/LoginResponse", data, cancellationToken)
                 .ConfigureAwait(false);
-
-            return JObject.Parse(json);
         }
 
         /// <summary>
