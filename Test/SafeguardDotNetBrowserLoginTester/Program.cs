@@ -4,6 +4,7 @@ namespace SafeguardDotNetBrowserLoginTester;
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using CommandLine;
 
@@ -39,6 +40,13 @@ internal class Program
             Default = false,
             HelpText = "Display verbose debug output")]
         public bool Verbose { get; set; }
+
+        [Option(
+            "async",
+            Required = false,
+            Default = false,
+            HelpText = "Use ConnectAsync with Ctrl+C cancellation support")]
+        public bool Async { get; set; }
     }
 
     private static void Execute(Options opts)
@@ -58,7 +66,17 @@ internal class Program
             }
 
             Log.Logger = config.CreateLogger();
-            var connection = DefaultBrowserLogin.Connect(opts.Appliance, ignoreSsl: opts.Insecure);
+
+            ISafeguardConnection connection;
+            if (opts.Async)
+            {
+                connection = ExecuteAsync(opts).GetAwaiter().GetResult();
+            }
+            else
+            {
+                connection = DefaultBrowserLogin.Connect(opts.Appliance, ignoreSsl: opts.Insecure);
+            }
+
             Log.Information(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
             Log.Information("Press any key to quit...");
             Console.ReadKey();
@@ -73,6 +91,16 @@ internal class Program
             Console.ReadKey();
             Environment.Exit(1);
         }
+    }
+
+    private static async Task<ISafeguardConnection> ExecuteAsync(Options opts)
+    {
+        using var cts = Safeguard.AgentBasedLoginUtils.CreateConsoleCancellationToken();
+        Log.Information("Async mode: press Ctrl+C to cancel");
+        return await DefaultBrowserLogin.ConnectAsync(
+            opts.Appliance,
+            ignoreSsl: opts.Insecure,
+            cancellationToken: cts.Token);
     }
 
     private static void HandleParseError(IEnumerable<Error> errors)

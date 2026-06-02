@@ -2,6 +2,8 @@
 
 namespace OneIdentity.SafeguardDotNet.GuiLogin
 {
+    using System.Threading;
+
     using Serilog;
 
     /// <summary>
@@ -33,24 +35,18 @@ namespace OneIdentity.SafeguardDotNet.GuiLogin
 
                 Log.Debug("Redeeming RSTS authorization code");
 
-                using (var rstsAccessToken = Safeguard.AgentBasedLoginUtils.PostAuthorizationCodeFlow(
-                    appliance, rstsWindow.AuthorizationCode, rstsWindow.CodeVerifier, Safeguard.AgentBasedLoginUtils.RedirectUri))
+                using (var rstsAccessToken = Safeguard.AgentBasedLoginUtils.PostAuthorizationCodeFlowAsync(
+                    appliance,
+                    rstsWindow.AuthorizationCode,
+                    rstsWindow.CodeVerifier,
+                    Safeguard.AgentBasedLoginUtils.RedirectUri,
+                    ignoreSsl,
+                    CancellationToken.None).GetAwaiter().GetResult())
                 {
                     Log.Debug("Exchanging RSTS access token");
 
-                    var responseObject = Safeguard.AgentBasedLoginUtils.PostLoginResponse(appliance, rstsAccessToken);
-
-                    var statusValue = responseObject.GetValue("Status")?.ToString();
-
-                    if (string.IsNullOrEmpty(statusValue) || statusValue != "Success")
-                    {
-                        throw new SafeguardDotNetException($"Error response status {statusValue} from login response service");
-                    }
-
-                    using (var accessToken = responseObject.GetValue("UserToken")?.ToString().ToSecureString())
-                    {
-                        return Safeguard.Connect(appliance, accessToken, apiVersion, ignoreSsl);
-                    }
+                    return Safeguard.AgentBasedLoginUtils.ExchangeRstsTokenForConnection(
+                        appliance, rstsAccessToken, apiVersion, ignoreSsl);
                 }
             }
             else

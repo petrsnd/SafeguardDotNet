@@ -4,6 +4,7 @@ namespace OneIdentity.SafeguardDotNet.BrowserLogin;
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Serilog;
 
@@ -17,6 +18,13 @@ public static class DefaultBrowserLogin
     /// Connect to Safeguard by launching the default browser for OAuth2/PKCE authentication.
     /// Opens a local TCP listener to receive the authorization code callback from the browser.
     /// </summary>
+    /// <remarks>
+    /// WARNING: This method blocks indefinitely until the browser callback is received.
+    /// If the user does not complete authentication, this call will never return.
+    /// For programmatic cancellation, use <see cref="ConnectAsync"/> with a
+    /// <see cref="CancellationToken"/> or
+    /// <see cref="Safeguard.AgentBasedLoginUtils.CreateConsoleCancellationToken"/>.
+    /// </remarks>
     /// <param name="appliance">Network address of Safeguard appliance</param>
     /// <param name="username">Optional username to pre-fill the login form</param>
     /// <param name="port">Local TCP port to listen for OAuth callback (default: 8400)</param>
@@ -24,42 +32,69 @@ public static class DefaultBrowserLogin
     /// <param name="ignoreSsl">Ignore validation of Safeguard appliance SSL certificate (default: false)</param>
     /// <returns>Reusable Safeguard API connection</returns>
     public static ISafeguardConnection Connect(
-        string appliance, string username = "", int port = 8400, int apiVersion = Safeguard.DefaultApiVersion, bool ignoreSsl = false)
+        string appliance,
+        string username = "",
+        int port = 8400,
+        int apiVersion = Safeguard.DefaultApiVersion,
+        bool ignoreSsl = false)
+    {
+        return ConnectAsync(appliance, username, port, apiVersion, ignoreSsl, CancellationToken.None)
+            .GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// Connect to Safeguard by launching the default browser for OAuth2/PKCE authentication (async).
+    /// Opens a local TCP listener to receive the authorization code callback from the browser.
+    /// Returns when the user completes authentication or the cancellation token is triggered.
+    /// </summary>
+    /// <remarks>
+    /// WARNING: This method blocks indefinitely until the browser callback is received.
+    /// If no <paramref name="cancellationToken"/> is provided, the call will never return
+    /// if the user does not complete authentication. Always provide a cancellation token
+    /// with a timeout or use <see cref="Safeguard.AgentBasedLoginUtils.CreateConsoleCancellationToken"/>
+    /// to enable Ctrl+C cancellation.
+    /// </remarks>
+    /// <param name="appliance">Network address of Safeguard appliance</param>
+    /// <param name="username">Optional username to pre-fill the login form</param>
+    /// <param name="port">Local TCP port to listen for OAuth callback (default: 8400)</param>
+    /// <param name="apiVersion">Target API version to use (default: 4)</param>
+    /// <param name="ignoreSsl">Ignore validation of Safeguard appliance SSL certificate (default: false)</param>
+    /// <param name="cancellationToken">Cancellation token to abort the flow.</param>
+    /// <returns>Reusable Safeguard API connection</returns>
+    /// <exception cref="SafeguardDotNetException">Thrown when authentication fails or API error.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when cancellation is requested.</exception>
+    public static async Task<ISafeguardConnection> ConnectAsync(
+        string appliance,
+        string username = "",
+        int port = 8400,
+        int apiVersion = Safeguard.DefaultApiVersion,
+        bool ignoreSsl = false,
+        CancellationToken cancellationToken = default)
     {
         Log.Debug("Calling RSTS for primary authentication");
 
         var oauthCodeVerifier = Safeguard.AgentBasedLoginUtils.OAuthCodeVerifier();
-        var tokenExtractor = new AuthorizationCodeExtractor();
         var browserLauncher = new BrowserLauncher(appliance, oauthCodeVerifier);
 
-        using var source = new CancellationTokenSource();
-        Console.CancelKeyPress += (sender, e) => { source.Cancel(); };
-
         browserLauncher.Show(username, port);
-        tokenExtractor.Listen(port, source.Token);
 
-        if (string.IsNullOrEmpty(tokenExtractor.AuthorizationCode))
-        {
-            throw new SafeguardDotNetException("Unable to obtain authorization code");
-        }
+        var authorizationCode = await AuthorizationCodeExtractor.ListenAsync(port, cancellationToken).ConfigureAwait(false);
 
         Log.Debug("Redeeming RSTS authorization code");
 
-        using var rstsAccessToken = Safeguard.AgentBasedLoginUtils.PostAuthorizationCodeFlow(
-            appliance, tokenExtractor.AuthorizationCode, oauthCodeVerifier, Safeguard.AgentBasedLoginUtils.RedirectUri);
+        using var rstsAccessToken = await Safeguard.AgentBasedLoginUtils.PostAuthorizationCodeFlowAsync(
+            appliance,
+            authorizationCode,
+            oauthCodeVerifier,
+            Safeguard.AgentBasedLoginUtils.RedirectUriTcpListener,
+            ignoreSsl,
+            cancellationToken)
+            .ConfigureAwait(false);
 
         Log.Debug("Exchanging RSTS access token");
 
-        var responseObject = Safeguard.AgentBasedLoginUtils.PostLoginResponse(appliance, rstsAccessToken, apiVersion);
-
-        var statusValue = responseObject.GetValue("Status")?.ToString();
-
-        if (string.IsNullOrEmpty(statusValue) || statusValue != "Success")
-        {
-            throw new SafeguardDotNetException($"Error response status {statusValue} from RSTS");
-        }
-
-        using var accessToken = responseObject.GetValue("UserToken")?.ToString().ToSecureString();
-        return Safeguard.Connect(appliance, accessToken, apiVersion, ignoreSsl);
+        return await Safeguard.AgentBasedLoginUtils.ExchangeRstsTokenForConnectionAsync(
+            appliance, rstsAccessToken, apiVersion, ignoreSsl, cancellationToken)
+            .ConfigureAwait(false);
     }
 }

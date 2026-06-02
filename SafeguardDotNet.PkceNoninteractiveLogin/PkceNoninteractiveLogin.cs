@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -51,7 +52,8 @@ public static class PkceNoninteractiveLogin
         int apiVersion = Safeguard.DefaultApiVersion,
         bool ignoreSsl = false)
     {
-        return Connect(appliance, provider, username, password, null, apiVersion, ignoreSsl);
+        return ConnectAsync(appliance, provider, username, password, null, apiVersion, ignoreSsl, CancellationToken.None)
+            .GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -81,16 +83,74 @@ public static class PkceNoninteractiveLogin
         int apiVersion = Safeguard.DefaultApiVersion,
         bool ignoreSsl = false)
     {
+        return ConnectAsync(appliance, provider, username, password, secondaryPassword, apiVersion, ignoreSsl, CancellationToken.None)
+            .GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// Connect to Safeguard API using PKCE authentication without launching a browser (async).
+    /// </summary>
+    /// <param name="appliance">Network address of the Safeguard appliance.</param>
+    /// <param name="provider">Safeguard authentication provider name (e.g. local).</param>
+    /// <param name="username">User name to use for authentication.</param>
+    /// <param name="password">User password to use for authentication.</param>
+    /// <param name="apiVersion">Target API version to use.</param>
+    /// <param name="ignoreSsl">Ignore server certificate validation.</param>
+    /// <param name="cancellationToken">Cancellation token to abort the flow.</param>
+    /// <returns>Reusable Safeguard API connection.</returns>
+    /// <exception cref="SafeguardDotNetException">Thrown when authentication fails or the API returns an error.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when cancellation is requested.</exception>
+    public static Task<ISafeguardConnection> ConnectAsync(
+        string appliance,
+        string provider,
+        string username,
+        SecureString password,
+        int apiVersion = Safeguard.DefaultApiVersion,
+        bool ignoreSsl = false,
+        CancellationToken cancellationToken = default)
+    {
+        return ConnectAsync(appliance, provider, username, password, null, apiVersion, ignoreSsl, cancellationToken);
+    }
+
+    /// <summary>
+    /// Connect to Safeguard API using PKCE authentication without launching a browser (async),
+    /// with support for multi-factor authentication (MFA).
+    /// </summary>
+    /// <param name="appliance">Network address of the Safeguard appliance.</param>
+    /// <param name="provider">Safeguard authentication provider name (e.g. local).</param>
+    /// <param name="username">User name to use for authentication.</param>
+    /// <param name="password">User password to use for authentication.</param>
+    /// <param name="secondaryPassword">One-time password or code for multi-factor authentication (e.g. TOTP code).
+    /// Pass null if MFA is not required.</param>
+    /// <param name="apiVersion">Target API version to use.</param>
+    /// <param name="ignoreSsl">Ignore server certificate validation.</param>
+    /// <param name="cancellationToken">Cancellation token to abort the flow.</param>
+    /// <returns>Reusable Safeguard API connection.</returns>
+    /// <exception cref="SafeguardDotNetException">Thrown when authentication fails, MFA is required but no
+    /// secondary password was provided, or the API returns an error.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when cancellation is requested.</exception>
+    public static async Task<ISafeguardConnection> ConnectAsync(
+        string appliance,
+        string provider,
+        string username,
+        SecureString password,
+        SecureString secondaryPassword,
+        int apiVersion = Safeguard.DefaultApiVersion,
+        bool ignoreSsl = false,
+        CancellationToken cancellationToken = default)
+    {
         var csrfToken = Safeguard.AgentBasedLoginUtils.GenerateCsrfToken();
         var oauthCodeVerifier = Safeguard.AgentBasedLoginUtils.OAuthCodeVerifier();
         var oauthCodeChallenge = Safeguard.AgentBasedLoginUtils.OAuthCodeChallenge(oauthCodeVerifier);
         var redirectUri = Safeguard.AgentBasedLoginUtils.RedirectUri;
 
-        var http = CreateHttpClient(appliance, csrfToken, ignoreSsl);
+        using var http = Safeguard.AgentBasedLoginUtils.CreateSessionHttpClient(appliance, csrfToken, ignoreSsl);
 
-        var identityProvider = ResolveIdentityProvider(http, appliance, apiVersion, provider);
+        cancellationToken.ThrowIfCancellationRequested();
 
-        // Form data to submit to the rSTS login screen
+        var identityProvider = await ResolveIdentityProviderAsync(http, appliance, apiVersion, provider, cancellationToken)
+            .ConfigureAwait(false);
+
         var primaryFormData = $"directoryComboBox={identityProvider}" +
             $"&usernameTextbox={Uri.EscapeDataString(username)}" +
             $"&passwordTextbox={Uri.EscapeDataString(password.ToInsecureString())}" +
@@ -98,16 +158,28 @@ public static class PkceNoninteractiveLogin
         var pkceUrl = $"https://{appliance}/RSTS/UserLogin/LoginController?response_type=code&code_challenge_method=S256&" +
             $"code_challenge={oauthCodeChallenge}&redirect_uri={redirectUri}&loginRequestStep=";
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         Log.Debug("Calling RSTS for provider initialization");
-        RstsRequest(http, pkceUrl + StepInit, primaryFormData);
+        await RstsRequestAsync(http, pkceUrl + StepInit, primaryFormData, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         Log.Debug("Calling RSTS for primary authentication");
-        var (primaryBody, _) = RstsRequest(http, pkceUrl + StepPrimaryAuth, primaryFormData);
+        var (primaryBody, _) = await RstsRequestAsync(http, pkceUrl + StepPrimaryAuth, primaryFormData, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
-        HandleSecondaryAuthentication(http, pkceUrl, primaryFormData, primaryBody, secondaryPassword);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await HandleSecondaryAuthenticationAsync(http, pkceUrl, primaryFormData, primaryBody, secondaryPassword, cancellationToken)
+            .ConfigureAwait(false);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         Log.Debug("Calling RSTS for generate claims");
-        var (claimsBody, claimsStatus) = RstsRequest(http, pkceUrl + StepGenerateClaims, primaryFormData);
+        var (claimsBody, claimsStatus) = await RstsRequestAsync(http, pkceUrl + StepGenerateClaims, primaryFormData, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
         if (claimsStatus != HttpStatusCode.OK)
         {
@@ -117,28 +189,33 @@ public static class PkceNoninteractiveLogin
 
         var authorizationCode = ExtractAuthorizationCode(claimsBody);
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         Log.Debug("Redeeming RSTS authorization code");
 
-        using var rstsAccessToken = Safeguard.AgentBasedLoginUtils.PostAuthorizationCodeFlow(
-            appliance, authorizationCode, oauthCodeVerifier, Safeguard.AgentBasedLoginUtils.RedirectUri);
+        using var rstsAccessToken = await Safeguard.AgentBasedLoginUtils.PostAuthorizationCodeFlowAsync(
+            appliance,
+            authorizationCode,
+            oauthCodeVerifier,
+            Safeguard.AgentBasedLoginUtils.RedirectUri,
+            ignoreSsl,
+            cancellationToken)
+            .ConfigureAwait(false);
 
         Log.Debug("Exchanging RSTS access token");
 
-        var responseObject = Safeguard.AgentBasedLoginUtils.PostLoginResponse(appliance, rstsAccessToken, apiVersion);
-
-        var statusValue = responseObject.GetValue("Status")?.ToString();
-
-        if (string.IsNullOrEmpty(statusValue) || statusValue != "Success")
-        {
-            throw new SafeguardDotNetException($"Error exchanging RSTS token, status: {statusValue}");
-        }
-
-        using var accessToken = responseObject.GetValue("UserToken")?.ToString().ToSecureString();
-        return Safeguard.Connect(appliance, accessToken, apiVersion, ignoreSsl);
+        return await Safeguard.AgentBasedLoginUtils.ExchangeRstsTokenForConnectionAsync(
+            appliance, rstsAccessToken, apiVersion, ignoreSsl, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    private static void HandleSecondaryAuthentication(
-        HttpClient http, string pkceUrl, string primaryFormData, string primaryAuthBody, SecureString secondaryPassword)
+    private static async Task HandleSecondaryAuthenticationAsync(
+        HttpClient http,
+        string pkceUrl,
+        string primaryFormData,
+        string primaryAuthBody,
+        SecureString secondaryPassword,
+        CancellationToken cancellationToken)
     {
         JObject primaryResponse;
         try
@@ -166,8 +243,11 @@ public static class PkceNoninteractiveLogin
                 "but no secondary password was provided. Use the secondaryPassword parameter to supply the one-time code.");
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         Log.Debug("Calling RSTS for secondary provider initialization");
-        var (initBody, initStatus) = RstsRequest(http, pkceUrl + StepSecondaryInit, primaryFormData);
+        var (initBody, initStatus) = await RstsRequestAsync(http, pkceUrl + StepSecondaryInit, primaryFormData, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
         // Parse the MFA state from the secondary init response
         var mfaState = string.Empty;
@@ -189,13 +269,16 @@ public static class PkceNoninteractiveLogin
             }
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         // Submit the secondary password (OTP code) along with the primary form data
         var mfaFormData = primaryFormData +
             $"&secondaryLoginTextbox={Uri.EscapeDataString(secondaryPassword.ToInsecureString())}" +
             $"&secondaryAuthenticationStateTextbox={Uri.EscapeDataString(mfaState)}";
 
         Log.Debug("Calling RSTS for secondary authentication");
-        var (mfaBody, mfaStatus) = RstsRequest(http, pkceUrl + StepSecondaryAuth, mfaFormData);
+        var (mfaBody, mfaStatus) = await RstsRequestAsync(http, pkceUrl + StepSecondaryAuth, mfaFormData, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
         // Step 5 returns empty string on success, or 203 with error details on failure
         if ((int)mfaStatus == 203)
@@ -263,11 +346,24 @@ public static class PkceNoninteractiveLogin
         return authorizationCode;
     }
 
-    private static string ResolveIdentityProvider(HttpClient http, string appliance, int apiVersion, string provider)
+    private static async Task<string> ResolveIdentityProviderAsync(
+        HttpClient http,
+        string appliance,
+        int apiVersion,
+        string provider,
+        CancellationToken cancellationToken)
     {
         var coreUrl = $"https://{appliance}/service/core/v{apiVersion}";
 
-        var (response, _) = RstsRequest(http, $"{coreUrl}/AuthenticationProviders", null, HttpMethod.Get, "application/json");
+        var (response, _) = await RstsRequestAsync(
+            http,
+            $"{coreUrl}/AuthenticationProviders",
+            null,
+            HttpMethod.Get,
+            "application/json",
+            cancellationToken)
+            .ConfigureAwait(false);
+
         var jProviders = JArray.Parse(response);
         var knownScopes = new List<(string RstsProviderId, string Name, string RstsProviderScope)>();
         if (jProviders != null)
@@ -299,17 +395,13 @@ public static class PkceNoninteractiveLogin
         return scope.RstsProviderId;
     }
 
-    /// <summary>
-    /// Makes a request to the rSTS login controller, returning the response body and status code.
-    /// Throws <see cref="SafeguardDotNetException"/> for HTTP error responses (4xx/5xx) unless
-    /// the caller handles specific status codes.
-    /// </summary>
-    private static (string Body, HttpStatusCode StatusCode) RstsRequest(
+    private static async Task<(string Body, HttpStatusCode StatusCode)> RstsRequestAsync(
         HttpClient http,
         string url,
         string postData,
         HttpMethod method = null,
-        string contentType = "application/x-www-form-urlencoded")
+        string contentType = "application/x-www-form-urlencoded",
+        CancellationToken cancellationToken = default)
     {
         method ??= HttpMethod.Post;
 
@@ -328,19 +420,22 @@ public static class PkceNoninteractiveLogin
 
         try
         {
-            var res = http.SendAsync(req).GetAwaiter().GetResult();
-            var body = res.Content?.ReadAsStringAsync().GetAwaiter().GetResult() ?? string.Empty;
+            var res = await http.SendAsync(req, cancellationToken).ConfigureAwait(false);
+            var body = await res.Content.ReadAsStringAsync().ConfigureAwait(false) ?? string.Empty;
             var statusCode = res.StatusCode;
 
             if (!IsSuccessStatusCode(statusCode) && (int)statusCode != 203)
             {
-                // rSTS returns plain text error messages on failure (e.g. "Invalid password.")
                 var errorMessage = !string.IsNullOrWhiteSpace(body) ? body.Trim() : statusCode.ToString();
                 throw new SafeguardDotNetException(
                     $"rSTS authentication error: {errorMessage}", statusCode, body);
             }
 
             return (body, statusCode);
+        }
+        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw new OperationCanceledException(cancellationToken);
         }
         catch (TaskCanceledException)
         {
@@ -355,27 +450,5 @@ public static class PkceNoninteractiveLogin
     private static bool IsSuccessStatusCode(HttpStatusCode statusCode)
     {
         return statusCode is >= HttpStatusCode.OK and <= (HttpStatusCode)299;
-    }
-
-    private static HttpClient CreateHttpClient(string appliance, string csrfToken, bool ignoreSsl)
-    {
-        // Create HttpClient with cookie container to maintain session state across requests
-        var cookieContainer = new System.Net.CookieContainer();
-        cookieContainer.SetCookies(new Uri($"https://{appliance}/RSTS"), $"CsrfToken={csrfToken}");
-        var handler = new HttpClientHandler()
-        {
-            SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
-            UseCookies = true,
-            CookieContainer = cookieContainer,
-        };
-
-        if (ignoreSsl)
-        {
-#pragma warning disable S4830 // Intentional SSL bypass when user explicitly opts in via ignoreSsl parameter
-            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
-#pragma warning restore S4830
-        }
-
-        return new HttpClient(handler);
     }
 }

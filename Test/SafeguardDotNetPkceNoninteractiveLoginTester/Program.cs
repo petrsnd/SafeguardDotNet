@@ -5,6 +5,7 @@ namespace SafeguardDotNetPkceNoninteractiveLoginTester;
 using System;
 using System.Linq;
 using System.Security;
+using System.Threading.Tasks;
 
 using CommandLine;
 
@@ -92,6 +93,13 @@ internal class Program
             Default = null,
             HelpText = "Enable (true) or disable (false) the resource owner password grant type and exit")]
         public bool? ResourceOwner { get; set; }
+
+        [Option(
+            "async",
+            Required = false,
+            Default = false,
+            HelpText = "Use ConnectAsync with Ctrl+C cancellation support")]
+        public bool Async { get; set; }
     }
 
     private static SecureString PromptForSecret(string name)
@@ -207,14 +215,23 @@ internal class Program
             using var secondaryPassword = !string.IsNullOrEmpty(opts.SecondaryPassword)
                 ? opts.SecondaryPassword.ToSecureString()
                 : null;
-            var connection = PkceNoninteractiveLogin.Connect(
-                opts.Appliance,
-                opts.IdentityProvider,
-                opts.Username,
-                password,
-                secondaryPassword,
-                opts.ApiVersion,
-                opts.Insecure);
+
+            ISafeguardConnection connection;
+            if (opts.Async)
+            {
+                connection = ExecuteAsync(opts, password, secondaryPassword).GetAwaiter().GetResult();
+            }
+            else
+            {
+                connection = PkceNoninteractiveLogin.Connect(
+                    opts.Appliance,
+                    opts.IdentityProvider,
+                    opts.Username,
+                    password,
+                    secondaryPassword,
+                    opts.ApiVersion,
+                    opts.Insecure);
+            }
 
             if (connection != null)
             {
@@ -244,6 +261,24 @@ internal class Program
             Log.Error(ex, "Fatal exception occurred");
             Environment.Exit(1);
         }
+    }
+
+    private static async Task<ISafeguardConnection> ExecuteAsync(
+        Options opts,
+        SecureString password,
+        SecureString secondaryPassword)
+    {
+        using var cts = Safeguard.AgentBasedLoginUtils.CreateConsoleCancellationToken();
+        Log.Information("Async mode: press Ctrl+C to cancel");
+        return await PkceNoninteractiveLogin.ConnectAsync(
+            opts.Appliance,
+            opts.IdentityProvider,
+            opts.Username,
+            password,
+            secondaryPassword,
+            opts.ApiVersion,
+            opts.Insecure,
+            cts.Token);
     }
 
     private static void Main(string[] args)

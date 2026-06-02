@@ -164,6 +164,19 @@ var connection = DefaultBrowserLogin.Connect("safeguard.sample.corp");
 Console.WriteLine(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
 ```
 
+#### Async with CancellationToken
+
+```C#
+using OneIdentity.SafeguardDotNet;
+using OneIdentity.SafeguardDotNet.BrowserLogin;
+
+// Ctrl+C cancels the login flow without terminating the process
+using var cts = Safeguard.AgentBasedLoginUtils.CreateConsoleCancellationToken();
+var connection = await DefaultBrowserLogin.ConnectAsync(
+    "safeguard.sample.corp", ignoreSsl: true, cancellationToken: cts.Token);
+Console.WriteLine(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
+```
+
 ### Device Code Login (Recommended for Headless/Remote Devices)
 
 When there is no browser on the local machine (SSH sessions, containers, IoT
@@ -218,6 +231,17 @@ SecureString password = GetPasswordSomehow();
 SecureString totp = GetOneTimeCodeSomehow();
 var connection = PkceNoninteractiveLogin.Connect(
     "safeguard.sample.corp", "local", "Admin", password, totp);
+Console.WriteLine(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
+```
+
+#### Async with CancellationToken
+
+```C#
+using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+SecureString password = GetPasswordSomehow();
+var connection = await PkceNoninteractiveLogin.ConnectAsync(
+    "safeguard.sample.corp", "local", "Admin", password,
+    ignoreSsl: true, cancellationToken: cts.Token);
 Console.WriteLine(connection.InvokeMethod(Service.Core, Method.Get, "Me"));
 ```
 
@@ -279,6 +303,42 @@ A four minute video demonstrating how to get started calling the Safeguard API f
 [Visual Studio Code video](https://www.youtube.com/watch?v=gV7iHUun9kA)
 
 [![Visual Studio Code video](https://img.youtube.com/vi/gV7iHUun9kA/0.jpg)](https://www.youtube.com/watch?v=gV7iHUun9kA)
+
+## Migrating to Async Login (ConnectAsync)
+
+`DefaultBrowserLogin`, `PkceNoninteractiveLogin`, and `DeviceCodeLogin` now
+offer `ConnectAsync` methods with `CancellationToken` support.
+
+**What changed in `Connect()` (sync):**
+
+- `DefaultBrowserLogin.Connect()` no longer registers a `Console.CancelKeyPress`
+  handler. The previous handler did not suppress process termination
+  (`e.Cancel` was not set to `true`), so Ctrl+C already terminated the process.
+  This change removes a non-functional side effect — behavior is unchanged for
+  callers.
+
+**New capability — `ConnectAsync`:**
+
+```C#
+// Option 1: Ctrl+C cancellation that suppresses process termination
+using var cts = Safeguard.AgentBasedLoginUtils.CreateConsoleCancellationToken();
+var connection = await DefaultBrowserLogin.ConnectAsync(
+    "safeguard.example.com", ignoreSsl: true, cancellationToken: cts.Token);
+
+// Option 2: Custom timeout
+using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+var connection = await PkceNoninteractiveLogin.ConnectAsync(
+    "safeguard.example.com", "local", "Admin", password,
+    ignoreSsl: true, cancellationToken: cts.Token);
+```
+
+**Bug fix — `ignoreSsl` now honored everywhere:**
+
+Previously, internal HTTP calls during token exchange always bypassed SSL
+validation regardless of the `ignoreSsl` parameter. This is now fixed — if you
+pass `ignoreSsl: false`, certificate validation is enforced for all calls.
+Environments using self-signed certificates should pass `ignoreSsl: true`
+explicitly.
 
 ## About the Safeguard API
 
