@@ -286,3 +286,28 @@ correctly.
 5. **Test both modes when applicable.** The PKCE test suite supports two modes:
    - **Standard mode** (no `TotpSeed`): Runs login success + error tests
    - **MFA mode** (`TotpSeed` provided): Runs only the TOTP success test
+
+## Suite interactivity classification
+
+All suites are designed to run **non-interactively** (no human input during execution).
+Suites that test browser or device-code flows use timeouts and error paths to validate
+the flow starts correctly without requiring a human to complete authentication.
+
+| Suite | Requires | Notes |
+|---|---|---|
+| SpsIntegration | SPS appliance (`-SpsAppliance`, `-SpsPassword`) | Only suite needing separate infrastructure |
+| BrowserAuthentication | Nothing extra | Tests error paths + verifies listener starts (timeout expected) |
+| DeviceCodeAuthentication | Nothing extra | Tests grant toggle + verifies device code issued (timeout expected) |
+| A2A* suites | Nothing extra | Creates own certs, users, registrations via setup |
+| CertificateAuth | Nothing extra | Uses embedded test certificates |
+| Streaming | Nothing extra | Tests streaming download paths |
+| All others | Nothing extra | Standard password/PKCE auth against appliance |
+
+**When running a full regression**, exclude only `SpsIntegration` (unless an SPS appliance
+is available):
+
+```powershell
+pwsh -File Test\TestFramework\Invoke-SafeguardTests.ps1 `
+    -Appliance <address> -AdminPassword <password> -SkipBuild `
+    -ExcludeSuite SpsIntegration
+```

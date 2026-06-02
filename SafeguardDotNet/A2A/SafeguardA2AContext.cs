@@ -471,7 +471,7 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
 
 internal class A2ARegistration
 {
-    public string Id { get; set; }
+    public int Id { get; set; }
 
     public string AppName { get; set; }
 
