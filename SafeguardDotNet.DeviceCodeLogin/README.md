@@ -23,7 +23,7 @@ The flow displays a URL and user code. The user authenticates from any browser o
 
 ## Prerequisites
 
-- Safeguard appliance firmware ≥ 8.2
+- Safeguard appliance firmware ≥ 7.4
 - Device Code grant type must be enabled on the appliance:
   - **UI**: Settings → OAuth 2.0 Grant Types → check "Device Code"
   - **API**: `PUT /service/core/v4/Settings/Allowed%20OAuth2%20Grant%20Types` with body `{"Value":"ResourceOwner, DeviceCode"}`
