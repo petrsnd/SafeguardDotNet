@@ -5,12 +5,10 @@ namespace SafeguardDotNetPkceNoninteractiveLoginTester;
 using System;
 using System.Linq;
 using System.Security;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 using CommandLine;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 using OneIdentity.SafeguardDotNet;
 using OneIdentity.SafeguardDotNet.PkceNoninteractiveLogin;
@@ -143,15 +141,30 @@ internal class Program
     private static void SetResourceOwnerGrant(ISafeguardConnection connection, bool enable)
     {
         var settingsJson = connection.InvokeMethod(Service.Core, Method.Get, "Settings");
-        var settings = JArray.Parse(settingsJson);
-        var grantSetting = settings.FirstOrDefault(s => s["Name"]?.ToString() == GrantTypeSettingName);
 
-        if (grantSetting == null)
+        string currentValue;
+        using (var settings = JsonDocument.Parse(settingsJson))
         {
-            throw new SafeguardDotNetException($"Setting '{GrantTypeSettingName}' not found");
+            JsonElement grantSetting = default;
+            var found = false;
+            foreach (var item in settings.RootElement.EnumerateArray())
+            {
+                if (item.TryGetProperty("Name", out var nameEl) && nameEl.GetString() == GrantTypeSettingName)
+                {
+                    grantSetting = item;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                throw new SafeguardDotNetException($"Setting '{GrantTypeSettingName}' not found");
+            }
+
+            currentValue = grantSetting.TryGetProperty("Value", out var valEl) ? valEl.GetString() ?? string.Empty : string.Empty;
         }
 
-        var currentValue = grantSetting["Value"]?.ToString() ?? string.Empty;
         Log.Debug("Current grant types value: {Value}", currentValue);
 
         var grantTypes = currentValue
@@ -172,7 +185,7 @@ internal class Program
         }
 
         var newValue = string.Join(", ", grantTypes);
-        var body = JsonConvert.SerializeObject(new { Value = newValue });
+        var body = JsonSerializer.Serialize(new { Value = newValue });
         _ = connection.InvokeMethod(
             Service.Core,
             Method.Put,
@@ -186,7 +199,7 @@ internal class Program
             NewValue = newValue,
             ResourceOwnerEnabled = enable,
         };
-        Console.WriteLine(JsonConvert.SerializeObject(envelope));
+        Console.WriteLine(JsonSerializer.Serialize(envelope));
     }
 
     private static void Execute(Options opts)

@@ -5,10 +5,10 @@ namespace ServiceNowTicketValidator
     using System;
     using System.Configuration;
     using System.Security;
+    using System.Text.Json;
 
     using global::ServiceNowTicketValidator.DTOs;
 
-    using Newtonsoft.Json;
     using OneIdentity.SafeguardDotNet;
     using OneIdentity.SafeguardDotNet.Event;
     using Serilog;
@@ -61,7 +61,7 @@ namespace ServiceNowTicketValidator
 
             try
             {
-                var approvalEvent = JsonConvert.DeserializeObject<AccessRequestApprovalPendingEvent>(eventBody);
+                var approvalEvent = JsonSerializer.Deserialize<AccessRequestApprovalPendingEvent>(eventBody);
                 var accessRequestId = approvalEvent.RequestId;
                 if (string.IsNullOrEmpty(accessRequestId))
                 {
@@ -71,7 +71,7 @@ namespace ServiceNowTicketValidator
 
                 var accessRequestJson =
                     _connection.InvokeMethod(Service.Core, Method.Get, $"AccessRequests/{accessRequestId}");
-                var accessRequest = JsonConvert.DeserializeObject<AccessRequest>(accessRequestJson);
+                var accessRequest = JsonSerializer.Deserialize<AccessRequest>(accessRequestJson);
 
                 // Only ServiceNow and Remedy are supported in Safeguard. We will be adding a generic ticket system
                 // that will allow for arbitrary ticket numbers. Until then, you could overload the comment with

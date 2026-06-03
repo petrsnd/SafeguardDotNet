@@ -8,12 +8,11 @@ using System.Net.Http;
 using System.Net.Security;
 using System.Security;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 using OneIdentity.SafeguardDotNet.Event;
+using OneIdentity.SafeguardDotNet.Serialization;
 
 using Serilog;
 
@@ -118,7 +117,7 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
 
         var json = ApiRequest(HttpMethod.Get, GetUrl(Core, "A2ARegistrations"), null, null);
 
-        var registrations = JsonConvert.DeserializeObject<List<A2ARegistration>>(json);
+        var registrations = SafeguardJson.Deserialize<List<A2ARegistration>>(json);
 
         foreach (var registration in registrations)
         {
@@ -134,7 +133,7 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
 
             json = ApiRequest(HttpMethod.Get, url, null, null);
 
-            var accounts = JsonConvert.DeserializeObject<List<A2ARetrievableAccount>>(json);
+            var accounts = SafeguardJson.Deserialize<List<A2ARetrievableAccount>>(json);
 
             foreach (var account in accounts)
             {
@@ -163,9 +162,19 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
 
         var pwd = ApiRequest(HttpMethod.Get, GetUrl(A2A, "Credentials?type=Password"), null, apiKey);
 
-        var raw = string.IsNullOrEmpty(pwd)
-            ? pwd
-            : JToken.Parse(pwd).ToString();
+        string raw;
+        if (string.IsNullOrEmpty(pwd))
+        {
+            raw = pwd;
+        }
+        else
+        {
+            using var doc = JsonDocument.Parse(pwd);
+            raw = doc.RootElement.ValueKind == JsonValueKind.String
+                ? doc.RootElement.GetString()
+                : doc.RootElement.GetRawText();
+        }
+
         Log.Information("Successfully retrieved A2A password.");
         return raw.ToSecureString();
     }
@@ -187,7 +196,7 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
             throw new ArgumentException("Parameter may not be null", nameof(password));
         }
 
-        var data = JsonConvert.SerializeObject(password.ToInsecureString());
+        var data = SafeguardJson.Serialize(password.ToInsecureString());
 
         _ = ApiRequest(HttpMethod.Put, GetUrl(A2A, "Credentials/Password"), data, apiKey);
         Log.Information("Successfully set A2A password.");
@@ -207,9 +216,16 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
 
         var key = ApiRequest(HttpMethod.Get, GetUrl(A2A, $"Credentials?type=PrivateKey&keyFormat={keyFormat}"), null, apiKey);
 
-        var json = JToken.Parse(key);
+        string keyValue;
+        using (var doc = JsonDocument.Parse(key))
+        {
+            keyValue = doc.RootElement.ValueKind == JsonValueKind.String
+                ? doc.RootElement.GetString()
+                : doc.RootElement.GetRawText();
+        }
+
         Log.Information("Successfully retrieved A2A private key.");
-        return json.Root.ToString().ToSecureString();
+        return keyValue.ToSecureString();
     }
 
     public void SetPrivateKey(SecureString apiKey, SecureString privateKey, SecureString password, KeyFormat keyFormat = KeyFormat.OpenSsh)
@@ -234,7 +250,7 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
             throw new ArgumentException("Parameter may not be null", nameof(password));
         }
 
-        var data = JsonConvert.SerializeObject(new SshKey
+        var data = SafeguardJson.Serialize(new SshKey
         {
             Passphrase = password.ToInsecureString(),
             PrivateKey = privateKey.ToInsecureString(),
@@ -260,7 +276,7 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
 
         Log.Information("Successfully retrieved A2A API key(s).");
 
-        var list = JsonConvert.DeserializeObject<List<ApiKeySecret>>(json, new SecureStringConverter());
+        var list = SafeguardJson.Deserialize<List<ApiKeySecret>>(json);
 
         return list;
     }
@@ -373,7 +389,7 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
             throw new SafeguardDotNetException("You must specify an asset to create an access request for");
         }
 
-        var data = JsonConvert.SerializeObject(accessRequest);
+        var data = SafeguardJson.Serialize(accessRequest);
         var json = ApiRequest(HttpMethod.Post, GetUrl(A2A, "AccessRequests"), data, apiKey);
 
         Log.Information("Successfully created A2A access request.");
@@ -455,7 +471,7 @@ internal class SafeguardA2AContext : ISafeguardA2AContext, ICloneable
 
 internal class A2ARegistration
 {
-    public string Id { get; set; }
+    public int Id { get; set; }
 
     public string AppName { get; set; }
 

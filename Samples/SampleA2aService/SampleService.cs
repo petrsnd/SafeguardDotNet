@@ -8,9 +8,7 @@ using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Security;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 using OneIdentity.SafeguardDotNet;
 using OneIdentity.SafeguardDotNet.A2A;
@@ -64,18 +62,19 @@ internal class SampleService
             {
                 { "filter", $"CertificateUserThumbprint ieq '{_safeguardClientCertificateThumbprint}'" },
             });
-            var a2AArray = JArray.Parse(a2AJson);
-            foreach (dynamic a2A in a2AArray)
+            using var a2ADoc = JsonDocument.Parse(a2AJson);
+            foreach (var a2A in a2ADoc.RootElement.EnumerateArray())
             {
-                var credsJson = _connection.InvokeMethod(Service.Core, Method.Get, $"A2ARegistrations/{a2A.Id}/RetrievableAccounts");
-                var credsArray = JArray.Parse(credsJson);
-                foreach (dynamic cred in credsArray)
+                var id = a2A.GetProperty("Id").ToString();
+                var credsJson = _connection.InvokeMethod(Service.Core, Method.Get, $"A2ARegistrations/{id}/RetrievableAccounts");
+                using var credsDoc = JsonDocument.Parse(credsJson);
+                foreach (var cred in credsDoc.RootElement.EnumerateArray())
                 {
                     _monitoredPasswords.Add(new MonitoredPassword
                     {
-                        ApiKey = ExtensionMethods.ToSecureString(cred.ApiKey.ToString()),
-                        AssetName = cred.SystemName,
-                        AccountName = cred.AccountName,
+                        ApiKey = (cred.TryGetProperty("ApiKey", out var akEl) ? akEl.GetString() : string.Empty).ToSecureString(),
+                        AssetName = cred.TryGetProperty("SystemName", out var snEl) ? snEl.GetString() : null,
+                        AccountName = cred.TryGetProperty("AccountName", out var anEl) ? anEl.GetString() : null,
                     });
                 }
             }
@@ -88,7 +87,7 @@ internal class SampleService
 
     private void PasswordChangeHandler(string eventName, string eventBody)
     {
-        var eventInfo = JsonConvert.DeserializeObject<MonitoredPassword>(eventBody);
+        var eventInfo = JsonSerializer.Deserialize<MonitoredPassword>(eventBody);
         Log.Information("Password changed for {MonitoredPassword}", eventInfo);
 
         // NOTE: eventInfo won't have the API key field filled out because that isn't in the eventBody Json

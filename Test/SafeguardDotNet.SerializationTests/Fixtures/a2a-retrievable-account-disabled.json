@@ -1,0 +1,12 @@
+{
+  "AccountId": 99,
+  "AccountName": "admin_locked",
+  "DomainName": "corp.local",
+  "AssetId": 5,
+  "AssetName": "dc01",
+  "NetworkAddress": "10.0.0.1",
+  "AccountDisabled": 1,
+  "ApiKey": null,
+  "HasPassword": true,
+  "HasSshKey": true
+}

@@ -3,12 +3,12 @@
 namespace OneIdentity.SafeguardDotNet.Authentication;
 
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Security;
 using System.Security;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OneIdentity.SafeguardDotNet.Serialization;
 
 internal class PasswordAuthenticator : AuthenticatorBase
 {
@@ -58,18 +58,18 @@ internal class PasswordAuthenticator : AuthenticatorBase
             _providerScope = ResolveProviderToScope(_provider);
         }
 
-        var data = JsonConvert.SerializeObject(new
+        var data = SafeguardJson.Serialize(new Dictionary<string, string>
         {
-            grant_type = "password",
-            username = _username,
-            password = _password.ToInsecureString(),
-            scope = _providerScope,
+            ["grant_type"] = "password",
+            ["username"] = _username,
+            ["password"] = _password.ToInsecureString(),
+            ["scope"] = _providerScope,
         });
 
         var json = ApiRequest(HttpMethod.Post, $"https://{NetworkAddress}/RSTS/oauth2/token", data);
 
-        var jObject = JObject.Parse(json);
-        return jObject.GetValue("access_token")?.ToString().ToSecureString();
+        using var doc = SafeguardJson.Parse(json);
+        return doc.RootElement.GetProperty("access_token").GetString().ToSecureString();
     }
 
     public override object Clone()

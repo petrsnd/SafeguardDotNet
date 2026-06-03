@@ -6,11 +6,9 @@ using System;
 using System.Net.Http;
 using System.Security;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 using Serilog;
 
@@ -81,7 +79,7 @@ public static class DeviceCodeLogin
         Log.Debug("Requesting device authorization from {Appliance}", appliance);
 
         var deviceAuthUrl = $"https://{appliance}/RSTS/oauth2/DeviceLogin";
-        var requestBody = JsonConvert.SerializeObject(new { client_id = clientId, scope });
+        var requestBody = JsonSerializer.Serialize(new { client_id = clientId, scope });
         var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
         HttpResponseMessage response;
@@ -105,12 +103,13 @@ public static class DeviceCodeLogin
                 responseBody);
         }
 
-        var deviceResponse = JObject.Parse(responseBody);
-        var deviceCode = deviceResponse["device_code"]?.ToString();
-        var userCode = deviceResponse["user_code"]?.ToString();
-        var verificationUri = deviceResponse["verification_uri"]?.ToString();
-        var verificationUriComplete = deviceResponse["verification_uri_complete"]?.ToString();
-        var expiresIn = deviceResponse["expires_in"]?.Value<int>() ?? 300;
+        using var deviceResponse = JsonDocument.Parse(responseBody);
+        var deviceRoot = deviceResponse.RootElement;
+        var deviceCode = deviceRoot.TryGetProperty("device_code", out var dcEl) ? dcEl.GetString() : null;
+        var userCode = deviceRoot.TryGetProperty("user_code", out var ucEl) ? ucEl.GetString() : null;
+        var verificationUri = deviceRoot.TryGetProperty("verification_uri", out var vuEl) ? vuEl.GetString() : null;
+        var verificationUriComplete = deviceRoot.TryGetProperty("verification_uri_complete", out var vucEl) ? vucEl.GetString() : null;
+        var expiresIn = deviceRoot.TryGetProperty("expires_in", out var eiEl) && eiEl.TryGetInt32(out var eiVal) ? eiVal : 300;
 
         // Step 2: Display to user via callback
         parameters.DisplayCallback(new DeviceCodeInfo
@@ -135,7 +134,7 @@ public static class DeviceCodeLogin
 
             await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), cancellationToken).ConfigureAwait(false);
 
-            var pollBody = JsonConvert.SerializeObject(new
+            var pollBody = JsonSerializer.Serialize(new
             {
                 grant_type = "urn:ietf:params:oauth:grant-type:device_code",
                 device_code = deviceCode,
@@ -144,15 +143,18 @@ public static class DeviceCodeLogin
             var pollContent = new StringContent(pollBody, Encoding.UTF8, "application/json");
             var pollResponse = await http.PostAsync(tokenUrl, pollContent, cancellationToken).ConfigureAwait(false);
             var pollResponseBody = await pollResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var pollJson = JObject.Parse(pollResponseBody);
+            using var pollJson = JsonDocument.Parse(pollResponseBody);
+
+            var pollRoot = pollJson.RootElement;
 
             if (pollResponse.IsSuccessStatusCode)
             {
-                rstsAccessToken = pollJson["access_token"]?.ToString().ToSecureString();
+                var accessTokenValue = pollRoot.TryGetProperty("access_token", out var atEl) ? atEl.GetString() : null;
+                rstsAccessToken = accessTokenValue?.ToSecureString();
                 break;
             }
 
-            var error = pollJson["error"]?.ToString();
+            var error = pollRoot.TryGetProperty("error", out var errEl) ? errEl.GetString() : null;
             switch (error)
             {
                 case "authorization_pending":

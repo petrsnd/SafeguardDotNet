@@ -1,0 +1,18 @@
+[
+  {
+    "Id": -1,
+    "Name": "Local",
+    "TypeReferenceName": "Local",
+    "RstsProviderId": "local",
+    "RstsProviderScope": "rsts:sts:primaryproviderid:local",
+    "ForceAsDefault": false
+  },
+  {
+    "Id": -2,
+    "Name": "Certificate",
+    "TypeReferenceName": "Certificate",
+    "RstsProviderId": "certificate",
+    "RstsProviderScope": "rsts:sts:primaryproviderid:certificate",
+    "ForceAsDefault": false
+  }
+]

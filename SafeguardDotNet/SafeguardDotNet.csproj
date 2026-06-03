@@ -30,9 +30,24 @@ Provides an easy way to connect to Safeguard and call the Safeguard API.
 - Real-time event notifications
 - Persistent event listeners that reconnect even after an appliance goes offline
 
-Updates:
-- Bug fixes and dependency updates.</PackageReleaseNotes>
+v9.0.0 Breaking Changes:
+- Replaced Newtonsoft.Json with System.Text.Json for all serialization
+- Removed Newtonsoft.Json and Microsoft.AspNet.WebApi.Client dependencies
+- A2ARegistration.Id changed from string to int to match the API contract
+- Login modules PostLoginResponseAsync return type changed from JObject to string
+
+Improvements:
+- Source-generated JSON serialization (faster startup, reduced allocations, trim/AOT-friendly)
+- Reduced dependency footprint
+
+Bug Fixes:
+- Fixed CustomTimeSpanJsonConverter TimeSpan parsing for D:H:M format
+- Fixed UtcDateTimeJsonConverter to return UTC DateTimes instead of local time</PackageReleaseNotes>
   </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SafeguardDotNet.SerializationTests" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\SafeguardLogo.png" Link="SafeguardLogo.png" Pack="true" PackagePath="Content\images\" />
@@ -40,10 +55,9 @@ Updates:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="System.Text.Json" Version="10.0.2" />
   </ItemGroup>
 
   <Target Name="SignAssemblies" AfterTargets="PostBuildEvent">

@@ -6,10 +6,9 @@ namespace OneIdentity.SafeguardDotNet;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Security;
 
-using Newtonsoft.Json;
+using OneIdentity.SafeguardDotNet.Serialization;
 
 /// <summary>
 /// Service identifiers for the different services in the Safeguard API.
@@ -118,14 +117,14 @@ public class ApiKeySecret : IDisposable
 
     public string ClientId { get; set; }
 
-    [JsonConverter(typeof(SecureStringConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(SecureStringJsonConverter))]
     public SecureString ClientSecret { get; set; }
 
     public string ClientSecretId { get; set; }
 
     public override string ToString()
     {
-        return JsonConvert.SerializeObject(this);
+        return SafeguardJson.Serialize(this);
     }
 
     public void Dispose()
@@ -147,53 +146,6 @@ public class ApiKeySecret : IDisposable
     }
 }
 
-// https://stackoverflow.com/a/66481597
-public class SecureStringConverter : JsonConverter<SecureString>
-{
-    public override void WriteJson(JsonWriter writer, SecureString value, JsonSerializer serializer)
-    {
-        IntPtr ptr = Marshal.SecureStringToBSTR(value);
-        writer.WriteValue(Marshal.PtrToStringBSTR(ptr));
-        Marshal.ZeroFreeBSTR(ptr);
-    }
-
-    public override SecureString ReadJson(JsonReader reader, Type objectType, SecureString existingValue, bool hasExistingValue, JsonSerializer serializer)
-    {
-        string json_val = (string)reader.Value;
-        SecureString s = new SecureString();
-
-        if (json_val != null)
-        {
-            foreach (char c in json_val)
-            {
-                s.AppendChar(c);
-            }
-        }
-
-        s.MakeReadOnly();
-        return s;
-    }
-}
-
-// https://stackoverflow.com/a/14428145
-public class BoolConverter : JsonConverter
-{
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-    {
-        writer.WriteValue(((bool)value) ? 1 : 0);
-    }
-
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-    {
-        return reader.Value.ToString() == "1";
-    }
-
-    public override bool CanConvert(Type objectType)
-    {
-        return objectType == typeof(bool);
-    }
-}
-
 /// <summary>
 /// A class representing the asset accounts that can be used with A2A credential retrieval.
 /// </summary>
@@ -205,18 +157,18 @@ public class A2ARetrievableAccount : IDisposable
 
     public string Description { get; set; }
 
-    [JsonProperty("AccountDisabled")]
-    [JsonConverter(typeof(BoolConverter))]
+    [System.Text.Json.Serialization.JsonPropertyName("AccountDisabled")]
+    [System.Text.Json.Serialization.JsonConverter(typeof(BoolIntJsonConverter))]
     public bool Disabled { get; set; }
 
-    [JsonConverter(typeof(SecureStringConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(SecureStringJsonConverter))]
     public SecureString ApiKey { get; set; }
 
     public int AssetId { get; set; }
 
     public string AssetName { get; set; }
 
-    [JsonProperty("NetworkAddress")]
+    [System.Text.Json.Serialization.JsonPropertyName("NetworkAddress")]
     public string AssetNetworkAddress { get; set; }
 
     public string AssetDescription { get; set; }
@@ -233,7 +185,7 @@ public class A2ARetrievableAccount : IDisposable
 
     public override string ToString()
     {
-        return JsonConvert.SerializeObject(this);
+        return SafeguardJson.Serialize(this);
     }
 
     public void Dispose()

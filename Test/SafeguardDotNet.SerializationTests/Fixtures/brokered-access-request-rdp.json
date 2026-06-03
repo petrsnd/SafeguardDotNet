@@ -1,0 +1,14 @@
+{
+  "AccessType": "RemoteDesktop",
+  "ForUserName": "helpdesk@test.local",
+  "ForUserId": 3,
+  "ForProvider": "Local",
+  "AssetId": 30,
+  "AssetName": "win-server",
+  "AccountId": 77,
+  "AccountName": "Administrator",
+  "AccountAssetName": "win-server",
+  "IsEmergency": false,
+  "RequestedFor": "2024-12-25 00:00:00Z",
+  "RequestedDuration": "0:8:0"
+}

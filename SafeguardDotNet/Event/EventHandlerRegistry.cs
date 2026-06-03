@@ -4,9 +4,10 @@ namespace OneIdentity.SafeguardDotNet.Event;
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json.Linq;
+using OneIdentity.SafeguardDotNet.Serialization;
 
 using Serilog;
 
@@ -46,29 +47,31 @@ internal class EventHandlerRegistry
         }
     }
 
-    private static (string, JToken)[] ParseEvents(string eventObject)
+    internal static (string Name, string Body)[] ParseEvents(string eventObject)
     {
         try
         {
-            var events = new List<(string, JToken)>();
-            var jObject = JObject.Parse(eventObject);
+            using var doc = SafeguardJson.Parse(eventObject);
+            var root = doc.RootElement;
 
-            var name = jObject["Name"];
-            var body = jObject["Data"];
+            var name = root.TryGetProperty("Name", out var nameEl) ? nameEl.GetString() : null;
+            var body = root.TryGetProperty("Data", out var dataEl) ? dataEl : default;
+
             // Work around for bug in A2A events in Safeguard 2.2 and 2.3
-            if (name != null && int.TryParse(name.ToString(), out _) && body != null)
+            if (name != null && int.TryParse(name, out _)
+                && body.ValueKind == JsonValueKind.Object
+                && body.TryGetProperty("EventName", out var eventNameEl))
             {
-                name = body["EventName"];
+                name = eventNameEl.GetString();
             }
 
-            events.Add((name?.ToString(), body));
-
-            return events.ToArray();
+            var bodyJson = body.ValueKind == JsonValueKind.Undefined ? null : body.GetRawText();
+            return new[] { (name, bodyJson) };
         }
         catch (Exception ex)
         {
             Log.Warning(ex, "Unable to parse event object {EventObject}", eventObject);
-            return Array.Empty<(string, JToken)>();
+            return Array.Empty<(string, string)>();
         }
     }
 
@@ -82,13 +85,13 @@ internal class EventHandlerRegistry
 
         foreach (var eventInfo in events)
         {
-            if (eventInfo.Item1 == null)
+            if (eventInfo.Name == null)
             {
-                Log.Warning("Found null event with body {EventBody}", eventInfo.Item2);
+                Log.Warning("Found null event with body {EventBody}", eventInfo.Body);
                 continue;
             }
 
-            HandleEvent(eventInfo.Item1, eventInfo.Item2.ToString());
+            HandleEvent(eventInfo.Name, eventInfo.Body);
         }
     }
 

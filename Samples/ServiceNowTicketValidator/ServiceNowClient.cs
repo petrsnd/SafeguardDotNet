@@ -8,10 +8,10 @@ namespace ServiceNowTicketValidator
     using System.Net.Http.Headers;
     using System.Security;
     using System.Text;
+    using System.Text.Json;
 
     using global::ServiceNowTicketValidator.DTOs;
 
-    using Newtonsoft.Json;
     using OneIdentity.SafeguardDotNet;
     using Serilog;
 
@@ -56,7 +56,7 @@ namespace ServiceNowTicketValidator
                 var res = _restClient.SendAsync(req).GetAwaiter().GetResult();
                 var msg = res.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
 
-                return JsonConvert.DeserializeObject<ServiceNowResult<ServiceNowIncident>>(msg)?.result?.FirstOrDefault();
+                return JsonSerializer.Deserialize<ServiceNowResult<ServiceNowIncident>>(msg)?.result?.FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -80,7 +80,7 @@ namespace ServiceNowTicketValidator
                 var res = _restClient.SendAsync(req).GetAwaiter().GetResult();
                 var msg = res.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
 
-                return JsonConvert.DeserializeObject<ServiceNowResult<T>>(msg)?.result?.FirstOrDefault();
+                return JsonSerializer.Deserialize<ServiceNowResult<T>>(msg)?.result?.FirstOrDefault();
             }
             catch (Exception ex)
             {

@@ -1,0 +1,14 @@
+{
+  "AccessType": "SSH",
+  "ForUserName": "ops@test.local",
+  "ForUserId": 2,
+  "ForProvider": "Local",
+  "AssetId": 20,
+  "AssetName": "linux01",
+  "AccountId": 55,
+  "AccountName": "root",
+  "AccountAssetName": "linux01",
+  "IsEmergency": true,
+  "RequestedFor": "2024-06-01 12:00:00Z",
+  "RequestedDuration": "1:0:0"
+}

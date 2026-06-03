@@ -1,0 +1,52 @@
+// Copyright (c) One Identity LLC. All rights reserved.
+
+namespace OneIdentity.SafeguardDotNet.Serialization;
+
+using System;
+using System.Text.Json;
+
+/// <summary>
+/// Centralized facade for all JSON serialization/deserialization in the SDK.
+/// All calls go through the source-generated <see cref="SafeguardJsonContext"/> to guarantee
+/// AOT-compatible, reflection-free serialization.
+/// </summary>
+internal static class SafeguardJson
+{
+    private static readonly JsonSerializerOptions Options = new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true,
+        TypeInfoResolver = SafeguardJsonContext.Default,
+    };
+
+    /// <summary>
+    /// Serializes a value using the source-generated context.
+    /// </summary>
+    /// <typeparam name="T">The type to serialize.</typeparam>
+    /// <param name="value">The value to serialize.</param>
+    /// <returns>A JSON string representation of the value.</returns>
+    public static string Serialize<T>(T value)
+    {
+        var typeInfo = SafeguardJsonContext.Default.GetTypeInfo(typeof(T))
+            ?? throw new InvalidOperationException($"Type {typeof(T).Name} is not registered in SafeguardJsonContext.");
+        return JsonSerializer.Serialize(value, typeInfo);
+    }
+
+    /// <summary>
+    /// Deserializes JSON into the specified type using the source-generated context.
+    /// </summary>
+    /// <typeparam name="T">The type to deserialize into.</typeparam>
+    /// <param name="json">The JSON string to deserialize.</param>
+    /// <returns>The deserialized object.</returns>
+    public static T Deserialize<T>(string json)
+    {
+        return (T)JsonSerializer.Deserialize(json, typeof(T), Options);
+    }
+
+    /// <summary>
+    /// Parses a JSON string into a <see cref="JsonDocument"/>.
+    /// The caller is responsible for disposing the returned document.
+    /// </summary>
+    /// <param name="json">The JSON string to parse.</param>
+    /// <returns>A parsed <see cref="JsonDocument"/>.</returns>
+    public static JsonDocument Parse(string json) => JsonDocument.Parse(json);
+}
