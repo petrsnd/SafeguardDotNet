@@ -10,6 +10,8 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using OneIdentity.SafeguardDotNet.DeviceCodeLogin.Serialization;
+
 using Serilog;
 
 /// <summary>
@@ -87,7 +89,9 @@ public static class DeviceCodeLogin
         Log.Debug("Requesting device authorization from {Appliance}", appliance);
 
         var deviceAuthUrl = $"https://{appliance}/RSTS/oauth2/DeviceLogin";
-        var requestBody = JsonSerializer.Serialize(new { client_id = clientId, scope });
+        var requestBody = JsonSerializer.Serialize(
+            new DeviceAuthRequest { ClientId = clientId, Scope = scope },
+            DeviceCodeJsonContext.Default.DeviceAuthRequest);
         var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
         HttpResponseMessage response;
@@ -142,12 +146,14 @@ public static class DeviceCodeLogin
 
             await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), cancellationToken).ConfigureAwait(false);
 
-            var pollBody = JsonSerializer.Serialize(new
-            {
-                grant_type = "urn:ietf:params:oauth:grant-type:device_code",
-                device_code = deviceCode,
-                client_id = clientId,
-            });
+            var pollBody = JsonSerializer.Serialize(
+                new DeviceTokenRequest
+                {
+                    GrantType = "urn:ietf:params:oauth:grant-type:device_code",
+                    DeviceCode = deviceCode,
+                    ClientId = clientId,
+                },
+                DeviceCodeJsonContext.Default.DeviceTokenRequest);
             var pollContent = new StringContent(pollBody, Encoding.UTF8, "application/json");
             var pollResponse = await http.PostAsync(tokenUrl, pollContent, cancellationToken).ConfigureAwait(false);
             var pollResponseBody = await pollResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
