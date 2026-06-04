@@ -4,6 +4,7 @@ namespace OneIdentity.SafeguardDotNet.Serialization;
 
 using System;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 /// <summary>
 /// Centralized facade for all JSON serialization/deserialization in the SDK.
@@ -12,12 +13,6 @@ using System.Text.Json;
 /// </summary>
 internal static class SafeguardJson
 {
-    private static readonly JsonSerializerOptions Options = new JsonSerializerOptions
-    {
-        PropertyNameCaseInsensitive = true,
-        TypeInfoResolver = SafeguardJsonContext.Default,
-    };
-
     /// <summary>
     /// Serializes a value using the source-generated context.
     /// </summary>
@@ -26,9 +21,7 @@ internal static class SafeguardJson
     /// <returns>A JSON string representation of the value.</returns>
     public static string Serialize<T>(T value)
     {
-        var typeInfo = SafeguardJsonContext.Default.GetTypeInfo(typeof(T))
-            ?? throw new InvalidOperationException($"Type {typeof(T).Name} is not registered in SafeguardJsonContext.");
-        return JsonSerializer.Serialize(value, typeInfo);
+        return JsonSerializer.Serialize(value, GetTypeInfo<T>());
     }
 
     /// <summary>
@@ -39,7 +32,7 @@ internal static class SafeguardJson
     /// <returns>The deserialized object.</returns>
     public static T Deserialize<T>(string json)
     {
-        return (T)JsonSerializer.Deserialize(json, typeof(T), Options);
+        return JsonSerializer.Deserialize(json, GetTypeInfo<T>());
     }
 
     /// <summary>
@@ -49,4 +42,12 @@ internal static class SafeguardJson
     /// <param name="json">The JSON string to parse.</param>
     /// <returns>A parsed <see cref="JsonDocument"/>.</returns>
     public static JsonDocument Parse(string json) => JsonDocument.Parse(json);
+
+    private static JsonTypeInfo<T> GetTypeInfo<T>()
+    {
+        return SafeguardJsonContext.Default.GetTypeInfo(typeof(T)) is JsonTypeInfo<T> typeInfo
+            ? typeInfo
+            : throw new InvalidOperationException(
+                $"Type {typeof(T).Name} is not registered in {nameof(SafeguardJsonContext)}.");
+    }
 }

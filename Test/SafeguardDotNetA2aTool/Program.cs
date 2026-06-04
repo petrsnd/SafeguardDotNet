@@ -122,7 +122,7 @@ void Execute(ToolOptions opts)
                 var accounts = string.IsNullOrEmpty(opts.Filter)
                     ? context.GetRetrievableAccounts()
                     : context.GetRetrievableAccounts(opts.Filter);
-                Log.Information(System.Text.Json.JsonSerializer.Serialize(accounts));
+                Log.Information(OneIdentity.SafeguardDotNet.Serialization.SafeguardJson.Serialize((List<A2ARetrievableAccount>)accounts));
             }
 
             if (opts.PrivateKey)

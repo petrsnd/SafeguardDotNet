@@ -160,11 +160,11 @@ internal static class Program
 
             if (opts.TokenLifetime)
             {
-                var envelope = new
+                var envelope = new TokenLifetimeEnvelope
                 {
                     TokenLifetimeRemaining = connection.GetAccessTokenLifetimeRemaining(),
                 };
-                Console.WriteLine(JsonSerializer.Serialize(envelope));
+                Console.WriteLine(JsonSerializer.Serialize(envelope, ToolJsonContext.Default.TokenLifetimeEnvelope));
                 connection.LogOut();
                 return;
             }
@@ -173,23 +173,23 @@ internal static class Program
             {
                 var accessToken = connection.GetAccessToken().ToInsecureString();
                 connection.LogOut();
-                var envelope = new
+                var envelope = new LogoutEnvelope
                 {
                     AccessToken = accessToken,
                     LoggedOut = true,
                 };
-                Console.WriteLine(JsonSerializer.Serialize(envelope));
+                Console.WriteLine(JsonSerializer.Serialize(envelope, ToolJsonContext.Default.LogoutEnvelope));
                 return;
             }
 
             if (opts.GetToken)
             {
                 var accessToken = connection.GetAccessToken().ToInsecureString();
-                var envelope = new
+                var envelope = new TokenEnvelope
                 {
                     AccessToken = accessToken,
                 };
-                Console.WriteLine(JsonSerializer.Serialize(envelope));
+                Console.WriteLine(JsonSerializer.Serialize(envelope, ToolJsonContext.Default.TokenEnvelope));
                 return;
             }
 
@@ -210,13 +210,13 @@ internal static class Program
                     opts.Body,
                     queryParameters,
                     additionalHeaders);
-                var envelope = new
+                var envelope = new FullResponseEnvelope
                 {
                     StatusCode = (int)fullResponse.StatusCode,
-                    fullResponse.Headers,
-                    fullResponse.Body,
+                    Headers = fullResponse.Headers,
+                    Body = fullResponse.Body,
                 };
-                responseBody = JsonSerializer.Serialize(envelope);
+                responseBody = JsonSerializer.Serialize(envelope, ToolJsonContext.Default.FullResponseEnvelope);
             }
             else if (opts.Csv)
             {

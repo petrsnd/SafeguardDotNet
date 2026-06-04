@@ -11,6 +11,7 @@ using OneIdentity.SafeguardDotNet.A2A;
 /// Source-generated JSON serializer context for all types that require serialization in the SDK.
 /// Guarantees AOT-compatible, reflection-free serialization at compile time.
 /// </summary>
+[JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
 [JsonSerializable(typeof(BrokeredAccessRequest))]
 [JsonSerializable(typeof(A2ARetrievableAccount))]
 [JsonSerializable(typeof(ApiKeySecret))]

@@ -188,6 +188,30 @@ public static class Program
                 .ConfigureAwait(false);
         }).ConfigureAwait(false);
 
+        // Direct probes against the SafeguardJson facade. The network probes above
+        // never reach Deserialize<T>/Serialize<T> because they fail at the network
+        // layer first, so a regression that swaps the source-generated overload
+        // for a reflection-based one would slip through. These probes feed
+        // hand-rolled JSON straight at the facade so the source-gen path is
+        // actually exercised under JsonSerializerIsReflectionEnabledByDefault=false.
+        failures += await ProbeAsync("SafeguardJson.Deserialize<LoginResponse>", () =>
+        {
+            _ = OneIdentity.SafeguardDotNet.Serialization.SafeguardJson.Deserialize<OneIdentity.SafeguardDotNet.Serialization.LoginResponse>(
+                "{\"Status\":\"Success\",\"UserToken\":\"abc\"}");
+        }).ConfigureAwait(false);
+
+        failures += await ProbeAsync("SafeguardJson.Deserialize<List<A2ARetrievableAccount>>", () =>
+        {
+            _ = OneIdentity.SafeguardDotNet.Serialization.SafeguardJson.Deserialize<System.Collections.Generic.List<A2ARetrievableAccount>>(
+                "[{\"Id\":1,\"AccountName\":\"a\"}]");
+        }).ConfigureAwait(false);
+
+        failures += await ProbeAsync("SafeguardJson.Serialize<BrokeredAccessRequest>", () =>
+        {
+            _ = OneIdentity.SafeguardDotNet.Serialization.SafeguardJson.Serialize(
+                new BrokeredAccessRequest { ForUserName = "u", AssetName = "a" });
+        }).ConfigureAwait(false);
+
         if (failures > 0)
         {
             Console.Error.WriteLine($"AOT smoke test FAILED: {failures} probe(s) hit reflection-based JSON.");
