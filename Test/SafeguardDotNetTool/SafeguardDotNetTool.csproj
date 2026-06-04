@@ -3,18 +3,12 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
-    <!--
-      Build this tool as AOT-compatible so the trim/AOT analyzers run during
-      every `dotnet build`, and `dotnet publish -r <rid>` produces a real
-      native AOT binary. When live-appliance tests publish/run these tools
-      AOT, any reflection-based code path reachable from them will fail at
-      build (analyzer) or runtime (reflection guard), catching SDK-internal
-      regressions that compile-time analyzers in netstandard2.0 dependencies
-      would otherwise miss.
-    -->
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
     <EnableAotAnalyzer>true</EnableAotAnalyzer>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
+    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
   </PropertyGroup>
 
   <ItemGroup>
