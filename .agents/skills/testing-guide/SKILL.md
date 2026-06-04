@@ -32,6 +32,42 @@ live Safeguard appliance for testing.** If they do, ask for:
 This is not required for documentation or minor fixes, but it is **strongly encouraged**
 for any change that touches authentication, API calls, connection logic, or event handling.
 
+## AOT cleanliness — how reflection regressions are caught
+
+Every CLI tool csproj under `Test/` carries the **full AOT property set**: `IsAotCompatible`,
+`IsTrimmable`, `EnableAotAnalyzer`, `EnableTrimAnalyzer`, `EnableSingleFileAnalyzer`,
+`JsonSerializerIsReflectionEnabledByDefault=false`. This gives two complementary guards:
+
+1. **Build-time** — analyzers run against tool source; any reflection-based JSON
+   introduced in a tool fails the build via repo-wide `TreatWarningsAsErrors`.
+2. **Runtime** — when the PowerShell suite `dotnet run`s these tools against a live
+   appliance, they execute with reflection disabled, so any new SDK code path that needs
+   reflection fails loudly in regression instead of silently shipping to consumers.
+
+**Every new tool csproj under `Test/` must carry this full property set.** If a regression
+run starts failing event listeners, A2A retrieval, or auth, the answer is **not** "remove
+the AOT switches from the tool" — it's "fix the SDK code path that's trying to use
+reflection." The canonical example: SignalR registrations must be typed
+(`On<JsonElement>(...)`, never `On("name", (object) => ...)`) so `JsonHubProtocol` can
+deserialize without reflection.
+
+### Gap to be aware of
+
+The SDK targets `netstandard2.0`; trim/AOT analyzers do not run on its own source. A
+regression in the SDK that switches `SafeguardJson.Deserialize<T>` (or any other facade
+method) to a `[RequiresUnreferencedCode]`/`[RequiresDynamicCode]`-annotated overload
+**will not** be caught at SDK build time. It only surfaces either:
+
+- as `IL2026` / `IL3050` warnings in a downstream `PublishAot=true` consumer's build
+  (e.g. safeguard-mcp), or
+- as runtime failures during live appliance regression (broken event listeners, A2A
+  retrieval, auth).
+
+**For changes touching `SafeguardDotNet/Serialization/`, `SafeguardJsonContext`, the
+`SafeguardJson` facade, any `JsonSerializer.*` site, or any SignalR `HubConnection`
+registration, the live appliance regression is the primary safety net.** Run the full
+PowerShell suite (see below) before declaring such a change done.
+
 ## Connecting to the appliance (PKCE vs Resource Owner Grant)
 
 **Resource Owner Grant (ROG) is disabled by default** on Safeguard appliances. The SDK's

@@ -185,21 +185,21 @@ internal class Program
         }
 
         var newValue = string.Join(", ", grantTypes);
-        var body = JsonSerializer.Serialize(new { Value = newValue });
+        var body = JsonSerializer.Serialize(new SettingValueRequest { Value = newValue }, ToolJsonContext.Default.SettingValueRequest);
         _ = connection.InvokeMethod(
             Service.Core,
             Method.Put,
             $"Settings/{GrantTypeSettingName}",
             body);
 
-        var envelope = new
+        var envelope = new GrantTypeSettingEnvelope
         {
             Setting = GrantTypeSettingName,
             PreviousValue = currentValue,
             NewValue = newValue,
             ResourceOwnerEnabled = enable,
         };
-        Console.WriteLine(JsonSerializer.Serialize(envelope));
+        Console.WriteLine(JsonSerializer.Serialize(envelope, ToolJsonContext.Default.GrantTypeSettingEnvelope));
     }
 
     private static void Execute(Options opts)

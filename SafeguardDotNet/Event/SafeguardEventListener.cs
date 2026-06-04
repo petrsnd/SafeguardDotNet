@@ -8,11 +8,14 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Security;
 using System.Security;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 
 using OneIdentity.SafeguardDotNet.A2A;
+using OneIdentity.SafeguardDotNet.Serialization;
 
 using Serilog;
 
@@ -246,11 +249,16 @@ internal class SafeguardEventListener : ISafeguardEventListener
                     return message;
                 };
             })
+            .AddJsonProtocol(options =>
+            {
+                options.PayloadSerializerOptions.TypeInfoResolver = SafeguardJsonContext.Default;
+            })
             .Build();
 
         try
         {
-            _signalrConnection.On("NotifyEventAsync", (object message) => HandleEvent(message.ToString()));
+            // Typed JsonElement keeps SignalR off the reflection path so this works when consumers publish AOT.
+            _signalrConnection.On<JsonElement>("NotifyEventAsync", message => HandleEvent(message.GetRawText()));
             _signalrConnection.Closed += _signalrConnection_Closed;
 
             _signalrConnection.StartAsync().Wait();
