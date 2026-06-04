@@ -1,7 +1,7 @@
 @{
     Name        = "Browser Authentication"
-    Description = "Tests DefaultBrowserLogin.ConnectAsync error paths and verifies the async flow starts correctly. No human interaction needed for error-path tests."
-    Tags        = @("auth", "browser")
+    Description = "Tests DefaultBrowserLogin.ConnectAsync error and listener paths. INTERACTIVE: launches the user's default browser via Process.Start; gated behind SGDN_RUN_INTERACTIVE_TESTS=1."
+    Tags        = @("auth", "browser", "interactive")
 
     Setup = {
         param($Context)
@@ -10,6 +10,18 @@
 
     Execute = {
         param($Context)
+
+        # All assertions in this suite invoke DefaultBrowserLogin.ConnectAsync, which calls
+        # Process.Start on the auth URL before any DNS/callback failure can occur. That pops
+        # the user's default browser even on the "invalid appliance" assertion. Gate the
+        # whole suite so routine regression runs do not disrupt the user.
+        $runInteractiveTests = $env:SGDN_RUN_INTERACTIVE_TESTS -eq "1"
+        if (-not $runInteractiveTests) {
+            Test-SgDnSkip "Browser login async with invalid appliance does not succeed" "Set SGDN_RUN_INTERACTIVE_TESTS=1 to enable (launches a real browser)"
+            Test-SgDnSkip "Browser login without completing auth flow does not succeed" "Set SGDN_RUN_INTERACTIVE_TESTS=1 to enable (launches a real browser)"
+            Test-SgDnSkip "Browser login async starts listener and outputs auth URL" "Set SGDN_RUN_INTERACTIVE_TESTS=1 to enable (launches a real browser)"
+            return
+        }
 
         $appliance = $Context.Appliance
         $browserToolDir = Join-Path $Context.TestRoot "SafeguardDotNetBrowserLoginTester"
