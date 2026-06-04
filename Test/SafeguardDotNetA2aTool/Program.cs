@@ -9,6 +9,7 @@ using CommandLine;
 
 using OneIdentity.SafeguardDotNet;
 using OneIdentity.SafeguardDotNet.A2A;
+using OneIdentity.SafeguardDotNet.Serialization;
 
 using SafeguardDotNetA2aTool;
 
@@ -122,7 +123,8 @@ void Execute(ToolOptions opts)
                 var accounts = string.IsNullOrEmpty(opts.Filter)
                     ? context.GetRetrievableAccounts()
                     : context.GetRetrievableAccounts(opts.Filter);
-                Log.Information(OneIdentity.SafeguardDotNet.Serialization.SafeguardJson.Serialize((List<A2ARetrievableAccount>)accounts));
+                var accountList = accounts as List<A2ARetrievableAccount> ?? [.. accounts];
+                Log.Information(SafeguardJson.Serialize(accountList));
             }
 
             if (opts.PrivateKey)
