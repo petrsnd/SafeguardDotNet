@@ -56,6 +56,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SafeguardDotNetUnitTest", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SafeguardDotNet.SerializationTests", "Test\SafeguardDotNet.SerializationTests\SafeguardDotNet.SerializationTests.csproj", "{F5591287-9C28-4778-951A-31F6A6766B63}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SafeguardDotNetAotTest", "Test\SafeguardDotNetAotTest\SafeguardDotNetAotTest.csproj", "{3E63CCAE-63D0-4E10-85F4-03D35091144D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -118,6 +120,10 @@ Global
 		{F5591287-9C28-4778-951A-31F6A6766B63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5591287-9C28-4778-951A-31F6A6766B63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5591287-9C28-4778-951A-31F6A6766B63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E63CCAE-63D0-4E10-85F4-03D35091144D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E63CCAE-63D0-4E10-85F4-03D35091144D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E63CCAE-63D0-4E10-85F4-03D35091144D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E63CCAE-63D0-4E10-85F4-03D35091144D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6802F7A9-CD3D-4608-9EEC-C98636DA2708}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6802F7A9-CD3D-4608-9EEC-C98636DA2708}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6802F7A9-CD3D-4608-9EEC-C98636DA2708}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -144,6 +150,7 @@ Global
 		{1EB6D64D-7AFB-41DC-B11B-58934D053684} = {9249E337-656D-4970-B45C-7A077C56FA44}
 		{1B11B367-2F76-49EE-A820-2A0A8B1721B1} = {DD89D86B-68DA-4EB0-8EBC-60DE3DC2B084}
 		{F5591287-9C28-4778-951A-31F6A6766B63} = {DD89D86B-68DA-4EB0-8EBC-60DE3DC2B084}
+		{3E63CCAE-63D0-4E10-85F4-03D35091144D} = {DD89D86B-68DA-4EB0-8EBC-60DE3DC2B084}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5A3B2C1D-4E6F-7A8B-9C0D-1E2F3A4B5C6D}
