@@ -48,7 +48,6 @@ Bug Fixes:
   <ItemGroup>
     <InternalsVisibleTo Include="SafeguardDotNet.SerializationTests" />
     <InternalsVisibleTo Include="SafeguardDotNetA2aTool" />
-    <InternalsVisibleTo Include="SafeguardDotNetAotTest" />
   </ItemGroup>
 
   <ItemGroup>

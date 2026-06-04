@@ -32,43 +32,41 @@ live Safeguard appliance for testing.** If they do, ask for:
 This is not required for documentation or minor fixes, but it is **strongly encouraged**
 for any change that touches authentication, API calls, connection logic, or event handling.
 
-## AOT cleanliness — analyzers vs runtime, what each catches
+## AOT cleanliness — how reflection regressions are caught
 
-The repo has two separate guards that are easy to confuse:
+Every CLI tool csproj under `Test/` carries the **full AOT property set**: `IsAotCompatible`,
+`IsTrimmable`, `EnableAotAnalyzer`, `EnableTrimAnalyzer`, `EnableSingleFileAnalyzer`,
+`JsonSerializerIsReflectionEnabledByDefault=false`. This gives two complementary guards:
 
-1. **`SafeguardDotNetAotTest`** (`Test/SafeguardDotNetAotTest/`) — the only project with
-   `IsAotCompatible=true`, `PublishAot=true`, and
-   `JsonSerializerIsReflectionEnabledByDefault=false`. Its `--smoke` run is invoked by the
-   `Build` target, mirrors a downstream `PublishAot=true` consumer's runtime config, and
-   probes the public auth/A2A/event/SPS surface plus the `SafeguardJson` facade directly.
-   Catches: any **reachable** code path that would fall back to reflection at runtime.
+1. **Build-time** — analyzers run against tool source; any reflection-based JSON
+   introduced in a tool fails the build via repo-wide `TreatWarningsAsErrors`.
+2. **Runtime** — when the PowerShell suite `dotnet run`s these tools against a live
+   appliance, they execute with reflection disabled, so any new SDK code path that needs
+   reflection fails loudly in regression instead of silently shipping to consumers.
 
-2. **CLI tools in `Test/` (other than AotTest)** — have `EnableAotAnalyzer`,
-   `EnableTrimAnalyzer`, `EnableSingleFileAnalyzer`, and **no** runtime AOT switches. They
-   build with the AOT/trim/single-file analyzers active so any reflection-based JSON
-   introduced *in tool source* fails the build via `TreatWarningsAsErrors`. They run with
-   normal JIT/reflection at execution time so dependencies that legitimately need
-   reflection (e.g. SignalR's `JsonHubProtocol`) keep working.
+**Every new tool csproj under `Test/` must carry this full property set.** If a regression
+run starts failing event listeners, A2A retrieval, or auth, the answer is **not** "remove
+the AOT switches from the tool" — it's "fix the SDK code path that's trying to use
+reflection." The canonical example: SignalR registrations must be typed
+(`On<JsonElement>(...)`, never `On("name", (object) => ...)`) so `JsonHubProtocol` can
+deserialize without reflection.
 
-**Do not add `IsAotCompatible=true`, `IsTrimmable=true`, `PublishAot=true`, or
-`JsonSerializerIsReflectionEnabledByDefault=false` to any tool csproj.** Those properties
-implicitly disable reflection at runtime even under `dotnet run`, which silently breaks
-SignalR-based features (event listener `On("NotifyEventAsync", (object message) => ...)`
-deserialization). The connect handshake still succeeds, so the failure looks like
-"appliance is dropping events" instead of an SDK problem.
+### Gap to be aware of
 
-### Gaps to be aware of
+The SDK targets `netstandard2.0`; trim/AOT analyzers do not run on its own source. A
+regression in the SDK that switches `SafeguardJson.Deserialize<T>` (or any other facade
+method) to a `[RequiresUnreferencedCode]`/`[RequiresDynamicCode]`-annotated overload
+**will not** be caught at SDK build time. It only surfaces either:
 
-- The SDK targets `netstandard2.0`; trim/AOT analyzers do not run on its own source. A
-  regression in the SDK that switches `SafeguardJson.Deserialize<T>` (or any other facade
-  method) to a `[RequiresUnreferencedCode]`/`[RequiresDynamicCode]`-annotated overload
-  **will not** be caught by the AOT smoke test if the call still resolves through a
-  supplied `TypeInfoResolver` at runtime. It only surfaces as `IL2026` / `IL3050` warnings
-  in a downstream `PublishAot=true` consumer's build (e.g. safeguard-mcp).
-- For changes touching `SafeguardDotNet/Serialization/`, `SafeguardJsonContext`, the
-  `SafeguardJson` facade, or any `JsonSerializer.*` site, **the live appliance regression
-  is the primary safety net**. Run the full PowerShell suite (see below); side effects
-  often surface as broken event listeners, A2A retrieval, or auth, not as build warnings.
+- as `IL2026` / `IL3050` warnings in a downstream `PublishAot=true` consumer's build
+  (e.g. safeguard-mcp), or
+- as runtime failures during live appliance regression (broken event listeners, A2A
+  retrieval, auth).
+
+**For changes touching `SafeguardDotNet/Serialization/`, `SafeguardJsonContext`, the
+`SafeguardJson` facade, any `JsonSerializer.*` site, or any SignalR `HubConnection`
+registration, the live appliance regression is the primary safety net.** Run the full
+PowerShell suite (see below) before declaring such a change done.
 
 ## Connecting to the appliance (PKCE vs Resource Owner Grant)
 
