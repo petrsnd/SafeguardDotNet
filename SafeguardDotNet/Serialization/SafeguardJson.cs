@@ -26,13 +26,23 @@ internal static class SafeguardJson
 
     /// <summary>
     /// Deserializes JSON into the specified type using the source-generated context.
+    /// Throws <see cref="SafeguardDotNetException"/> if the input is empty or deserializes to null,
+    /// so callers fail with an actionable error instead of an opaque <see cref="NullReferenceException"/>.
     /// </summary>
     /// <typeparam name="T">The type to deserialize into.</typeparam>
     /// <param name="json">The JSON string to deserialize.</param>
     /// <returns>The deserialized object.</returns>
     public static T Deserialize<T>(string json)
     {
-        return JsonSerializer.Deserialize(json, GetTypeInfo<T>());
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            throw new SafeguardDotNetException(
+                $"Cannot deserialize empty response into {typeof(T).Name}.");
+        }
+
+        var result = JsonSerializer.Deserialize(json, GetTypeInfo<T>());
+        return result ?? throw new SafeguardDotNetException(
+            $"Deserialization of {typeof(T).Name} produced null. Response body: {json}");
     }
 
     /// <summary>
