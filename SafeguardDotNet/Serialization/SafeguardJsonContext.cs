@@ -3,6 +3,7 @@
 namespace OneIdentity.SafeguardDotNet.Serialization;
 
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using OneIdentity.SafeguardDotNet.A2A;
@@ -24,6 +25,7 @@ using OneIdentity.SafeguardDotNet.A2A;
 [JsonSerializable(typeof(List<A2ARetrievableAccount>))]
 [JsonSerializable(typeof(List<ApiKeySecret>))]
 [JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(JsonElement))]
 internal partial class SafeguardJsonContext : JsonSerializerContext
 {
 }
