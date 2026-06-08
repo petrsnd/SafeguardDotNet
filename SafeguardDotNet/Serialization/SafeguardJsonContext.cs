@@ -13,19 +13,27 @@ using OneIdentity.SafeguardDotNet.A2A;
 /// Guarantees AOT-compatible, reflection-free serialization at compile time.
 /// </summary>
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
-[JsonSerializable(typeof(BrokeredAccessRequest))]
+
+// BCL / framework types
+[JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(Dictionary<string, string>))]
+[JsonSerializable(typeof(JsonElement))]
+
+// Authentication / connection DTOs
+[JsonSerializable(typeof(LoginResponse))]
+[JsonSerializable(typeof(JoinRequest))]
+
+// A2A DTOs
+[JsonSerializable(typeof(A2ARegistration))]
 [JsonSerializable(typeof(A2ARetrievableAccount))]
 [JsonSerializable(typeof(ApiKeySecret))]
-[JsonSerializable(typeof(LoginResponse))]
-[JsonSerializable(typeof(Dictionary<string, string>))]
-[JsonSerializable(typeof(JoinRequest))]
+[JsonSerializable(typeof(BrokeredAccessRequest))]
 [JsonSerializable(typeof(SshKey))]
-[JsonSerializable(typeof(A2ARegistration))]
+
+// A2A list shapes
 [JsonSerializable(typeof(List<A2ARegistration>))]
 [JsonSerializable(typeof(List<A2ARetrievableAccount>))]
 [JsonSerializable(typeof(List<ApiKeySecret>))]
-[JsonSerializable(typeof(string))]
-[JsonSerializable(typeof(JsonElement))]
 internal partial class SafeguardJsonContext : JsonSerializerContext
 {
 }
