@@ -387,9 +387,11 @@ Console.WriteLine(connection.InvokeMethod(Service.Notification, Method.Get, "Sta
 #### Create a New Linux Asset
 
 ```C#
+using System.Text.Json;
+
 // Assume connection is already made
 var json = connection.InvokeMethod(Service.Core, Method.Post, "Assets",
-    JsonConvert.SerializeObject(new {
+    JsonSerializer.Serialize(new {
         Name = "linux.blue.vas",
         NetworkAddress = "linux.blue.vas",
         Description = "A new linux asset",
@@ -402,15 +404,18 @@ Console.WriteLine(json);
 #### Create a New User and Set the Password
 
 ```C#
+using System.Text.Json;
+
 // Assume connection is already made
 var userJson = connection.InvokeMethod(Service.Core, Method.Post, "Users",
-    JsonConvert.SerializeObject(new {
+    JsonSerializer.Serialize(new {
         PrimaryAuthenticationProviderId = -1,
         UserName = "MyNewUser"
     }));
-var userObj = JsonConvert.DeserializeAnonymousType(userJson, new { Id = 0 });
-connection.InvokeMethod(Service.Core, Method.Put, $"Users/{userObj.Id}/Password",
-    JsonConvert.SerializeObject("MyNewUser123"));
+using var userDoc = JsonDocument.Parse(userJson);
+var userId = userDoc.RootElement.GetProperty("Id").GetInt32();
+connection.InvokeMethod(Service.Core, Method.Put, $"Users/{userId}/Password",
+    JsonSerializer.Serialize("MyNewUser123"));
 ```
 
 ## Using SafeguardDotNet from a New Visual Studio Code Project
