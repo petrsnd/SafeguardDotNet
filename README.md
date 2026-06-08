@@ -73,9 +73,10 @@ provides an opportunity for reacting programmatically to any data modification
 in Safeguard. Events are also supported for access request workflow and for
 A2A password changes.
 
-SafeguardDotNet uses RestSharp and Json.NET to call the Safeguard API. It
-includes calls to Serilog, and if your calling application provides a sink you
-will get log information automatically.
+SafeguardDotNet uses `HttpClient` and `System.Text.Json` (with source-generated
+serializers for trim/AOT friendliness) to call the Safeguard API. It includes
+calls to Serilog, and if your calling application provides a sink you will get
+log information automatically.
 
 ## Logging & diagnostics
 
