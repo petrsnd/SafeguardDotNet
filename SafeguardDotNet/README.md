@@ -34,6 +34,12 @@ SafeguardDotNet provides a comprehensive .NET SDK for interacting with the One I
   - Built-in logging via Serilog integration
   - Comprehensive error handling with `SafeguardDotNetException`
 
+- **Modern Serialization (v9.0+)**
+  - `System.Text.Json` with source-generated serializers
+  - Trim- and Native-AOT-friendly: usable from `PublishAot=true` consumers
+  - Reduced dependency footprint — no Newtonsoft.Json, no RestSharp,
+    no Microsoft.AspNet.WebApi.Client
+
 ## Quick Start
 
 ### Installation
@@ -103,7 +109,33 @@ Safeguard 7.X+ hosts both v3 and v4 APIs simultaneously.
 
 ## Target Framework
 
-- **netstandard2.0** - Compatible with .NET Framework 4.6.1+, .NET Core 2.0+, .NET 5+, and .NET 6+
+- **netstandard2.0** — runs on .NET Framework 4.6.1+, .NET Core 2.0+, .NET 5/6/8/10+
+- Annotated for **trimming and Native AOT** so consumers publishing with
+  `PublishTrimmed=true` or `PublishAot=true` get a clean build with no
+  `IL2026` / `IL3050` warnings from the SDK
+
+## Upgrading to 9.0
+
+Version 9.0 replaces Newtonsoft.Json with `System.Text.Json` throughout the
+SDK. Most callers are unaffected, but a few public surface changes are
+source-breaking:
+
+- `A2ARegistration.Id` is now `int` (was `string`) to match the API contract.
+- `Safeguard.PostLoginResponseAsync` now returns `string` instead of
+  `Newtonsoft.Json.Linq.JObject`. This is an rSTS plumbing helper used
+  internally by the login modules — most consumers go through
+  `Safeguard.Connect(...)` or `ExchangeRstsTokenForConnectionAsync` and are
+  unaffected. Direct callers can parse the response with
+  `JsonDocument.Parse(...)` or a typed deserialization of their choice.
+- `Newtonsoft.Json` and `Microsoft.AspNet.WebApi.Client` are no longer
+  transitive dependencies — if your project relied on them implicitly, add an
+  explicit `PackageReference`.
+
+Bug fixes shipped alongside the migration:
+
+- `UtcDateTimeJsonConverter` now returns `DateTime` values in UTC.
+- `CustomTimeSpanJsonConverter` correctly parses the appliance's `D:H:M`
+  `TimeSpan` format.
 
 ## Documentation
 
